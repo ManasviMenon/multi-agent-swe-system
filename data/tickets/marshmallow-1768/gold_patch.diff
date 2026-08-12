@@ -1,0 +1,110 @@
+diff --git a/src/marshmallow/fields.py b/src/marshmallow/fields.py
+index 6b3699b31..f6a208e35 100644
+--- a/src/marshmallow/fields.py
++++ b/src/marshmallow/fields.py
+@@ -25,7 +25,7 @@
+     StringNotCollectionError,
+     FieldInstanceResolutionError,
+ )
+-from marshmallow.validate import Validator, Length
++from marshmallow.validate import And, Length
+ from marshmallow.warnings import RemovedInMarshmallow4Warning
+ 
+ __all__ = [
+@@ -242,21 +242,11 @@ def _validate(self, value):
+         """Perform validation on ``value``. Raise a :exc:`ValidationError` if validation
+         does not succeed.
+         """
+-        errors = []
+-        kwargs = {}
+-        for validator in self.validators:
+-            try:
+-                r = validator(value)
+-                if not isinstance(validator, Validator) and r is False:
+-                    raise self.make_error("validator_failed")
+-            except ValidationError as err:
+-                kwargs.update(err.kwargs)
+-                if isinstance(err.messages, dict):
+-                    errors.append(err.messages)
+-                else:
+-                    errors.extend(err.messages)
+-        if errors:
+-            raise ValidationError(errors, **kwargs)
++        self._validate_all(value)
++
++    @property
++    def _validate_all(self):
++        return And(*self.validators, error=self.error_messages["validator_failed"])
+ 
+     def make_error(self, key: str, **kwargs) -> ValidationError:
+         """Helper method to make a `ValidationError` with an error message
+diff --git a/src/marshmallow/types.py b/src/marshmallow/types.py
+index 64f1d60c3..7626994a1 100644
+--- a/src/marshmallow/types.py
++++ b/src/marshmallow/types.py
+@@ -8,3 +8,4 @@
+ 
+ StrSequenceOrSet = typing.Union[typing.Sequence[str], typing.Set[str]]
+ Tag = typing.Union[str, typing.Tuple[str, bool]]
++Validator = typing.Callable[[typing.Any], typing.Any]
+diff --git a/src/marshmallow/validate.py b/src/marshmallow/validate.py
+index 4e19c056a..9c637fc92 100644
+--- a/src/marshmallow/validate.py
++++ b/src/marshmallow/validate.py
+@@ -40,6 +40,56 @@ def __call__(self, value: typing.Any) -> typing.Any:
+         ...
+ 
+ 
++class And(Validator):
++    """Compose multiple validators and combine their error messages.
++
++    Example: ::
++
++        from marshmallow import validate, ValidationError
++
++        def is_even(value):
++            if value % 2 != 0:
++                raise ValidationError("Not an even value.")
++
++        validator = validate.And(validate.Range(min=0), is_even)
++        validator(-1)
++        # ValidationError: ['Must be greater than or equal to 0.', 'Not an even value.']
++
++    :param validators: Validators to combine.
++    :param error: Error message to use when a validator returns ``False``.
++    """
++
++    default_error_message = "Invalid value."
++
++    def __init__(
++        self, *validators: types.Validator, error: typing.Optional[str] = None
++    ):
++        self.validators = tuple(validators)
++        self.error = error or self.default_error_message  # type: str
++
++    def _repr_args(self) -> str:
++        return "validators={!r}".format(self.validators)
++
++    def __call__(self, value: typing.Any) -> typing.Any:
++        errors = []
++        kwargs = {}
++        for validator in self.validators:
++            try:
++                r = validator(value)
++                if not isinstance(validator, Validator) and r is False:
++                    raise ValidationError(self.error)
++            except ValidationError as err:
++                kwargs.update(err.kwargs)
++                if isinstance(err.messages, dict):
++                    errors.append(err.messages)
++                else:
++                    # FIXME : Get rid of cast
++                    errors.extend(typing.cast(list, err.messages))
++        if errors:
++            raise ValidationError(errors, **kwargs)
++        return value
++
++
+ class URL(Validator):
+     """Validate a URL.
+ 

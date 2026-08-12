@@ -1,0 +1,6 @@
+pytest
+pytest-json-report
+simplejson
+tzdata
+pytz
+setuptools

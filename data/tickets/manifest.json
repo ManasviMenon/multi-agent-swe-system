@@ -1,0 +1,177 @@
+[
+  {
+    "ticket_id": "marshmallow-2985",
+    "pr_number": 2994,
+    "issue_number": 2985,
+    "title": "Question: Should `fields.Enum()` accept `None` when an enum member has value `None`?",
+    "base_commit": "3265c13945a9533f9a3ade8d47eb9b32412c4c27"
+  },
+  {
+    "ticket_id": "marshmallow-2936",
+    "pr_number": 2937,
+    "issue_number": 2936,
+    "title": "Update Email validator to support IDNs",
+    "base_commit": "4acb783c73130f762aa5b0df6b65ff7685d5ff2c"
+  },
+  {
+    "ticket_id": "marshmallow-2821",
+    "pr_number": 2928,
+    "issue_number": 2821,
+    "title": "There is not way to make `marshmallow.validate.URL` accept IDNs (Internationalized Domain Names)",
+    "base_commit": "28f911b1240f127cc37b0d400a47e3ae5d573faa"
+  },
+  {
+    "ticket_id": "marshmallow-2924",
+    "pr_number": 2925,
+    "issue_number": 2924,
+    "title": "Make fields.Number abstract",
+    "base_commit": "546be2f728faca68a88130a6406c20994355c853"
+  },
+  {
+    "ticket_id": "marshmallow-2900",
+    "pr_number": 2901,
+    "issue_number": 2900,
+    "title": "`fields.Constant` with `required=True` flag raised `load_default` warning",
+    "base_commit": "fea5428567960f15be0c9a3a4b99c0d9bb63848c"
+  },
+  {
+    "ticket_id": "marshmallow-2868",
+    "pr_number": 2894,
+    "issue_number": 2868,
+    "title": "`fields.Constant` rejects `None` constant values during load",
+    "base_commit": "213ee3a020e24fb26ead3a2285ba0402c90080ce"
+  },
+  {
+    "ticket_id": "marshmallow-2870",
+    "pr_number": 2874,
+    "issue_number": 2870,
+    "title": "`URL` validator treats custom schemes case-sensitively",
+    "base_commit": "880d87f6acc389aa80c223dae4013f7eed05ab13"
+  },
+  {
+    "ticket_id": "marshmallow-2249",
+    "pr_number": 2800,
+    "issue_number": 2249,
+    "title": "`fields.Url` does not accept `file` URLs without host",
+    "base_commit": "ea26aeb08c37c4e4c5bd323689c873d14f13d58d"
+  },
+  {
+    "ticket_id": "marshmallow-1369",
+    "pr_number": 2715,
+    "issue_number": 1369,
+    "title": "Rename pass_many to pass_collection",
+    "base_commit": "a33a5f7a6c7ac961d216dbd27aa78f30e171ba54"
+  },
+  {
+    "ticket_id": "marshmallow-2270",
+    "pr_number": 2271,
+    "issue_number": 2270,
+    "title": "Setting many=True through Meta - SchemaOpts",
+    "base_commit": "7609530d0a61e6e5ba89769897e2b1908b881a50"
+  },
+  {
+    "ticket_id": "marshmallow-2227",
+    "pr_number": 2229,
+    "issue_number": 2227,
+    "title": "Deprecate __version__ and related attributes",
+    "base_commit": "300f9659d65b9950ec773412199755c22e0d5739"
+  },
+  {
+    "ticket_id": "marshmallow-2149",
+    "pr_number": 2150,
+    "issue_number": 2149,
+    "title": "Nested partial not working as expected",
+    "base_commit": "819749204b9a7271c189401e5f5aa00cab624514"
+  },
+  {
+    "ticket_id": "marshmallow-2118",
+    "pr_number": 2123,
+    "issue_number": 2118,
+    "title": "fields.URL should allow relative-only validation",
+    "base_commit": "b9f709723a547a93695506a272221373bdcd7286"
+  },
+  {
+    "ticket_id": "marshmallow-1721",
+    "pr_number": 1989,
+    "issue_number": 1721,
+    "title": "Is it intentional that setting parameter unknown=<any non-empty string> behaves the same as unknown=EXCLUDE?",
+    "base_commit": "66e45e172e8c055ebc3f76ebec592ac7e79f4820"
+  },
+  {
+    "ticket_id": "marshmallow-1808",
+    "pr_number": 1810,
+    "issue_number": 1808,
+    "title": "3.12 no longer supports fields named `parent`",
+    "base_commit": "23d0551569d748460c504af85996451edd685371"
+  },
+  {
+    "ticket_id": "marshmallow-1768",
+    "pr_number": 1777,
+    "issue_number": 1768,
+    "title": "And validator",
+    "base_commit": "1be1b0cd7cacb42b0d547c3e9bc0d94704bbed1e"
+  },
+  {
+    "ticket_id": "marshmallow-1506",
+    "pr_number": 1745,
+    "issue_number": 1506,
+    "title": "JSON deserialization converts dots in field names to deep dictionaries.",
+    "base_commit": "b297db947282c1c1dbef2d1ab35830a87daa421f"
+  },
+  {
+    "ticket_id": "marshmallow-1350",
+    "pr_number": 1702,
+    "issue_number": 1350,
+    "title": "RFC: Change the way we store metadata?",
+    "base_commit": "2993bf0372ab8bd41ec229131a4898d8faee04a1"
+  },
+  {
+    "ticket_id": "marshmallow-1424",
+    "pr_number": 1503,
+    "issue_number": 1424,
+    "title": "List(Pluck()) raises while Pluck(many=True) works",
+    "base_commit": "807af213031efd6f24b9a040e8cc50b5954126d0"
+  },
+  {
+    "ticket_id": "marshmallow-1404",
+    "pr_number": 1405,
+    "issue_number": 1404,
+    "title": "Error when unpickleable object in nested schema's context",
+    "base_commit": "116af59eb13c4bcf7493c2676f955c882f05de8c"
+  },
+  {
+    "ticket_id": "marshmallow-1384",
+    "pr_number": 1385,
+    "issue_number": 1384,
+    "title": "Dotted `only` and `exclude` not working for nested schema instances",
+    "base_commit": "8b3a32614fd4a74e93e9a63a042e74c1fea34466"
+  },
+  {
+    "ticket_id": "marshmallow-1378",
+    "pr_number": 1379,
+    "issue_number": 1378,
+    "title": "Empty string data_key disallowed",
+    "base_commit": "34edef41d53d73791b54e514006349045829ca45"
+  },
+  {
+    "ticket_id": "marshmallow-1357",
+    "pr_number": 1359,
+    "issue_number": 1357,
+    "title": "3.0: DateTime fields cannot be used as inner field for List or Tuple fields",
+    "base_commit": "b40a0f4e33823e6d0f341f7e8684e359a99060d1"
+  },
+  {
+    "ticket_id": "marshmallow-1312",
+    "pr_number": 1322,
+    "issue_number": 1312,
+    "title": "Add a way to generate a Schema from a dictionary",
+    "base_commit": "51238065d87d788532e50894ea52dafee1c97753"
+  },
+  {
+    "ticket_id": "marshmallow-946",
+    "pr_number": 1229,
+    "issue_number": 946,
+    "title": "`only` argument inconsistent between Nested(S, many=True) and List(Nested(S))",
+    "base_commit": "3db79d2b16fd732d97054053c698aedfebaf70ee"
+  }
+]

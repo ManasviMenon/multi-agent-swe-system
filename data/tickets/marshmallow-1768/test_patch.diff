@@ -1,0 +1,46 @@
+diff --git a/tests/test_deserialization.py b/tests/test_deserialization.py
+index 911cb1743..3abe99a9e 100644
+--- a/tests/test_deserialization.py
++++ b/tests/test_deserialization.py
+@@ -823,6 +823,11 @@ def test_email_field_deserialization(self):
+             field.deserialize("invalidemail")
+         assert excinfo.value.args[0][0] == "Not a valid email address."
+ 
++        field = fields.Email(validate=[validate.Length(min=12)])
++        with pytest.raises(ValidationError) as excinfo:
++            field.deserialize("foo@bar.com")
++        assert excinfo.value.args[0][0] == "Shorter than minimum length 12."
++
+     # regression test for https://github.com/marshmallow-code/marshmallow/issues/1400
+     def test_email_field_non_list_validators(self):
+         field = fields.Email(validate=(validate.Length(min=9),))
+diff --git a/tests/test_validate.py b/tests/test_validate.py
+index 461215f97..0dc70c1e3 100644
+--- a/tests/test_validate.py
++++ b/tests/test_validate.py
+@@ -890,3 +890,25 @@ def test_containsnoneof_mixing_types():
+ 
+     with pytest.raises(ValidationError):
+         validate.ContainsNoneOf([1, 2, 3])((1,))
++
++
++def is_even(value):
++    if value % 2 != 0:
++        raise ValidationError("Not an even value.")
++
++
++def test_and():
++    validator = validate.And(validate.Range(min=0), is_even)
++    assert validator(2)
++    with pytest.raises(ValidationError) as excinfo:
++        validator(-1)
++    errors = excinfo.value.messages
++    assert errors == ["Must be greater than or equal to 0.", "Not an even value."]
++
++    validator_with_composition = validate.And(validator, validate.Range(max=6))
++    assert validator_with_composition(4)
++    with pytest.raises(ValidationError) as excinfo:
++        validator_with_composition(7)
++
++    errors = excinfo.value.messages
++    assert errors == ["Not an even value.", "Must be less than or equal to 6."]

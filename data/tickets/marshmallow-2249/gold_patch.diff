@@ -1,0 +1,28 @@
+diff --git a/src/marshmallow/validate.py b/src/marshmallow/validate.py
+index 98e181ac9..d56912a3b 100644
+--- a/src/marshmallow/validate.py
++++ b/src/marshmallow/validate.py
+@@ -216,6 +216,7 @@ def __call__(self, value: str) -> str:
+             raise ValidationError(message)
+ 
+         # Check first if the scheme is valid
++        scheme = None
+         if "://" in value:
+             scheme = value.split("://")[0].lower()
+             if scheme not in self.schemes:
+@@ -225,7 +226,14 @@ def __call__(self, value: str) -> str:
+             relative=self.relative, absolute=self.absolute, require_tld=self.require_tld
+         )
+ 
+-        if not regex.search(value):
++        # Hostname is optional for file URLS. If absent it means `localhost`.
++        # Fill it in for the validation if needed
++        if scheme == "file" and value.startswith("file:///"):
++            matched = regex.search(value.replace("file:///", "file://localhost/", 1))
++        else:
++            matched = regex.search(value)
++
++        if not matched:
+             raise ValidationError(message)
+ 
+         return value

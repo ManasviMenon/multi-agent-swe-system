@@ -1,0 +1,26 @@
+diff --git a/tests/test_deserialization.py b/tests/test_deserialization.py
+index 6a2c7a87b..29cab67b7 100644
+--- a/tests/test_deserialization.py
++++ b/tests/test_deserialization.py
+@@ -2236,6 +2236,21 @@ class SchemaB(Schema):
+         with pytest.raises(ValidationError):
+             SchemaB().load(b_dict, partial=("z.y",))
+ 
++    def test_nested_partial_default(self):
++        class SchemaA(Schema):
++            x = fields.Integer(required=True)
++            y = fields.Integer(required=True)
++
++        class SchemaB(Schema):
++            z = fields.Nested(SchemaA(partial=("x",)))
++
++        b_dict = {"z": {"y": 42}}
++        # Nested partial args should be respected.
++        result = SchemaB().load(b_dict)
++        assert result["z"]["y"] == 42
++        with pytest.raises(ValidationError):
++            SchemaB().load({"z": {"x": 0}})
++
+ 
+ @pytest.mark.parametrize("FieldClass", ALL_FIELDS)
+ def test_required_field_failure(FieldClass):  # noqa

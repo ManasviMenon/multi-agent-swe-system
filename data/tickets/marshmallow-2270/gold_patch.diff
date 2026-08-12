@@ -1,0 +1,38 @@
+diff --git a/src/marshmallow/schema.py b/src/marshmallow/schema.py
+index 4f2d0c768..99210ce72 100644
+--- a/src/marshmallow/schema.py
++++ b/src/marshmallow/schema.py
+@@ -227,6 +227,7 @@ def __init__(self, meta, ordered: bool = False):
+         self.dump_only = getattr(meta, "dump_only", ())
+         self.unknown = validate_unknown_parameter_value(getattr(meta, "unknown", RAISE))
+         self.register = getattr(meta, "register", True)
++        self.many = getattr(meta, "many", False)
+ 
+ 
+ class Schema(base.SchemaABC, metaclass=SchemaMeta):
+@@ -343,6 +344,7 @@ class Meta:
+             `OrderedDict`.
+         - ``exclude``: Tuple or list of fields to exclude in the serialized result.
+             Nested fields can be represented with dot delimiters.
++        - ``many``: Whether the data is a collection by default.
+         - ``dateformat``: Default format for `Date <fields.Date>` fields.
+         - ``datetimeformat``: Default format for `DateTime <fields.DateTime>` fields.
+         - ``timeformat``: Default format for `Time <fields.Time>` fields.
+@@ -366,7 +368,7 @@ def __init__(
+         *,
+         only: types.StrSequenceOrSet | None = None,
+         exclude: types.StrSequenceOrSet = (),
+-        many: bool = False,
++        many: bool | None = None,
+         context: dict | None = None,
+         load_only: types.StrSequenceOrSet = (),
+         dump_only: types.StrSequenceOrSet = (),
+@@ -380,7 +382,7 @@ def __init__(
+             raise StringNotCollectionError('"exclude" should be a list of strings')
+         # copy declared fields from metaclass
+         self.declared_fields = copy.deepcopy(self._declared_fields)
+-        self.many = many
++        self.many = self.opts.many if many is None else many
+         self.only = only
+         self.exclude: set[typing.Any] | typing.MutableSet[typing.Any] = set(
+             self.opts.exclude

@@ -1,0 +1,350 @@
+diff --git a/docs/extending.rst b/docs/extending.rst
+index ce736c092..582e07f3e 100644
+--- a/docs/extending.rst
++++ b/docs/extending.rst
+@@ -33,7 +33,7 @@ Passing "many"
+ 
+ By default, pre- and post-processing methods receive one object/datum at a time, transparently handling the ``many`` parameter passed to the ``Schema``'s :func:`~marshmallow.Schema.dump`/:func:`~marshmallow.Schema.load` method at runtime.
+ 
+-In cases where your pre- and post-processing methods needs to handle the input collection when processing multiple objects, add ``pass_many=True`` to the method decorators.
++In cases where your pre- and post-processing methods needs to handle the input collection when processing multiple objects, add ``pass_collection=True`` to the method decorators.
+ 
+ Your method will then receive the input data (which may be a single datum or a collection, depending on the dump/load call).
+ 
+@@ -58,12 +58,12 @@ One common use case is to wrap data in a namespace upon serialization and unwrap
+             assert key is not None, "Envelope key undefined"
+             return key
+ 
+-        @pre_load(pass_many=True)
++        @pre_load(pass_collection=True)
+         def unwrap_envelope(self, data, many, **kwargs):
+             key = self.get_envelope_key(many)
+             return data[key]
+ 
+-        @post_dump(pass_many=True)
++        @post_dump(pass_collection=True)
+         def wrap_with_envelope(self, data, many, **kwargs):
+             key = self.get_envelope_key(many)
+             return {key: data}
+@@ -157,21 +157,21 @@ Pre-/Post-processor Invocation Order
+ 
+ In summary, the processing pipeline for deserialization is as follows:
+ 
+-1. ``@pre_load(pass_many=True)`` methods
+-2. ``@pre_load(pass_many=False)`` methods
++1. ``@pre_load(pass_collection=True)`` methods
++2. ``@pre_load(pass_collection=False)`` methods
+ 3. ``load(in_data, many)`` (validation and deserialization)
+ 4. ``@validates`` methods (field validators)
+ 5. ``@validates_schema`` methods (schema validators)
+-6. ``@post_load(pass_many=True)`` methods
+-7. ``@post_load(pass_many=False)`` methods
++6. ``@post_load(pass_collection=True)`` methods
++7. ``@post_load(pass_collection=False)`` methods
+ 
+-The pipeline for serialization is similar, except that the ``pass_many=True`` processors are invoked *after* the ``pass_many=False`` processors and there are no validators.
++The pipeline for serialization is similar, except that the ``pass_collection=True`` processors are invoked *after* the ``pass_collection=False`` processors and there are no validators.
+ 
+-1. ``@pre_dump(pass_many=False)`` methods
+-2. ``@pre_dump(pass_many=True)`` methods
++1. ``@pre_dump(pass_collection=False)`` methods
++2. ``@pre_dump(pass_collection=True)`` methods
+ 3. ``dump(obj, many)`` (serialization)
+-4. ``@post_dump(pass_many=False)`` methods
+-5. ``@post_dump(pass_many=True)`` methods
++4. ``@post_dump(pass_collection=False)`` methods
++5. ``@post_dump(pass_collection=True)`` methods
+ 
+ 
+ .. warning::
+@@ -432,12 +432,12 @@ Then we create a custom :class:`Schema` that uses our options class.
+     class NamespacedSchema(Schema):
+         OPTIONS_CLASS = NamespaceOpts
+ 
+-        @pre_load(pass_many=True)
++        @pre_load(pass_collection=True)
+         def unwrap_envelope(self, data, many, **kwargs):
+             key = self.opts.plural_name if many else self.opts.name
+             return data[key]
+ 
+-        @post_dump(pass_many=True)
++        @post_dump(pass_collection=True)
+         def wrap_with_envelope(self, data, many, **kwargs):
+             key = self.opts.plural_name if many else self.opts.name
+             return {key: data}
+diff --git a/examples/peewee_example.py b/examples/peewee_example.py
+index c2c4d37a4..772414a15 100644
+--- a/examples/peewee_example.py
++++ b/examples/peewee_example.py
+@@ -66,7 +66,7 @@ def process_input(self, data, **kwargs):
+         return data
+ 
+     # We add a post_dump hook to add an envelope to responses
+-    @post_dump(pass_many=True)
++    @post_dump(pass_collection=True)
+     def wrap(self, data, many, **kwargs):
+         key = "users" if many else "user"
+         return {key: data}
+@@ -80,7 +80,7 @@ class TodoSchema(Schema):
+     posted_on = fields.DateTime(dump_only=True)
+ 
+     # Again, add an envelope to responses
+-    @post_dump(pass_many=True)
++    @post_dump(pass_collection=True)
+     def wrap(self, data, many, **kwargs):
+         key = "todos" if many else "todo"
+         return {key: data}
+diff --git a/src/marshmallow/decorators.py b/src/marshmallow/decorators.py
+index 965edb68b..45d3355f0 100644
+--- a/src/marshmallow/decorators.py
++++ b/src/marshmallow/decorators.py
+@@ -35,12 +35,12 @@ def lowerstrip_email(self, item, many, **kwargs):
+             item["email"] = item["email"].lower().strip()
+             return item
+ 
+-        @pre_load(pass_many=True)
++        @pre_load(pass_collection=True)
+         def remove_envelope(self, data, many, **kwargs):
+             namespace = "results" if many else "result"
+             return data[namespace]
+ 
+-        @post_dump(pass_many=True)
++        @post_dump(pass_collection=True)
+         def add_envelope(self, data, many, **kwargs):
+             namespace = "results" if many else "result"
+             return {namespace: data}
+@@ -93,7 +93,7 @@ def validates(field_name: str) -> Callable[..., Any]:
+ 
+ def validates_schema(
+     fn: Callable[..., Any] | None = None,
+-    pass_many: bool = False,
++    pass_collection: bool = False,
+     pass_original: bool = False,
+     skip_on_field_errors: bool = True,
+ ) -> Callable[..., Any]:
+@@ -101,7 +101,7 @@ def validates_schema(
+ 
+     By default it receives a single object at a time, transparently handling the ``many``
+     argument passed to the `Schema`'s :func:`~marshmallow.Schema.validate` call.
+-    If ``pass_many=True``, the raw data (which may be a collection) is passed.
++    If ``pass_collection=True``, the raw data (which may be a collection) is passed.
+ 
+     If ``pass_original=True``, the original data (before unmarshalling) will be passed as
+     an additional argument to the method.
+@@ -119,31 +119,31 @@ def validates_schema(
+     return set_hook(
+         fn,
+         VALIDATES_SCHEMA,
+-        many=pass_many,
++        many=pass_collection,
+         pass_original=pass_original,
+         skip_on_field_errors=skip_on_field_errors,
+     )
+ 
+ 
+ def pre_dump(
+-    fn: Callable[..., Any] | None = None, pass_many: bool = False
++    fn: Callable[..., Any] | None = None, pass_collection: bool = False
+ ) -> Callable[..., Any]:
+     """Register a method to invoke before serializing an object. The method
+     receives the object to be serialized and returns the processed object.
+ 
+     By default it receives a single object at a time, transparently handling the ``many``
+     argument passed to the `Schema`'s :func:`~marshmallow.Schema.dump` call.
+-    If ``pass_many=True``, the raw data (which may be a collection) is passed.
++    If ``pass_collection=True``, the raw data (which may be a collection) is passed.
+ 
+     .. versionchanged:: 3.0.0
+         ``many`` is always passed as a keyword arguments to the decorated method.
+     """
+-    return set_hook(fn, PRE_DUMP, many=pass_many)
++    return set_hook(fn, PRE_DUMP, many=pass_collection)
+ 
+ 
+ def post_dump(
+     fn: Callable[..., Any] | None = None,
+-    pass_many: bool = False,
++    pass_collection: bool = False,
+     pass_original: bool = False,
+ ) -> Callable[..., Any]:
+     """Register a method to invoke after serializing an object. The method
+@@ -151,7 +151,7 @@ def post_dump(
+ 
+     By default it receives a single object at a time, transparently handling the ``many``
+     argument passed to the `Schema`'s :func:`~marshmallow.Schema.dump` call.
+-    If ``pass_many=True``, the raw data (which may be a collection) is passed.
++    If ``pass_collection=True``, the raw data (which may be a collection) is passed.
+ 
+     If ``pass_original=True``, the original data (before serializing) will be passed as
+     an additional argument to the method.
+@@ -159,29 +159,29 @@ def post_dump(
+     .. versionchanged:: 3.0.0
+         ``many`` is always passed as a keyword arguments to the decorated method.
+     """
+-    return set_hook(fn, POST_DUMP, many=pass_many, pass_original=pass_original)
++    return set_hook(fn, POST_DUMP, many=pass_collection, pass_original=pass_original)
+ 
+ 
+ def pre_load(
+-    fn: Callable[..., Any] | None = None, pass_many: bool = False
++    fn: Callable[..., Any] | None = None, pass_collection: bool = False
+ ) -> Callable[..., Any]:
+     """Register a method to invoke before deserializing an object. The method
+     receives the data to be deserialized and returns the processed data.
+ 
+     By default it receives a single object at a time, transparently handling the ``many``
+     argument passed to the `Schema`'s :func:`~marshmallow.Schema.load` call.
+-    If ``pass_many=True``, the raw data (which may be a collection) is passed.
++    If ``pass_collection=True``, the raw data (which may be a collection) is passed.
+ 
+     .. versionchanged:: 3.0.0
+         ``partial`` and ``many`` are always passed as keyword arguments to
+         the decorated method.
+     """
+-    return set_hook(fn, PRE_LOAD, many=pass_many)
++    return set_hook(fn, PRE_LOAD, many=pass_collection)
+ 
+ 
+ def post_load(
+     fn: Callable[..., Any] | None = None,
+-    pass_many: bool = False,
++    pass_collection: bool = False,
+     pass_original: bool = False,
+ ) -> Callable[..., Any]:
+     """Register a method to invoke after deserializing an object. The method
+@@ -189,7 +189,7 @@ def post_load(
+ 
+     By default it receives a single object at a time, transparently handling the ``many``
+     argument passed to the `Schema`'s :func:`~marshmallow.Schema.load` call.
+-    If ``pass_many=True``, the raw data (which may be a collection) is passed.
++    If ``pass_collection=True``, the raw data (which may be a collection) is passed.
+ 
+     If ``pass_original=True``, the original data (before deserializing) will be passed as
+     an additional argument to the method.
+@@ -198,7 +198,7 @@ def post_load(
+         ``partial`` and ``many`` are always passed as keyword arguments to
+         the decorated method.
+     """
+-    return set_hook(fn, POST_LOAD, many=pass_many, pass_original=pass_original)
++    return set_hook(fn, POST_LOAD, many=pass_collection, pass_original=pass_original)
+ 
+ 
+ def set_hook(
+diff --git a/src/marshmallow/schema.py b/src/marshmallow/schema.py
+index ba2a56f76..0d24b5203 100644
+--- a/src/marshmallow/schema.py
++++ b/src/marshmallow/schema.py
+@@ -817,7 +817,7 @@ def _do_load(
+                 field_errors = bool(error_store.errors)
+                 self._invoke_schema_validators(
+                     error_store=error_store,
+-                    pass_many=True,
++                    pass_collection=True,
+                     data=result,
+                     original_data=data,
+                     many=many,
+@@ -826,7 +826,7 @@ def _do_load(
+                 )
+                 self._invoke_schema_validators(
+                     error_store=error_store,
+-                    pass_many=False,
++                    pass_collection=False,
+                     data=result,
+                     original_data=data,
+                     many=many,
+@@ -999,14 +999,18 @@ def _bind_field(self, field_name: str, field_obj: ma_fields.Field) -> None:
+     def _invoke_dump_processors(
+         self, tag: str, data, *, many: bool, original_data=None
+     ):
+-        # The pass_many post-dump processors may do things like add an envelope, so
+-        # invoke those after invoking the non-pass_many processors which will expect
++        # The pass_collection post-dump processors may do things like add an envelope, so
++        # invoke those after invoking the non-pass_collection processors which will expect
+         # to get a list of items.
+         data = self._invoke_processors(
+-            tag, pass_many=False, data=data, many=many, original_data=original_data
++            tag,
++            pass_collection=False,
++            data=data,
++            many=many,
++            original_data=original_data,
+         )
+         data = self._invoke_processors(
+-            tag, pass_many=True, data=data, many=many, original_data=original_data
++            tag, pass_collection=True, data=data, many=many, original_data=original_data
+         )
+         return data
+ 
+@@ -1019,11 +1023,11 @@ def _invoke_load_processors(
+         original_data,
+         partial: bool | types.StrSequenceOrSet | None,
+     ):
+-        # This has to invert the order of the dump processors, so run the pass_many
++        # This has to invert the order of the dump processors, so run the pass_collection
+         # processors first.
+         data = self._invoke_processors(
+             tag,
+-            pass_many=True,
++            pass_collection=True,
+             data=data,
+             many=many,
+             original_data=original_data,
+@@ -1031,7 +1035,7 @@ def _invoke_load_processors(
+         )
+         data = self._invoke_processors(
+             tag,
+-            pass_many=False,
++            pass_collection=False,
+             data=data,
+             many=many,
+             original_data=original_data,
+@@ -1089,7 +1093,7 @@ def _invoke_schema_validators(
+         self,
+         *,
+         error_store: ErrorStore,
+-        pass_many: bool,
++        pass_collection: bool,
+         data,
+         original_data,
+         many: bool,
+@@ -1097,14 +1101,14 @@ def _invoke_schema_validators(
+         field_errors: bool = False,
+     ):
+         for attr_name, hook_many, validator_kwargs in self._hooks[VALIDATES_SCHEMA]:
+-            if hook_many != pass_many:
++            if hook_many != pass_collection:
+                 continue
+             validator = getattr(self, attr_name)
+             if field_errors and validator_kwargs["skip_on_field_errors"]:
+                 continue
+             pass_original = validator_kwargs.get("pass_original", False)
+ 
+-            if many and not pass_many:
++            if many and not pass_collection:
+                 for idx, (item, orig) in enumerate(zip(data, original_data)):
+                     self._run_validator(
+                         validator,
+@@ -1131,20 +1135,20 @@ def _invoke_processors(
+         self,
+         tag: str,
+         *,
+-        pass_many: bool,
++        pass_collection: bool,
+         data,
+         many: bool,
+         original_data=None,
+         **kwargs,
+     ):
+         for attr_name, hook_many, processor_kwargs in self._hooks[tag]:
+-            if hook_many != pass_many:
++            if hook_many != pass_collection:
+                 continue
+             # This will be a bound method.
+             processor = getattr(self, attr_name)
+             pass_original = processor_kwargs.get("pass_original", False)
+ 
+-            if many and not pass_many:
++            if many and not pass_collection:
+                 if pass_original:
+                     data = [
+                         processor(item, original, many=many, **kwargs)

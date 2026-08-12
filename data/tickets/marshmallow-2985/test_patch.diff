@@ -1,0 +1,47 @@
+diff --git a/tests/base.py b/tests/base.py
+index 07d3cc85b..91c7875ac 100644
+--- a/tests/base.py
++++ b/tests/base.py
+@@ -28,6 +28,11 @@ class HairColorEnum(Enum):
+     red = "red hair"
+ 
+ 
++class UltimatumEnum(Enum):
++    all = float("inf")
++    nothing = None
++
++
+ class DateEnum(Enum):
+     date_1 = dt.date(2004, 2, 29)
+     date_2 = dt.date(2008, 2, 29)
+@@ -57,6 +62,7 @@ class DateEnum(Enum):
+     functools.partial(fields.Enum, GenderEnum),
+     functools.partial(fields.Enum, HairColorEnum, by_value=fields.String),
+     functools.partial(fields.Enum, GenderEnum, by_value=fields.Integer),
++    functools.partial(fields.Enum, UltimatumEnum, allow_none=False),
+ ]
+ 
+ 
+diff --git a/tests/test_deserialization.py b/tests/test_deserialization.py
+index 2f449a4ed..eb7faa9ad 100644
+--- a/tests/test_deserialization.py
++++ b/tests/test_deserialization.py
+@@ -24,6 +24,7 @@
+     DateEnum,
+     GenderEnum,
+     HairColorEnum,
++    UltimatumEnum,
+     assert_date_equal,
+     assert_time_equal,
+     central,
+@@ -1281,6 +1282,10 @@ def test_enum_field_by_value_field_wrong_type(self):
+         with pytest.raises(ValidationError, match="Not a valid date."):
+             field.deserialize("30/02/2004")
+ 
++    def test_enum_by_value_allow_none_default(self):
++        field = fields.Enum(UltimatumEnum, by_value=True)
++        assert field.deserialize(None) is None
++
+     def test_deserialization_function_must_be_callable(self):
+         with pytest.raises(TypeError):
+             fields.Function(lambda x: None, deserialize="notvalid")
