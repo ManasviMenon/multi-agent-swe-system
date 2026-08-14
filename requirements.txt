@@ -4,3 +4,5 @@ simplejson
 tzdata
 pytz
 setuptools
+google-genai
+python-dotenv

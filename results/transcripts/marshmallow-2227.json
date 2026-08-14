@@ -1,0 +1,323 @@
+{
+  "ticket_id": "marshmallow-2227",
+  "candidate_diff": "",
+  "steps": [
+    {
+      "tool": "search_files",
+      "args": {
+        "path": "src/marshmallow",
+        "pattern": "__version__"
+      },
+      "result": {
+        "matches": [
+          "src\\marshmallow\\__init__.py:21: # TODO: Deprecate __version__?",
+          "src\\marshmallow\\__init__.py:22: __version__ = importlib.metadata.version(\"marshmallow\")",
+          "src\\marshmallow\\__init__.py:23: __parsed_version__ = Version(__version__)"
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "path": ".",
+        "pattern": "packaging"
+      },
+      "result": {
+        "matches": [
+          "examples\\package_json_example.py:5: from packaging import version",
+          "src\\marshmallow\\__init__.py:5: from packaging.version import Version"
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "__parsed_version__",
+        "path": "."
+      },
+      "result": {
+        "matches": [
+          "src\\marshmallow\\__init__.py:23: __parsed_version__ = Version(__version__)",
+          "src\\marshmallow\\__init__.py:26: ] = __parsed_version__.release  # type: ignore[assignment]",
+          "src\\marshmallow\\__init__.py:27: if __parsed_version__.pre:",
+          "src\\marshmallow\\__init__.py:28: __version_info__ += __parsed_version__.pre  # type: ignore[assignment]"
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "path": ".",
+        "pattern": "__version_info__"
+      },
+      "result": {
+        "matches": [
+          "src\\marshmallow\\__init__.py:24: __version_info__: tuple[int, int, int] | tuple[",
+          "src\\marshmallow\\__init__.py:28: __version_info__ += __parsed_version__.pre  # type: ignore[assignment]"
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "__release__",
+        "path": "."
+      },
+      "result": {
+        "matches": []
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "version_info",
+        "path": "."
+      },
+      "result": {
+        "matches": [
+          "src\\marshmallow\\__init__.py:24: __version_info__: tuple[int, int, int] | tuple[",
+          "src\\marshmallow\\__init__.py:28: __version_info__ += __parsed_version__.pre  # type: ignore[assignment]"
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "path": "tests",
+        "pattern": "version"
+      },
+      "result": {
+        "matches": []
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "list_directory",
+      "args": {
+        "path": "."
+      },
+      "result": {
+        "entries": [
+          ".git",
+          ".github/",
+          ".gitignore",
+          ".pre-commit-config.yaml",
+          ".readthedocs.yml",
+          "AUTHORS.rst",
+          "CHANGELOG.rst",
+          "CODE_OF_CONDUCT.md",
+          "CONTRIBUTING.rst",
+          "LICENSE",
+          "NOTICE",
+          "README.rst",
+          "RELEASING.md",
+          "SECURITY.md",
+          "docs/",
+          "examples/",
+          "performance/",
+          "pyproject.toml",
+          "src/",
+          "tests/",
+          "tox.ini"
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "pyproject.toml"
+      },
+      "result": {
+        "content": "[project]\nname = \"marshmallow\"\nversion = \"3.20.2\"\ndescription = \"A lightweight library for converting complex datatypes to and from native Python datatypes.\"\nreadme = \"README.rst\"\nlicense = { file = \"LICENSE\" }\nauthors = [{ name = \"Steven Loria\", email = \"sloria1@gmail.com\" }]\nmaintainers = [\n  { name = \"Steven Loria\", email = \"sloria1@gmail.com\" },\n  { name = \"J\u00e9r\u00f4me Lafr\u00e9choux\", email = \"jerome@jolimont.fr\" },\n  { name = \"Jared Deckard\", email = \"jared@shademaps.com\" },\n]\nclassifiers = [\n  \"Development Status :: 5 - Production/Stable\",\n  \"Intended Audience :: Developers\",\n  \"License :: OSI Approved :: MIT License\",\n  \"Programming Language :: Python :: 3\",\n  \"Programming Language :: Python :: 3.8\",\n  \"Programming Language :: Python :: 3.9\",\n  \"Programming Language :: Python :: 3.10\",\n  \"Programming Language :: Python :: 3.11\",\n  \"Programming Language :: Python :: 3.12\",\n]\nrequires-python = \">=3.8\"\ndependencies = [\"packaging>=17.0\"]\n\n[project.urls]\nChangelog = \"https://marshmallow.readthedocs.io/en/latest/changelog.html\"\nFunding = \"https://opencollective.com/marshmallow\"\nIssues = \"https://github.com/marshmallow-code/marshmallow/issues\"\nSource = \"https://github.com/marshmallow-code/marshmallow\"\nTidelift = \"https://tidelift.com/subscription/pkg/pypi-marshmallow?utm_source=pypi-marshmallow&utm_medium=pypi\"\n\n[project.optional-dependencies]\ndocs = [\n  \"sphinx==7.2.6\",\n  \"sphinx-issues==4.0.0\",\n  \"alabaster==0.7.16\",\n  \"sphinx-version-warning==1.1.2\",\n  \"autodocsumm==0.2.12\",\n]\ntests = [\"pytest\", \"pytz\", \"simplejson\"]\ndev = [\"marshmallow[tests]\", \"tox\", \"pre-commit~=3.5\"]\n\n[build-system]\nrequires = [\"flit_core<4\"]\nbuild-backend = \"flit_core.buildapi\"\n\n[tool.flit.sdist]\ninclude = [\n  \"docs/\",\n  \"tests/\",\n  \"CHANGELOG.rst\",\n  \"CONTRIBUTING.rst\",\n  \"SECURITY.md\",\n  \"NOTICE\",\n  \"tox.ini\",\n]\nexclude = [\"docs/_build/\"]\n\n[tool.ruff]\nsrc = [\"src\"]\nfix = true\nshow-fixes = true\nshow-source = true\n\n[tool.ruff.lint]\nignore = [\"E203\", \"E266\", \"E501\", \"E731\"]\nselect = [\n  \"B\",  # flake8-bugbear\n  \"E\",  # pycodestyle error\n  \"F\",  # pyflakes\n  \"I\",  # isort\n  \"UP\", # pyupgrade\n  \"W\",  # pycodestyle warning\n]\n\n[tool.ruff.per-file-ignores]\n\"tests/*\" = [\"E721\"]\n\n[tool.mypy]\nignore_missing_imports = true\nwarn_unreachable = true\nwarn_unused_ignores = true\nwarn_redundant_casts = true\nno_implicit_optional = true\n\n[tool.pytest.ini_options]\nnorecursedirs = \".git .ropeproject .tox docs env venv tests/mypy_test_cases\"\naddopts = \"-v --tb=short\"\n"
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "src/marshmallow/__init__.py"
+      },
+      "result": {
+        "content": "from __future__ import annotations\n\nimport importlib.metadata\n\nfrom packaging.version import Version\n\nfrom marshmallow.decorators import (\n    post_dump,\n    post_load,\n    pre_dump,\n    pre_load,\n    validates,\n    validates_schema,\n)\nfrom marshmallow.exceptions import ValidationError\nfrom marshmallow.schema import Schema, SchemaOpts\nfrom marshmallow.utils import EXCLUDE, INCLUDE, RAISE, missing, pprint\n\nfrom . import fields\n\n# TODO: Deprecate __version__?\n__version__ = importlib.metadata.version(\"marshmallow\")\n__parsed_version__ = Version(__version__)\n__version_info__: tuple[int, int, int] | tuple[\n    int, int, int, str, int\n] = __parsed_version__.release  # type: ignore[assignment]\nif __parsed_version__.pre:\n    __version_info__ += __parsed_version__.pre  # type: ignore[assignment]\n__all__ = [\n    \"EXCLUDE\",\n    \"INCLUDE\",\n    \"RAISE\",\n    \"Schema\",\n    \"SchemaOpts\",\n    \"fields\",\n    \"validates\",\n    \"validates_schema\",\n    \"pre_dump\",\n    \"post_dump\",\n    \"pre_load\",\n    \"post_load\",\n    \"pprint\",\n    \"ValidationError\",\n    \"missing\",\n]\n"
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "path": ".",
+        "pattern": "flask"
+      },
+      "result": {
+        "matches": [
+          "examples\\flask_example.py:3: from flask import Flask, request",
+          "examples\\flask_example.py:4: from flask_sqlalchemy import SQLAlchemy",
+          "examples\\peewee_example.py:5: from flask import Flask, g, jsonify, request"
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "path": "src",
+        "pattern": "warnings"
+      },
+      "result": {
+        "matches": [
+          "src\\marshmallow\\fields.py:13: import warnings",
+          "src\\marshmallow\\fields.py:33: from marshmallow.warnings import RemovedInMarshmallow4Warning",
+          "src\\marshmallow\\fields.py:178: warnings.warn(",
+          "src\\marshmallow\\fields.py:187: warnings.warn(",
+          "src\\marshmallow\\fields.py:225: warnings.warn(",
+          "src\\marshmallow\\fields.py:299: warnings.warn(",
+          "src\\marshmallow\\fields.py:439: # emit warnings when they are accessed and set",
+          "src\\marshmallow\\fields.py:442: warnings.warn(",
+          "src\\marshmallow\\fields.py:452: warnings.warn(",
+          "src\\marshmallow\\fields.py:462: warnings.warn(",
+          "src\\marshmallow\\fields.py:472: warnings.warn(",
+          "src\\marshmallow\\fields.py:557: warnings.warn(",
+          "src\\marshmallow\\schema.py:11: import warnings",
+          "src\\marshmallow\\schema.py:41: from marshmallow.warnings import RemovedInMarshmallow4Warning",
+          "src\\marshmallow\\schema.py:213: warnings.warn(",
+          "src\\marshmallow\\utils.py:11: import warnings",
+          "src\\marshmallow\\utils.py:18: from marshmallow.warnings import RemovedInMarshmallow4Warning",
+          "src\\marshmallow\\utils.py:84: warnings.warn("
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "RemovedInMarshmallow4Warning",
+        "path": "src"
+      },
+      "result": {
+        "matches": [
+          "src\\marshmallow\\fields.py:33: from marshmallow.warnings import RemovedInMarshmallow4Warning",
+          "src\\marshmallow\\fields.py:181: RemovedInMarshmallow4Warning,",
+          "src\\marshmallow\\fields.py:190: RemovedInMarshmallow4Warning,",
+          "src\\marshmallow\\fields.py:229: RemovedInMarshmallow4Warning,",
+          "src\\marshmallow\\fields.py:301: RemovedInMarshmallow4Warning,",
+          "src\\marshmallow\\fields.py:445: RemovedInMarshmallow4Warning,",
+          "src\\marshmallow\\fields.py:455: RemovedInMarshmallow4Warning,",
+          "src\\marshmallow\\fields.py:465: RemovedInMarshmallow4Warning,",
+          "src\\marshmallow\\fields.py:475: RemovedInMarshmallow4Warning,",
+          "src\\marshmallow\\fields.py:560: RemovedInMarshmallow4Warning,",
+          "src\\marshmallow\\schema.py:41: from marshmallow.warnings import RemovedInMarshmallow4Warning",
+          "src\\marshmallow\\schema.py:215: RemovedInMarshmallow4Warning,",
+          "src\\marshmallow\\utils.py:18: from marshmallow.warnings import RemovedInMarshmallow4Warning",
+          "src\\marshmallow\\utils.py:86: RemovedInMarshmallow4Warning,",
+          "src\\marshmallow\\warnings.py:1: class RemovedInMarshmallow4Warning(DeprecationWarning):"
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "src/marshmallow/warnings.py"
+      },
+      "result": {
+        "content": "class RemovedInMarshmallow4Warning(DeprecationWarning):\n    pass\n"
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "path": ".",
+        "pattern": "5230"
+      },
+      "result": {
+        "matches": []
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "path": "src",
+        "pattern": "__getattr__"
+      },
+      "result": {
+        "matches": []
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "path": "tests",
+        "pattern": "RemovedInMarshmallow4Warning"
+      },
+      "result": {
+        "matches": []
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "list_directory",
+      "args": {
+        "path": "tests"
+      },
+      "result": {
+        "entries": [
+          "__init__.py",
+          "base.py",
+          "conftest.py",
+          "foo_serializer.py",
+          "mypy_test_cases/",
+          "test_decorators.py",
+          "test_deserialization.py",
+          "test_error_store.py",
+          "test_exceptions.py",
+          "test_fields.py",
+          "test_options.py",
+          "test_registry.py",
+          "test_schema.py",
+          "test_serialization.py",
+          "test_utils.py",
+          "test_validate.py"
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "tests/test_utils.py"
+      },
+      "result": {
+        "content": "import datetime as dt\nfrom collections import namedtuple\nfrom copy import copy, deepcopy\nfrom functools import partial\n\nimport pytest\n\nfrom marshmallow import Schema, fields, utils\nfrom tests.base import assert_date_equal, assert_time_equal, central\n\n\ndef test_missing_singleton_copy():\n    assert copy(utils.missing) is utils.missing\n    assert deepcopy(utils.missing) is utils.missing\n\n\nPointNT = namedtuple(\"PointNT\", [\"x\", \"y\"])\n\n\nclass PointClass:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n\n\nclass PointDict(dict):\n    def __init__(self, x, y):\n        super().__init__({\"x\": x})\n        self.y = y\n\n\n@pytest.mark.parametrize(\n    \"obj\", [PointNT(24, 42), PointClass(24, 42), PointDict(24, 42), {\"x\": 24, \"y\": 42}]\n)\ndef test_get_value_from_object(obj):\n    assert utils.get_value(obj, \"x\") == 24\n    assert utils.get_value(obj, \"y\") == 42\n\n\ndef test_get_value_from_namedtuple_with_default():\n    p = PointNT(x=42, y=None)\n    # Default is only returned if key is not found\n    assert utils.get_value(p, \"z\", default=123) == 123\n    # since 'y' is an attribute, None is returned instead of the default\n    assert utils.get_value(p, \"y\", default=123) is None\n\n\nclass Triangle:\n    def __init__(self, p1, p2, p3):\n        self.p1 = p1\n        self.p2 = p2\n        self.p3 = p3\n        self.points = [p1, p2, p3]\n\n\ndef test_get_value_for_nested_object():\n    tri = Triangle(p1=PointClass(1, 2), p2=PointNT(3, 4), p3={\"x\": 5, \"y\": 6})\n    assert utils.get_value(tri, \"p1.x\") == 1\n    assert utils.get_value(tri, \"p2.x\") == 3\n    assert utils.get_value(tri, \"p3.x\") == 5\n\n\n# regression test for https://github.com/marshmallow-code/marshmallow/issues/62\ndef test_get_value_from_dict():\n    d = dict(items=[\"foo\", \"bar\"], keys=[\"baz\", \"quux\"])\n    assert utils.get_value(d, \"items\") == [\"foo\", \"bar\"]\n    assert utils.get_value(d, \"keys\") == [\"baz\", \"quux\"]\n\n\ndef test_get_value():\n    lst = [1, 2, 3]\n    assert utils.get_value(lst, 1) == 2\n\n    class MyInt(int):\n        pass\n\n    assert utils.get_value(lst, MyInt(1)) == 2\n\n\ndef test_set_value():\n    d = {}\n    utils.set_value(d, \"foo\", 42)\n    assert d == {\"foo\": 42}\n\n    d = {}\n    utils.set_value(d, \"foo.bar\", 42)\n    assert d == {\"foo\": {\"bar\": 42}}\n\n    d = {\"foo\": {}}\n    utils.set_value(d, \"foo.bar\", 42)\n    assert d == {\"foo\": {\"bar\": 42}}\n\n    d = {\"foo\": 42}\n    with pytest.raises(ValueError):\n        utils.set_value(d, \"foo.bar\", 42)\n\n\ndef test_is_keyed_tuple():\n    Point = namedtuple(\"Point\", [\"x\", \"y\"])\n    p = Point(24, 42)\n    assert utils.is_keyed_tuple(p) is True\n    t = (24, 42)\n    assert utils.is_keyed_tuple(t) is False\n    d = {\"x\": 42, \"y\": 24}\n    assert utils.is_keyed_tuple(d) is False\n    s = \"xy\"\n    assert utils.is_keyed_tuple(s) is False\n    lst = [24, 42]\n    assert utils.is_keyed_tuple(lst) is False\n\n\ndef test_is_collection():\n    assert utils.is_collection([1, \"foo\", {}]) is True\n    assert utils.is_collection((\"foo\", 2.3)) is True\n    assert utils.is_collection({\"foo\": \"bar\"}) is False\n\n\n@pytest.mark.parametrize(\n    (\"value\", \"expected\"),\n    [\n        (dt.datetime(2013, 11, 10, 1, 23, 45), \"Sun, 10 Nov 2013 01:23:45 -0000\"),\n        (\n            dt.datetime(2013, 11, 10, 1, 23, 45, tzinfo=dt.timezone.utc),\n            \"Sun, 10 Nov 2013 01:23:45 +0000\",\n        ),\n        (\n            central.localize(dt.datetime(2013, 11, 10, 1, 23, 45), is_dst=False),\n            \"Sun, 10 Nov 2013 01:23:45 -0600\",\n        ),\n    ],\n)\ndef test_rfc_format(value, expected):\n    assert utils.rfcformat(value) == expected\n\n\n@pytest.mark.parametrize(\n    (\"value\", \"expected\"),\n    [\n        (dt.datetime(2013, 11, 10, 1, 23, 45), \"2013-11-10T01:23:45\"),\n        (\n            dt.datetime(2013, 11, 10, 1, 23, 45, 123456, tzinfo=dt.timezone.utc),\n            \"2013-11-10T01:23:45.123456+00:00\",\n        ),\n        (\n            dt.datetime(2013, 11, 10, 1, 23, 45, tzinfo=dt.timezone.utc),\n            \"2013-11-10T01:23:45+00:00\",\n        ),\n        (\n            central.localize(dt.datetime(2013, 11, 10, 1, 23, 45), is_dst=False),\n            \"2013-11-10T01:23:45-06:00\",\n        ),\n    ],\n)\ndef test_isoformat(value, expected):\n    assert utils.isoformat(value) == expected\n\n\n@pytest.mark.parametrize(\n    (\"value\", \"expected\"),\n    [\n        (\"Sun, 10 Nov 2013 01:23:45 -0000\", dt.datetime(2013, 11, 10, 1, 23, 45)),\n        (\n            \"Sun, 10 Nov 2013 01:23:45 +0000\",\n            dt.datetime(2013, 11, 10, 1, 23, 45, tzinfo=dt.timezone.utc),\n        ),\n        (\n            \"Sun, 10 Nov 2013 01:23:45 -0600\",\n            central.localize(dt.datetime(2013, 11, 10, 1, 23, 45), is_dst=False),\n        ),\n    ],\n)\ndef test_from_rfc(value, expected):\n    result = utils.from_rfc(value)\n    assert type(result) is dt.datetime\n    assert result == expected\n\n\n@pytest.mark.parametrize(\n    (\"value\", \"expected\"),\n    [\n        (\"2013-11-10T01:23:45\", dt.datetime(2013, 11, 10, 1, 23, 45)),\n        (\n            \"2013-11-10T01:23:45+00:00\",\n            dt.datetime(2013, 11, 10, 1, 23, 45, tzinfo=dt.timezone.utc),\n        ),\n        (\n            # Regression test for https://github.com/marshmallow-code/marshmallow/issues/1251\n            \"2013-11-10T01:23:45.123+00:00\",\n            dt.datetime(2013, 11, 10, 1, 23, 45, 123000, tzinfo=dt.timezone.utc),\n        ),\n        (\n            \"2013-11-10T01:23:45.123456+00:00\",\n            dt.datetime(2013, 11, 10, 1, 23, 45, 123456, tzinfo=dt.timezone.utc),\n        ),\n        (\n            \"2013-11-10T01:23:45-06:00\",\n            central.localize(dt.datetime(2013, 11, 10, 1, 23, 45), is_dst=False),\n        ),\n    ],\n)\ndef test_from_iso_datetime(value, expected):\n    result = utils.from_iso_datetime(value)\n    assert type(result) is dt.datetime\n    assert result == expected\n\n\ndef test_from_iso_time_with_microseconds():\n    t = dt.time(1, 23, 45, 6789)\n    formatted = t.isoformat()\n    result = utils.from_iso_time(formatted)\n    assert type(result) is dt.time\n    assert_time_equal(result, t)\n\n\ndef test_from_iso_time_without_microseconds():\n    t = dt.time(1, 23, 45)\n    formatted = t.isoformat()\n    result = utils.from_iso_time(formatted)\n    assert type(result) is dt.time\n    assert_time_equal(result, t)\n\n\ndef test_from_iso_date():\n    d = dt.date(2014, 8, 21)\n    iso_date = d.isoformat()\n    result = utils.from_iso_date(iso_date)\n    assert type(result) is dt.date\n    assert_date_equal(result, d)\n\n\n@pytest.mark.parametrize(\n    (\"value\", \"expected\"),\n    [\n        (1676386740, dt.datetime(2023, 2, 14, 14, 59, 00)),\n        (1676386740.58, dt.datetime(2023, 2, 14, 14, 59, 00, 580000)),\n    ],\n)\ndef test_from_timestamp(value, expected):\n    result = utils.from_timestamp(value)\n    assert type(result) is dt.datetime\n    assert result == expected\n\n\ndef test_from_timestamp_with_negative_value():\n    value = -10\n    with pytest.raises(ValueError, match=r\"Not a valid POSIX timestamp\"):\n        utils.from_timestamp(value)\n\n\ndef test_from_timestamp_with_overflow_value():\n    value = 9223372036854775\n    with pytest.raises(ValueError):\n        utils.from_timestamp(value)\n\n\ndef test_get_func_args():\n    def f1(foo, bar):\n        pass\n\n    f2 = partial(f1, \"baz\")\n\n    class F3:\n        def __call__(self, foo, bar):\n            pass\n\n    f3 = F3()\n\n    for func in [f1, f2, f3]:\n        assert utils.get_func_args(func) == [\"foo\", \"bar\"]\n\n\n# Regression test for https://github.com/marshmallow-code/marshmallow/issues/540\ndef test_function_field_using_type_annotation():\n    def get_split_words(value: str):  # noqa\n        return value.split(\";\")\n\n    class MySchema(Schema):\n        friends = fields.Function(deserialize=get_split_words)\n\n    data = {\"friends\": \"Clark;Alfred;Robin\"}\n    result = MySchema().load(data)\n    assert result == {\"friends\": [\"Clark\", \"Alfred\", \"Robin\"]}\n"
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "__all__",
+        "path": "src"
+      },
+      "result": {
+        "matches": [
+          "src\\marshmallow\\fields.py:35: __all__ = [",
+          "src\\marshmallow\\__init__.py:29: __all__ = ["
+        ]
+      },
+      "blocked_duplicate": false
+    }
+  ],
+  "tool_call_count": 20,
+  "hit_cap": true,
+  "total_tokens": 55745,
+  "final_message": ""
+}

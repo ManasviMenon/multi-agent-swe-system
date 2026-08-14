@@ -1,4 +1,5 @@
 .cache/
+results/.candidate-*.diff
 __pycache__/
 *.pyc
 .venv/

@@ -1,0 +1,518 @@
+{
+  "ticket_id": "marshmallow-1369",
+  "candidate_diff": "",
+  "steps": [
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "pass_many",
+        "path": "src/marshmallow"
+      },
+      "result": {
+        "matches": [
+          "src\\marshmallow\\decorators.py:38: @pre_load(pass_many=True)",
+          "src\\marshmallow\\decorators.py:43: @post_dump(pass_many=True)",
+          "src\\marshmallow\\decorators.py:96: pass_many: bool = False,",
+          "src\\marshmallow\\decorators.py:104: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:122: many=pass_many,",
+          "src\\marshmallow\\decorators.py:129: fn: Callable[..., Any] | None = None, pass_many: bool = False",
+          "src\\marshmallow\\decorators.py:136: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:141: return set_hook(fn, PRE_DUMP, many=pass_many)",
+          "src\\marshmallow\\decorators.py:146: pass_many: bool = False,",
+          "src\\marshmallow\\decorators.py:154: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:162: return set_hook(fn, POST_DUMP, many=pass_many, pass_original=pass_original)",
+          "src\\marshmallow\\decorators.py:166: fn: Callable[..., Any] | None = None, pass_many: bool = False",
+          "src\\marshmallow\\decorators.py:173: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:179: return set_hook(fn, PRE_LOAD, many=pass_many)",
+          "src\\marshmallow\\decorators.py:184: pass_many: bool = False,",
+          "src\\marshmallow\\decorators.py:192: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:201: return set_hook(fn, POST_LOAD, many=pass_many, pass_original=pass_original)",
+          "src\\marshmallow\\schema.py:820: pass_many=True,",
+          "src\\marshmallow\\schema.py:829: pass_many=False,",
+          "src\\marshmallow\\schema.py:1002: # The pass_many post-dump processors may do things like add an envelope, so",
+          "src\\marshmallow\\schema.py:1003: # invoke those after invoking the non-pass_many processors which will expect",
+          "src\\marshmallow\\schema.py:1006: tag, pass_many=False, data=data, many=many, original_data=original_data",
+          "src\\marshmallow\\schema.py:1009: tag, pass_many=True, data=data, many=many, original_data=original_data",
+          "src\\marshmallow\\schema.py:1022: # This has to invert the order of the dump processors, so run the pass_many",
+          "src\\marshmallow\\schema.py:1026: pass_many=True,",
+          "src\\marshmallow\\schema.py:1034: pass_many=False,",
+          "src\\marshmallow\\schema.py:1092: pass_many: bool,",
+          "src\\marshmallow\\schema.py:1100: if hook_many != pass_many:",
+          "src\\marshmallow\\schema.py:1107: if many and not pass_many:",
+          "src\\marshmallow\\schema.py:1134: pass_many: bool,",
+          "src\\marshmallow\\schema.py:1141: if hook_many != pass_many:",
+          "src\\marshmallow\\schema.py:1147: if many and not pass_many:"
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "pass_many",
+        "path": "tests"
+      },
+      "result": {
+        "matches": [
+          "tests\\test_decorators.py:45: @post_dump(pass_many=True)",
+          "tests\\test_decorators.py:51: @pre_load(pass_many=True)",
+          "tests\\test_decorators.py:62: @pre_load(pass_many=False)",
+          "tests\\test_decorators.py:161: @post_load(pass_many=True, pass_original=True)",
+          "tests\\test_decorators.py:173: @post_dump(pass_many=True, pass_original=True)",
+          "tests\\test_decorators.py:437: \"pass_many,expected_data,expected_original_data\",",
+          "tests\\test_decorators.py:443: def test_validator_nested_many_pass_original_and_pass_many(",
+          "tests\\test_decorators.py:444: self, pass_many, data, expected_data, expected_original_data",
+          "tests\\test_decorators.py:449: @validates_schema(pass_many=pass_many, pass_original=True)",
+          "tests\\test_decorators.py:463: error = errors[\"nested\"] if pass_many else errors[\"nested\"][0]",
+          "tests\\test_decorators.py:476: @validates_schema(pass_many=True)",
+          "tests\\test_decorators.py:577: @validates_schema(pass_many=True, pass_original=True)",
+          "tests\\test_decorators.py:644: @validates_schema(skip_on_field_errors=True, pass_many=True)",
+          "tests\\test_decorators.py:820: def test_decorator_post_dump_with_nested_original_and_pass_many(",
+          "tests\\test_decorators.py:826: @post_dump(pass_many=False, pass_original=True)",
+          "tests\\test_decorators.py:827: def check_pass_original_when_pass_many_false(",
+          "tests\\test_decorators.py:834: @post_dump(pass_many=True, pass_original=True)",
+          "tests\\test_decorators.py:835: def check_pass_original_when_pass_many_true(",
+          "tests\\test_decorators.py:854: def test_decorator_post_load_with_nested_original_and_pass_many(",
+          "tests\\test_decorators.py:860: @post_load(pass_many=False, pass_original=True)",
+          "tests\\test_decorators.py:861: def check_pass_original_when_pass_many_false(",
+          "tests\\test_decorators.py:868: @post_load(pass_many=True, pass_original=True)",
+          "tests\\test_decorators.py:869: def check_pass_original_when_pass_many_true("
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "path": "src/marshmallow",
+        "pattern": "validates_schema"
+      },
+      "result": {
+        "matches": [
+          "src\\marshmallow\\decorators.py:7: and `validates_schema <marshmallow.decorators.validates_schema>` receive",
+          "src\\marshmallow\\decorators.py:10: and `validates_schema <marshmallow.decorators.validates_schema>` receive",
+          "src\\marshmallow\\decorators.py:22: validates_schema,",
+          "src\\marshmallow\\decorators.py:48: @validates_schema",
+          "src\\marshmallow\\decorators.py:79: VALIDATES_SCHEMA = \"validates_schema\"",
+          "src\\marshmallow\\decorators.py:94: def validates_schema(",
+          "src\\marshmallow\\__init__.py:14: validates_schema,",
+          "src\\marshmallow\\__init__.py:73: \"validates_schema\","
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "pass_",
+        "path": "src/marshmallow"
+      },
+      "result": {
+        "matches": [
+          "src\\marshmallow\\decorators.py:38: @pre_load(pass_many=True)",
+          "src\\marshmallow\\decorators.py:43: @post_dump(pass_many=True)",
+          "src\\marshmallow\\decorators.py:96: pass_many: bool = False,",
+          "src\\marshmallow\\decorators.py:97: pass_original: bool = False,",
+          "src\\marshmallow\\decorators.py:104: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:106: If ``pass_original=True``, the original data (before unmarshalling) will be passed as",
+          "src\\marshmallow\\decorators.py:122: many=pass_many,",
+          "src\\marshmallow\\decorators.py:123: pass_original=pass_original,",
+          "src\\marshmallow\\decorators.py:129: fn: Callable[..., Any] | None = None, pass_many: bool = False",
+          "src\\marshmallow\\decorators.py:136: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:141: return set_hook(fn, PRE_DUMP, many=pass_many)",
+          "src\\marshmallow\\decorators.py:146: pass_many: bool = False,",
+          "src\\marshmallow\\decorators.py:147: pass_original: bool = False,",
+          "src\\marshmallow\\decorators.py:154: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:156: If ``pass_original=True``, the original data (before serializing) will be passed as",
+          "src\\marshmallow\\decorators.py:162: return set_hook(fn, POST_DUMP, many=pass_many, pass_original=pass_original)",
+          "src\\marshmallow\\decorators.py:166: fn: Callable[..., Any] | None = None, pass_many: bool = False",
+          "src\\marshmallow\\decorators.py:173: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:179: return set_hook(fn, PRE_LOAD, many=pass_many)",
+          "src\\marshmallow\\decorators.py:184: pass_many: bool = False,",
+          "src\\marshmallow\\decorators.py:185: pass_original: bool = False,",
+          "src\\marshmallow\\decorators.py:192: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:194: If ``pass_original=True``, the original data (before deserializing) will be passed as",
+          "src\\marshmallow\\decorators.py:201: return set_hook(fn, POST_LOAD, many=pass_many, pass_original=pass_original)",
+          "src\\marshmallow\\schema.py:710: pass_original,",
+          "src\\marshmallow\\schema.py:714: if pass_original:  # Pass original, raw data (before unmarshalling)",
+          "src\\marshmallow\\schema.py:820: pass_many=True,",
+          "src\\marshmallow\\schema.py:829: pass_many=False,",
+          "src\\marshmallow\\schema.py:1002: # The pass_many post-dump processors may do things like add an envelope, so",
+          "src\\marshmallow\\schema.py:1003: # invoke those after invoking the non-pass_many processors which will expect",
+          "src\\marshmallow\\schema.py:1006: tag, pass_many=False, data=data, many=many, original_data=original_data",
+          "src\\marshmallow\\schema.py:1009: tag, pass_many=True, data=data, many=many, original_data=original_data",
+          "src\\marshmallow\\schema.py:1022: # This has to invert the order of the dump processors, so run the pass_many",
+          "src\\marshmallow\\schema.py:1026: pass_many=True,",
+          "src\\marshmallow\\schema.py:1034: pass_many=False,",
+          "src\\marshmallow\\schema.py:1092: pass_many: bool,",
+          "src\\marshmallow\\schema.py:1100: if hook_many != pass_many:",
+          "src\\marshmallow\\schema.py:1105: pass_original = validator_kwargs.get(\"pass_original\", False)",
+          "src\\marshmallow\\schema.py:1107: if many and not pass_many:",
+          "src\\marshmallow\\schema.py:1117: pass_original=pass_original,",
+          "src\\marshmallow\\schema.py:1126: pass_original=pass_original,",
+          "src\\marshmallow\\schema.py:1134: pass_many: bool,",
+          "src\\marshmallow\\schema.py:1141: if hook_many != pass_many:",
+          "src\\marshmallow\\schema.py:1145: pass_original = processor_kwargs.get(\"pass_original\", False)",
+          "src\\marshmallow\\schema.py:1147: if many and not pass_many:",
+          "src\\marshmallow\\schema.py:1148: if pass_original:",
+          "src\\marshmallow\\schema.py:1156: if pass_original:"
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "path": "docs",
+        "pattern": "pass_many"
+      },
+      "result": {
+        "matches": []
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "pass_",
+        "path": "docs"
+      },
+      "result": {
+        "matches": []
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "many",
+        "path": "src/marshmallow"
+      },
+      "result": {
+        "matches": [
+          "src\\marshmallow\\base.py:44: def dump(self, obj, *, many: bool | None = None):",
+          "src\\marshmallow\\base.py:48: def dumps(self, obj, *, many: bool | None = None):",
+          "src\\marshmallow\\base.py:52: def load(self, data, *, many: bool | None = None, partial=None, unknown=None):",
+          "src\\marshmallow\\base.py:60: many: bool | None = None,",
+          "src\\marshmallow\\decorators.py:8: ``many`` as a keyword argument. In addition, `pre_load <marshmallow.decorators.pre_load>`,",
+          "src\\marshmallow\\decorators.py:34: def lowerstrip_email(self, item, many, **kwargs):",
+          "src\\marshmallow\\decorators.py:38: @pre_load(pass_many=True)",
+          "src\\marshmallow\\decorators.py:39: def remove_envelope(self, data, many, **kwargs):",
+          "src\\marshmallow\\decorators.py:40: namespace = \"results\" if many else \"result\"",
+          "src\\marshmallow\\decorators.py:43: @post_dump(pass_many=True)",
+          "src\\marshmallow\\decorators.py:44: def add_envelope(self, data, many, **kwargs):",
+          "src\\marshmallow\\decorators.py:45: namespace = \"results\" if many else \"result\"",
+          "src\\marshmallow\\decorators.py:96: pass_many: bool = False,",
+          "src\\marshmallow\\decorators.py:102: By default it receives a single object at a time, transparently handling the ``many``",
+          "src\\marshmallow\\decorators.py:104: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:116: ``partial`` and ``many`` are always passed as keyword arguments to",
+          "src\\marshmallow\\decorators.py:122: many=pass_many,",
+          "src\\marshmallow\\decorators.py:129: fn: Callable[..., Any] | None = None, pass_many: bool = False",
+          "src\\marshmallow\\decorators.py:134: By default it receives a single object at a time, transparently handling the ``many``",
+          "src\\marshmallow\\decorators.py:136: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:139: ``many`` is always passed as a keyword arguments to the decorated method.",
+          "src\\marshmallow\\decorators.py:141: return set_hook(fn, PRE_DUMP, many=pass_many)",
+          "src\\marshmallow\\decorators.py:146: pass_many: bool = False,",
+          "src\\marshmallow\\decorators.py:152: By default it receives a single object at a time, transparently handling the ``many``",
+          "src\\marshmallow\\decorators.py:154: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:160: ``many`` is always passed as a keyword arguments to the decorated method.",
+          "src\\marshmallow\\decorators.py:162: return set_hook(fn, POST_DUMP, many=pass_many, pass_original=pass_original)",
+          "src\\marshmallow\\decorators.py:166: fn: Callable[..., Any] | None = None, pass_many: bool = False",
+          "src\\marshmallow\\decorators.py:171: By default it receives a single object at a time, transparently handling the ``many``",
+          "src\\marshmallow\\decorators.py:173: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:176: ``partial`` and ``many`` are always passed as keyword arguments to",
+          "src\\marshmallow\\decorators.py:179: return set_hook(fn, PRE_LOAD, many=pass_many)",
+          "src\\marshmallow\\decorators.py:184: pass_many: bool = False,",
+          "src\\marshmallow\\decorators.py:190: By default it receives a single object at a time, transparently handling the ``many``",
+          "src\\marshmallow\\decorators.py:192: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:198: ``partial`` and ``many`` are always passed as keyword arguments to",
+          "src\\marshmallow\\decorators.py:201: return set_hook(fn, POST_LOAD, many=pass_many, pass_original=pass_original)",
+          "src\\marshmallow\\decorators.py:205: fn: Callable[..., Any] | None, tag: str, many: bool = False, **kwargs: Any",
+          "src\\marshmallow\\decorators.py:219: return functools.partial(set_hook, tag=tag, many=many, **kwargs)",
+          "src\\marshmallow\\decorators.py:231: hook_config[tag].append((many, kwargs))",
+          "src\\marshmallow\\fields.py:434: the instance's ``exclude``, ``only``, and ``many`` attributes will be respected.",
+          "src\\marshmallow\\fields.py:436: Therefore, when passing the ``exclude``, ``only``, or ``many`` arguments to `fields.Nested`,",
+          "src\\marshmallow\\fields.py:452: :param many: Whether the field is a collection of objects.",
+          "src\\marshmallow\\fields.py:475: many: bool = False,",
+          "src\\marshmallow\\fields.py:489: self.many = many",
+          "src\\marshmallow\\fields.py:540: many=self.many,",
+          "src\\marshmallow\\fields.py:563: many = schema.many or self.many",
+          "src\\marshmallow\\fields.py:564: return schema.dump(nested_obj, many=many)",
+          "src\\marshmallow\\fields.py:567: many = self.schema.many or self.many",
+          "src\\marshmallow\\fields.py:568: if many and not utils.is_collection(value):",
+          "src\\marshmallow\\fields.py:637: if self.many:",
+          "src\\marshmallow\\fields.py:643: if self.many:",
+          "src\\marshmallow\\fields.py:985: :param places: How many decimal places to quantize the value. If `None`, does",
+          "src\\marshmallow\\schema.py:171: (attr_name, many, kwargs) for many, kwargs in config",
+          "src\\marshmallow\\schema.py:197: self.many = getattr(meta, \"many\", False)",
+          "src\\marshmallow\\schema.py:236: :param many: Should be set to `True` if ``obj`` is a collection",
+          "src\\marshmallow\\schema.py:305: - ``many``: Whether the data is a collection by default.",
+          "src\\marshmallow\\schema.py:329: many: bool | None = None,",
+          "src\\marshmallow\\schema.py:343: self.many = self.opts.many if many is None else many",
+          "src\\marshmallow\\schema.py:371: return f\"<{self.__class__.__name__}(many={self.many})>\"",
+          "src\\marshmallow\\schema.py:407: self, error: ValidationError, data: typing.Any, *, many: bool, **kwargs",
+          "src\\marshmallow\\schema.py:413: :param many: Value of ``many`` on dump or load.",
+          "src\\marshmallow\\schema.py:417: Receives `many` and `partial` (on deserialization) as keyword arguments.",
+          "src\\marshmallow\\schema.py:451: def _serialize(self, obj: typing.Any, *, many: bool = False):",
+          "src\\marshmallow\\schema.py:455: :param bool many: `True` if ``data`` should be serialized as a collection.",
+          "src\\marshmallow\\schema.py:458: if many and obj is not None:",
+          "src\\marshmallow\\schema.py:459: return [self._serialize(d, many=False) for d in obj]",
+          "src\\marshmallow\\schema.py:469: def dump(self, obj: typing.Any, *, many: bool | None = None):",
+          "src\\marshmallow\\schema.py:474: :param many: Whether to serialize `obj` as a collection. If `None`, the value",
+          "src\\marshmallow\\schema.py:475: for `self.many` is used.",
+          "src\\marshmallow\\schema.py:486: many = self.many if many is None else bool(many)",
+          "src\\marshmallow\\schema.py:489: PRE_DUMP, obj, many=many, original_data=obj",
+          "src\\marshmallow\\schema.py:494: result = self._serialize(processed_obj, many=many)",
+          "src\\marshmallow\\schema.py:498: POST_DUMP, result, many=many, original_data=obj",
+          "src\\marshmallow\\schema.py:503: def dumps(self, obj: typing.Any, *args, many: bool | None = None, **kwargs):",
+          "src\\marshmallow\\schema.py:507: :param many: Whether to serialize `obj` as a collection. If `None`, the value",
+          "src\\marshmallow\\schema.py:508: for `self.many` is used.",
+          "src\\marshmallow\\schema.py:517: serialized = self.dump(obj, many=many)",
+          "src\\marshmallow\\schema.py:528: many: bool = False,",
+          "src\\marshmallow\\schema.py:537: :param bool many: `True` if ``data`` should be deserialized as a collection.",
+          "src\\marshmallow\\schema.py:547: instances if `many` is `True`.",
+          "src\\marshmallow\\schema.py:551: if many:",
+          "src\\marshmallow\\schema.py:560: many=False,",
+          "src\\marshmallow\\schema.py:641: many: bool | None = None,",
+          "src\\marshmallow\\schema.py:648: :param many: Whether to deserialize `data` as a collection. If `None`, the",
+          "src\\marshmallow\\schema.py:649: value for `self.many` is used.",
+          "src\\marshmallow\\schema.py:666: data, many=many, partial=partial, unknown=unknown, postprocess=True",
+          "src\\marshmallow\\schema.py:673: many: bool | None = None,",
+          "src\\marshmallow\\schema.py:681: :param many: Whether to deserialize `obj` as a collection. If `None`, the",
+          "src\\marshmallow\\schema.py:682: value for `self.many` is used.",
+          "src\\marshmallow\\schema.py:699: return self.load(data, many=many, partial=partial, unknown=unknown)",
+          "src\\marshmallow\\schema.py:708: many,",
+          "src\\marshmallow\\schema.py:715: validator_func(output, original_data, partial=partial, many=many)",
+          "src\\marshmallow\\schema.py:717: validator_func(output, partial=partial, many=many)",
+          "src\\marshmallow\\schema.py:728: many: bool | None = None,",
+          "src\\marshmallow\\schema.py:735: :param many: Whether to validate `data` as a collection. If `None`, the",
+          "src\\marshmallow\\schema.py:736: value for `self.many` is used.",
+          "src\\marshmallow\\schema.py:746: self._do_load(data, many=many, partial=partial, postprocess=False)",
+          "src\\marshmallow\\schema.py:760: many: bool | None = None,",
+          "src\\marshmallow\\schema.py:769: :param many: Whether to deserialize `data` as a collection. If `None`, the"
+        ],
+        "truncated": true
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "src/marshmallow/decorators.py"
+      },
+      "result": {
+        "content": "\"\"\"Decorators for registering schema pre-processing and post-processing methods.\nThese should be imported from the top-level `marshmallow` module.\n\nMethods decorated with\n`pre_load <marshmallow.decorators.pre_load>`, `post_load <marshmallow.decorators.post_load>`,\n`pre_dump <marshmallow.decorators.pre_dump>`, `post_dump <marshmallow.decorators.post_dump>`,\nand `validates_schema <marshmallow.decorators.validates_schema>` receive\n``many`` as a keyword argument. In addition, `pre_load <marshmallow.decorators.pre_load>`,\n`post_load <marshmallow.decorators.post_load>`,\nand `validates_schema <marshmallow.decorators.validates_schema>` receive\n``partial``. If you don't need these arguments, add ``**kwargs`` to your method\nsignature.\n\n\nExample: ::\n\n    from marshmallow import (\n        Schema,\n        pre_load,\n        pre_dump,\n        post_load,\n        validates_schema,\n        validates,\n        fields,\n        ValidationError,\n    )\n\n\n    class UserSchema(Schema):\n        email = fields.Str(required=True)\n        age = fields.Integer(required=True)\n\n        @post_load\n        def lowerstrip_email(self, item, many, **kwargs):\n            item[\"email\"] = item[\"email\"].lower().strip()\n            return item\n\n        @pre_load(pass_many=True)\n        def remove_envelope(self, data, many, **kwargs):\n            namespace = \"results\" if many else \"result\"\n            return data[namespace]\n\n        @post_dump(pass_many=True)\n        def add_envelope(self, data, many, **kwargs):\n            namespace = \"results\" if many else \"result\"\n            return {namespace: data}\n\n        @validates_schema\n        def validate_email(self, data, **kwargs):\n            if len(data[\"email\"]) < 3:\n                raise ValidationError(\"Email must be more than 3 characters\", \"email\")\n\n        @validates(\"age\")\n        def validate_age(self, data, **kwargs):\n            if data < 14:\n                raise ValidationError(\"Too young!\")\n\n.. note::\n    These decorators only work with instance methods. Class and static\n    methods are not supported.\n\n.. warning::\n    The invocation order of decorated methods of the same type is not guaranteed.\n    If you need to guarantee order of different processing steps, you should put\n    them in the same processing method.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport functools\nfrom collections import defaultdict\nfrom typing import Any, Callable, cast\n\nPRE_DUMP = \"pre_dump\"\nPOST_DUMP = \"post_dump\"\nPRE_LOAD = \"pre_load\"\nPOST_LOAD = \"post_load\"\nVALIDATES = \"validates\"\nVALIDATES_SCHEMA = \"validates_schema\"\n\n\nclass MarshmallowHook:\n    __marshmallow_hook__: dict[str, list[tuple[bool, Any]]] | None = None\n\n\ndef validates(field_name: str) -> Callable[..., Any]:\n    \"\"\"Register a field validator.\n\n    :param str field_name: Name of the field that the method validates.\n    \"\"\"\n    return set_hook(None, VALIDATES, field_name=field_name)\n\n\ndef validates_schema(\n    fn: Callable[..., Any] | None = None,\n    pass_many: bool = False,\n    pass_original: bool = False,\n    skip_on_field_errors: bool = True,\n) -> Callable[..., Any]:\n    \"\"\"Register a schema-level validator.\n\n    By default it receives a single object at a time, transparently handling the ``many``\n    argument passed to the `Schema`'s :func:`~marshmallow.Schema.validate` call.\n    If ``pass_many=True``, the raw data (which may be a collection) is passed.\n\n    If ``pass_original=True``, the original data (before unmarshalling) will be passed as\n    an additional argument to the method.\n\n    If ``skip_on_field_errors=True``, this validation method will be skipped whenever\n    validation errors have been detected when validating fields.\n\n    .. versionchanged:: 3.0.0b1\n        ``skip_on_field_errors`` defaults to `True`.\n\n    .. versionchanged:: 3.0.0\n        ``partial`` and ``many`` are always passed as keyword arguments to\n        the decorated method.\n    \"\"\"\n    return set_hook(\n        fn,\n        VALIDATES_SCHEMA,\n        many=pass_many,\n        pass_original=pass_original,\n        skip_on_field_errors=skip_on_field_errors,\n    )\n\n\ndef pre_dump(\n    fn: Callable[..., Any] | None = None, pass_many: bool = False\n) -> Callable[..., Any]:\n    \"\"\"Register a method to invoke before serializing an object. The method\n    receives the object to be serialized and returns the processed object.\n\n    By default it receives a single object at a time, transparently handling the ``many``\n    argument passed to the `Schema`'s :func:`~marshmallow.Schema.dump` call.\n    If ``pass_many=True``, the raw data (which may be a collection) is passed.\n\n    .. versionchanged:: 3.0.0\n        ``many`` is always passed as a keyword arguments to the decorated method.\n    \"\"\"\n    return set_hook(fn, PRE_DUMP, many=pass_many)\n\n\ndef post_dump(\n    fn: Callable[..., Any] | None = None,\n    pass_many: bool = False,\n    pass_original: bool = False,\n) -> Callable[..., Any]:\n    \"\"\"Register a method to invoke after serializing an object. The method\n    receives the serialized object and returns the processed object.\n\n    By default it receives a single object at a time, transparently handling the ``many``\n    argument passed to the `Schema`'s :func:`~marshmallow.Schema.dump` call.\n    If ``pass_many=True``, the raw data (which may be a collection) is passed.\n\n    If ``pass_original=True``, the original data (before serializing) will be passed as\n    an additional argument to the method.\n\n    .. versionchanged:: 3.0.0\n        ``many`` is always passed as a keyword arguments to the decorated method.\n    \"\"\"\n    return set_hook(fn, POST_DUMP, many=pass_many, pass_original=pass_original)\n\n\ndef pre_load(\n    fn: Callable[..., Any] | None = None, pass_many: bool = False\n) -> Callable[..., Any]:\n    \"\"\"Register a method to invoke before deserializing an object. The method\n    receives the data to be deserialized and returns the processed data.\n\n    By default it receives a single object at a time, transparently handling the ``many``\n    argument passed to the `Schema`'s :func:`~marshmallow.Schema.load` call.\n    If ``pass_many=True``, the raw data (which may be a collection) is passed.\n\n    .. versionchanged:: 3.0.0\n        ``partial`` and ``many`` are always passed as keyword arguments to\n        the decorated method.\n    \"\"\"\n    return set_hook(fn, PRE_LOAD, many=pass_many)\n\n\ndef post_load(\n    fn: Callable[..., Any] | None = None,\n    pass_many: bool = False,\n    pass_original: bool = False,\n) -> Callable[..., Any]:\n    \"\"\"Register a method to invoke after deserializing an object. The method\n    receives the deserialized data and returns the processed data.\n\n    By default it receives a single object at a time, transparently handling the ``many``\n    argument passed to the `Schema`'s :func:`~marshmallow.Schema.load` call.\n    If ``pass_many=True``, the raw data (which may be a collection) is passed.\n\n    If ``pass_original=True``, the original data (before deserializing) will be passed as\n    an additional argument to the method.\n\n    .. versionchanged:: 3.0.0\n        ``partial`` and ``many`` are always passed as keyword arguments to\n        the decorated method.\n    \"\"\"\n    return set_hook(fn, POST_LOAD, many=pass_many, pass_original=pass_original)\n\n\ndef set_hook(\n    fn: Callable[..., Any] | None, tag: str, many: bool = False, **kwargs: Any\n) -> Callable[..., Any]:\n    \"\"\"Mark decorated function as a hook to be picked up later.\n    You should not need to use this method directly.\n\n    .. note::\n        Currently only works with functions and instance methods. Class and\n        static methods are not supported.\n\n    :return: Decorated function if supplied, else this decorator with its args\n        bound.\n    \"\"\"\n    # Allow using this as either a decorator or a decorator factory.\n    if fn is None:\n        return functools.partial(set_hook, tag=tag, many=many, **kwargs)\n\n    # Set a __marshmallow_hook__ attribute instead of wrapping in some class,\n    # because I still want this to end up as a normal (unbound) method.\n    function = cast(MarshmallowHook, fn)\n    try:\n        hook_config = function.__marshmallow_hook__\n    except AttributeError:\n        function.__marshmallow_hook__ = hook_config = defaultdict(list)\n    # Also save the kwargs for the tagged function on\n    # __marshmallow_hook__, keyed by <tag>\n    if hook_config is not None:\n        hook_config[tag].append((many, kwargs))\n\n    return fn\n"
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "path": "src/marshmallow",
+        "pattern": "pass_collection"
+      },
+      "result": {
+        "matches": []
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "path": "tests",
+        "pattern": "pass_collection"
+      },
+      "result": {
+        "matches": []
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "pass_",
+        "path": "src/marshmallow"
+      },
+      "result": {
+        "error": "You already called this exact tool with these exact arguments earlier in this session and got the same result -- repeating it wastes your limited tool-call budget. Use what you already learned from that earlier call, or call edit_file now if you understand the fix."
+      },
+      "blocked_duplicate": true
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "path": "src/marshmallow",
+        "pattern": "pass_original"
+      },
+      "result": {
+        "matches": [
+          "src\\marshmallow\\decorators.py:97: pass_original: bool = False,",
+          "src\\marshmallow\\decorators.py:106: If ``pass_original=True``, the original data (before unmarshalling) will be passed as",
+          "src\\marshmallow\\decorators.py:123: pass_original=pass_original,",
+          "src\\marshmallow\\decorators.py:147: pass_original: bool = False,",
+          "src\\marshmallow\\decorators.py:156: If ``pass_original=True``, the original data (before serializing) will be passed as",
+          "src\\marshmallow\\decorators.py:162: return set_hook(fn, POST_DUMP, many=pass_many, pass_original=pass_original)",
+          "src\\marshmallow\\decorators.py:185: pass_original: bool = False,",
+          "src\\marshmallow\\decorators.py:194: If ``pass_original=True``, the original data (before deserializing) will be passed as",
+          "src\\marshmallow\\decorators.py:201: return set_hook(fn, POST_LOAD, many=pass_many, pass_original=pass_original)",
+          "src\\marshmallow\\schema.py:710: pass_original,",
+          "src\\marshmallow\\schema.py:714: if pass_original:  # Pass original, raw data (before unmarshalling)",
+          "src\\marshmallow\\schema.py:1105: pass_original = validator_kwargs.get(\"pass_original\", False)",
+          "src\\marshmallow\\schema.py:1117: pass_original=pass_original,",
+          "src\\marshmallow\\schema.py:1126: pass_original=pass_original,",
+          "src\\marshmallow\\schema.py:1145: pass_original = processor_kwargs.get(\"pass_original\", False)",
+          "src\\marshmallow\\schema.py:1148: if pass_original:",
+          "src\\marshmallow\\schema.py:1156: if pass_original:"
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "pass_",
+        "path": "src/marshmallow"
+      },
+      "result": {
+        "error": "You already called this exact tool with these exact arguments earlier in this session and got the same result -- repeating it wastes your limited tool-call budget. Use what you already learned from that earlier call, or call edit_file now if you understand the fix."
+      },
+      "blocked_duplicate": true
+    },
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "src/marshmallow/schema.py"
+      },
+      "result": {
+        "content": "\"\"\"The :class:`Schema` class, including its metaclass and options (class Meta).\"\"\"\n\nfrom __future__ import annotations\n\nimport copy\nimport datetime as dt\nimport decimal\nimport inspect\nimport json\nimport typing\nimport uuid\nfrom abc import ABCMeta\nfrom collections import defaultdict\nfrom collections.abc import Mapping\n\nfrom marshmallow import base, class_registry, types\nfrom marshmallow import fields as ma_fields\nfrom marshmallow.decorators import (\n    POST_DUMP,\n    POST_LOAD,\n    PRE_DUMP,\n    PRE_LOAD,\n    VALIDATES,\n    VALIDATES_SCHEMA,\n)\nfrom marshmallow.error_store import ErrorStore\nfrom marshmallow.exceptions import StringNotCollectionError, ValidationError\nfrom marshmallow.orderedset import OrderedSet\nfrom marshmallow.utils import (\n    EXCLUDE,\n    INCLUDE,\n    RAISE,\n    get_value,\n    is_collection,\n    is_instance_or_subclass,\n    missing,\n    set_value,\n    validate_unknown_parameter_value,\n)\n\n\ndef _get_fields(attrs):\n    \"\"\"Get fields from a class\n\n    :param attrs: Mapping of class attributes\n    \"\"\"\n    return [\n        (field_name, field_value)\n        for field_name, field_value in attrs.items()\n        if is_instance_or_subclass(field_value, base.FieldABC)\n    ]\n\n\n# This function allows Schemas to inherit from non-Schema classes and ensures\n#   inheritance according to the MRO\ndef _get_fields_by_mro(klass: SchemaMeta):\n    \"\"\"Collect fields from a class, following its method resolution order. The\n    class itself is excluded from the search; only its parents are checked. Get\n    fields from ``_declared_fields`` if available, else use ``__dict__``.\n\n    :param type klass: Class whose fields to retrieve\n    \"\"\"\n    mro = inspect.getmro(klass)\n    # Loop over mro in reverse to maintain correct order of fields\n    return sum(\n        (\n            _get_fields(\n                getattr(base, \"_declared_fields\", base.__dict__),\n            )\n            for base in mro[:0:-1]\n        ),\n        [],\n    )\n\n\nclass SchemaMeta(ABCMeta):\n    \"\"\"Metaclass for the Schema class. Binds the declared fields to\n    a ``_declared_fields`` attribute, which is a dictionary mapping attribute\n    names to field objects. Also sets the ``opts`` class attribute, which is\n    the Schema class's ``class Meta`` options.\n    \"\"\"\n\n    def __new__(mcs, name, bases, attrs):\n        meta = attrs.get(\"Meta\")\n        cls_fields = _get_fields(attrs)\n        # Remove fields from list of class attributes to avoid shadowing\n        # Schema attributes/methods in case of name conflict\n        for field_name, _ in cls_fields:\n            del attrs[field_name]\n        klass = super().__new__(mcs, name, bases, attrs)\n        inherited_fields = _get_fields_by_mro(klass)\n\n        meta = klass.Meta\n        # Set klass.opts in __new__ rather than __init__ so that it is accessible in\n        # get_declared_fields\n        klass.opts = klass.OPTIONS_CLASS(meta)\n        # Add fields specified in the `include` class Meta option\n        cls_fields += list(klass.opts.include.items())\n\n        # Assign _declared_fields on class\n        klass._declared_fields = mcs.get_declared_fields(\n            klass=klass,\n            cls_fields=cls_fields,\n            inherited_fields=inherited_fields,\n            dict_cls=dict,\n        )\n        return klass\n\n    @classmethod\n    def get_declared_fields(\n        mcs,\n        klass: SchemaMeta,\n        cls_fields: list,\n        inherited_fields: list,\n        dict_cls: type[dict] = dict,\n    ):\n        \"\"\"Returns a dictionary of field_name => `Field` pairs declared on the class.\n        This is exposed mainly so that plugins can add additional fields, e.g. fields\n        computed from class Meta options.\n\n        :param klass: The class object.\n        :param cls_fields: The fields declared on the class, including those added\n            by the ``include`` class Meta option.\n        :param inherited_fields: Inherited fields.\n        :param dict_cls: dict-like class to use for dict output Default to ``dict``.\n        \"\"\"\n        return dict_cls(inherited_fields + cls_fields)\n\n    def __init__(cls, name, bases, attrs):\n        super().__init__(name, bases, attrs)\n        if name and cls.opts.register:\n            class_registry.register(name, cls)\n        cls._hooks = cls.resolve_hooks()\n\n    def resolve_hooks(cls) -> dict[str, list[tuple[str, bool, dict]]]:\n        \"\"\"Add in the decorated processors\n\n        By doing this after constructing the class, we let standard inheritance\n        do all the hard work.\n        \"\"\"\n        mro = inspect.getmro(cls)\n\n        hooks = defaultdict(list)  # type: dict[str, list[tuple[str, bool, dict]]]\n\n        for attr_name in dir(cls):\n            # Need to look up the actual descriptor, not whatever might be\n            # bound to the class. This needs to come from the __dict__ of the\n            # declaring class.\n            for parent in mro:\n                try:\n                    attr = parent.__dict__[attr_name]\n                except KeyError:\n                    continue\n                else:\n                    break\n            else:\n                # In case we didn't find the attribute and didn't break above.\n                # We should never hit this - it's just here for completeness\n                # to exclude the possibility of attr being undefined.\n                continue\n\n            try:\n                hook_config = attr.__marshmallow_hook__  # type: dict[str, list[tuple[bool, dict]]]\n            except AttributeError:\n                pass\n            else:\n                for tag, config in hook_config.items():\n                    # Use name here so we can get the bound method later, in\n                    # case the processor was a descriptor or something.\n                    hooks[tag].extend(\n                        (attr_name, many, kwargs) for many, kwargs in config\n                    )\n\n        return hooks\n\n\nclass SchemaOpts:\n    \"\"\"class Meta options for the :class:`Schema`. Defines defaults.\"\"\"\n\n    def __init__(self, meta):\n        self.fields = getattr(meta, \"fields\", ())\n        if not isinstance(self.fields, (list, tuple)):\n            raise ValueError(\"`fields` option must be a list or tuple.\")\n        self.exclude = getattr(meta, \"exclude\", ())\n        if not isinstance(self.exclude, (list, tuple)):\n            raise ValueError(\"`exclude` must be a list or tuple.\")\n        self.dateformat = getattr(meta, \"dateformat\", None)\n        self.datetimeformat = getattr(meta, \"datetimeformat\", None)\n        self.timeformat = getattr(meta, \"timeformat\", None)\n        self.render_module = getattr(meta, \"render_module\", json)\n        self.index_errors = getattr(meta, \"index_errors\", True)\n        self.include = getattr(meta, \"include\", {})\n        self.load_only = getattr(meta, \"load_only\", ())\n        self.dump_only = getattr(meta, \"dump_only\", ())\n        self.unknown = validate_unknown_parameter_value(getattr(meta, \"unknown\", RAISE))\n        self.register = getattr(meta, \"register\", True)\n        self.many = getattr(meta, \"many\", False)\n\n\nclass Schema(base.SchemaABC, metaclass=SchemaMeta):\n    \"\"\"Base schema class with which to define custom schemas.\n\n    Example usage:\n\n    .. code-block:: python\n\n        import datetime as dt\n        from dataclasses import dataclass\n\n        from marshmallow import Schema, fields\n\n\n        @dataclass\n        class Album:\n            title: str\n            release_date: dt.date\n\n\n        class AlbumSchema(Schema):\n            title = fields.Str()\n            release_date = fields.Date()\n\n\n        album = Album(\"Beggars Banquet\", dt.date(1968, 12, 6))\n        schema = AlbumSchema()\n        data = schema.dump(album)\n        data  # {'release_date': '1968-12-06', 'title': 'Beggars Banquet'}\n\n    :param only: Whitelist of the declared fields to select when\n        instantiating the Schema. If None, all fields are used. Nested fields\n        can be represented with dot delimiters.\n    :param exclude: Blacklist of the declared fields to exclude\n        when instantiating the Schema. If a field appears in both `only` and\n        `exclude`, it is not used. Nested fields can be represented with dot\n        delimiters.\n    :param many: Should be set to `True` if ``obj`` is a collection\n        so that the object will be serialized to a list.\n    :param context: Optional context passed to :class:`fields.Method` and\n        :class:`fields.Function` fields.\n    :param load_only: Fields to skip during serialization (write-only fields)\n    :param dump_only: Fields to skip during deserialization (read-only fields)\n    :param partial: Whether to ignore missing fields and not require\n        any fields declared. Propagates down to ``Nested`` fields as well. If\n        its value is an iterable, only missing fields listed in that iterable\n        will be ignored. Use dot delimiters to specify nested fields.\n    :param unknown: Whether to exclude, include, or raise an error for unknown\n        fields in the data. Use `EXCLUDE`, `INCLUDE` or `RAISE`.\n\n    .. versionchanged:: 3.0.0\n        `prefix` parameter removed.\n    \"\"\"\n\n    TYPE_MAPPING = {\n        str: ma_fields.String,\n        bytes: ma_fields.String,\n        dt.datetime: ma_fields.DateTime,\n        float: ma_fields.Float,\n        bool: ma_fields.Boolean,\n        tuple: ma_fields.Raw,\n        list: ma_fields.Raw,\n        set: ma_fields.Raw,\n        int: ma_fields.Integer,\n        uuid.UUID: ma_fields.UUID,\n        dt.time: ma_fields.Time,\n        dt.date: ma_fields.Date,\n        dt.timedelta: ma_fields.TimeDelta,\n        decimal.Decimal: ma_fields.Decimal,\n    }  # type: dict[type, typing.Type[ma_fields.Field]]\n    #: Overrides for default schema-level error messages\n    error_messages = {}  # type: dict[str, str]\n\n    _default_error_messages = {\n        \"type\": \"Invalid input type.\",\n        \"unknown\": \"Unknown field.\",\n    }  # type: dict[str, str]\n\n    OPTIONS_CLASS = SchemaOpts  # type: type\n\n    set_class = OrderedSet\n    dict_class = dict  # type: type[dict]\n\n    # These get set by SchemaMeta\n    opts = None  # type: SchemaOpts\n    _declared_fields = {}  # type: dict[str, ma_fields.Field]\n    _hooks = {}  # type: dict[str, list[tuple[str, bool, dict]]]\n\n    class Meta:\n        \"\"\"Options object for a Schema.\n\n        Example usage: ::\n\n            class Meta:\n                fields = (\"id\", \"email\", \"date_created\")\n                exclude = (\"password\", \"secret_attribute\")\n\n        Available options:\n\n        - ``fields``: Tuple or list of fields to include in the serialized result.\n        - ``include``: Dictionary of additional fields to include in the schema. It is\n            usually better to define fields as class variables, but you may need to\n            use this option, e.g., if your fields are Python keywords. May be an\n            `OrderedDict`.\n        - ``exclude``: Tuple or list of fields to exclude in the serialized result.\n            Nested fields can be represented with dot delimiters.\n        - ``many``: Whether the data is a collection by default.\n        - ``dateformat``: Default format for `Date <fields.Date>` fields.\n        - ``datetimeformat``: Default format for `DateTime <fields.DateTime>` fields.\n        - ``timeformat``: Default format for `Time <fields.Time>` fields.\n        - ``render_module``: Module to use for `loads <Schema.loads>` and `dumps <Schema.dumps>`.\n            Defaults to `json` from the standard library.\n        - ``ordered``: If `True`, output of `Schema.dump` will be a `collections.OrderedDict`.\n        - ``index_errors``: If `True`, errors dictionaries will include the index\n            of invalid items in a collection.\n        - ``load_only``: Tuple or list of fields to exclude from serialized results.\n        - ``dump_only``: Tuple or list of fields to exclude from deserialization\n        - ``unknown``: Whether to exclude, include, or raise an error for unknown\n            fields in the data. Use `EXCLUDE`, `INCLUDE` or `RAISE`.\n        - ``register``: Whether to register the `Schema` with marshmallow's internal\n            class registry. Must be `True` if you intend to refer to this `Schema`\n            by class name in `Nested` fields. Only set this to `False` when memory\n            usage is critical. Defaults to `True`.\n        \"\"\"\n\n    def __init__(\n        self,\n        *,\n        only: types.StrSequenceOrSet | None = None,\n        exclude: types.StrSequenceOrSet = (),\n        many: bool | None = None,\n        context: dict | None = None,\n        load_only: types.StrSequenceOrSet = (),\n        dump_only: types.StrSequenceOrSet = (),\n        partial: bool | types.StrSequenceOrSet | None = None,\n        unknown: str | None = None,\n    ):\n        # Raise error if only or exclude is passed as string, not list of strings\n        if only is not None and not is_collection(only):\n            raise StringNotCollectionError('\"only\" should be a list of strings')\n        if not is_collection(exclude):\n            raise StringNotCollectionError('\"exclude\" should be a list of strings')\n        # copy declared fields from metaclass\n        self.declared_fields = copy.deepcopy(self._declared_fields)\n        self.many = self.opts.many if many is None else many\n        self.only = only\n        self.exclude: set[typing.Any] | typing.MutableSet[typing.Any] = set(\n            self.opts.exclude\n        ) | set(exclude)\n        self.load_only = set(load_only) or set(self.opts.load_only)\n        self.dump_only = set(dump_only) or set(self.opts.dump_only)\n        self.partial = partial\n        self.unknown = (\n            self.opts.unknown\n            if unknown is None\n            else validate_unknown_parameter_value(unknown)\n        )\n        self.context = context or {}\n        self._normalize_nested_options()\n        #: Dictionary mapping field_names -> :class:`Field` objects\n        self.fields = {}  # type: dict[str, ma_fields.Field]\n        self.load_fields = {}  # type: dict[str, ma_fields.Field]\n        self.dump_fields = {}  # type: dict[str, ma_fields.Field]\n        self._init_fields()\n        messages = {}\n        messages.update(self._default_error_messages)\n        for cls in reversed(self.__class__.__mro__):\n            messages.update(getattr(cls, \"error_messages\", {}))\n        messages.update(self.error_messages or {})\n        self.error_messages = messages\n\n    def __repr__(self) -> str:\n        return f\"<{self.__class__.__name__}(many={self.many})>\"\n\n    @classmethod\n    def from_dict(\n        cls,\n        fields: dict[str, ma_fields.Field],\n        *,\n        name: str = \"GeneratedSchema\",\n    ) -> type[Schema]:\n        \"\"\"Generate a `Schema` class given a dictionary of fields.\n\n        .. code-block:: python\n\n            from marshmallow import Schema, fields\n\n            PersonSchema = Schema.from_dict({\"name\": fields.Str()})\n            print(PersonSchema().load({\"name\": \"David\"}))  # => {'name': 'David'}\n\n        Generated schemas are not added to the class registry and therefore cannot\n        be referred to by name in `Nested` fields.\n\n        :param dict fields: Dictionary mapping field names to field instances.\n        :param str name: Optional name for the class, which will appear in\n            the ``repr`` for the class.\n\n        .. versionadded:: 3.0.0\n        \"\"\"\n        Meta = type(\n            \"GeneratedMeta\", (getattr(cls, \"Meta\", object),), {\"register\": False}\n        )\n        schema_cls = type(name, (cls,), {**fields.copy(), \"Meta\": Meta})\n        return schema_cls\n\n    ##### Override-able methods #####\n\n    def handle_error(\n        self, error: ValidationError, data: typing.Any, *, many: bool, **kwargs\n    ):\n        \"\"\"Custom error handler function for the schema.\n\n        :param error: The `ValidationError` raised during (de)serialization.\n        :param data: The original input data.\n        :param many: Value of ``many`` on dump or load.\n        :param partial: Value of ``partial`` on load.\n\n        .. versionchanged:: 3.0.0rc9\n            Receives `many` and `partial` (on deserialization) as keyword arguments.\n        \"\"\"\n        pass\n\n    def get_attribute(self, obj: typing.Any, attr: str, default: typing.Any):\n        \"\"\"Defines how to pull values from an object to serialize.\n\n        .. versionchanged:: 3.0.0a1\n            Changed position of ``obj`` and ``attr``.\n        \"\"\"\n        return get_value(obj, attr, default)\n\n    ##### Serialization/Deserialization API #####\n\n    @staticmethod\n    def _call_and_store(getter_func, data, *, field_name, error_store, index=None):\n        \"\"\"Call ``getter_func`` with ``data`` as its argument, and store any `ValidationErrors`.\n\n        :param callable getter_func: Function for getting the serialized/deserialized\n            value from ``data``.\n        :param data: The data passed to ``getter_func``.\n        :param str field_name: Field name.\n        :param int index: Index of the item being validated, if validating a collection,\n            otherwise `None`.\n        \"\"\"\n        try:\n            value = getter_func(data)\n        except ValidationError as error:\n            error_store.store_error(error.messages, field_name, index=index)\n            # When a Nested field fails validation, the marshalled data is stored\n            # on the ValidationError's valid_data attribute\n            return error.valid_data or missing\n        return value\n\n    def _serialize(self, obj: typing.Any, *, many: bool = False):\n        \"\"\"Serialize ``obj``.\n\n        :param obj: The object(s) to serialize.\n        :param bool many: `True` if ``data`` should be serialized as a collection.\n        :return: A dictionary of the serialized data\n        \"\"\"\n        if many and obj is not None:\n            return [self._serialize(d, many=False) for d in obj]\n        ret = self.dict_class()\n        for attr_name, field_obj in self.dump_fields.items():\n            value = field_obj.serialize(attr_name, obj, accessor=self.get_attribute)\n            if value is missing:\n                continue\n            key = field_obj.data_key if field_obj.data_key is not None else attr_name\n            ret[key] = value\n        return ret\n\n    def dump(self, obj: typing.Any, *, many: bool | None = None):\n        \"\"\"Serialize an object to native Python data types according to this\n        Schema's fields.\n\n        :param obj: The object to serialize.\n        :param many: Whether to serialize `obj` as a collection. If `None`, the value\n            for `self.many` is used.\n        :return: Serialized data\n\n        .. versionadded:: 1.0.0\n        .. versionchanged:: 3.0.0b7\n            This method returns the serialized data rather than a ``(data, errors)`` duple.\n            A :exc:`ValidationError <marshmallow.exceptions.ValidationError>` is raised\n            if ``obj`` is invalid.\n        .. versionchanged:: 3.0.0rc9\n            Validation no longer occurs upon serialization.\n        \"\"\"\n        many = self.many if many is None else bool(many)\n        if self._hooks[PRE_DUMP]:\n            processed_obj = self._invoke_dump_processors(\n                PRE_DUMP, obj, many=many, original_data=obj\n            )\n        else:\n            processed_obj = obj\n\n        result = self._serialize(processed_obj, many=many)\n\n        if self._hooks[POST_DUMP]:\n            result = self._invoke_dump_processors(\n                POST_DUMP, result, many=many, original_data=obj\n            )\n\n        return result\n\n    def dumps(self, obj: typing.Any, *args, many: bool | None = None, **kwargs):\n        \"\"\"Same as :meth:`dump`, except return a JSON-encoded string.\n\n        :param obj: The object to serialize.\n        :param many: Whether to serialize `obj` as a collection. If `None`, the value\n            for `self.many` is used.\n        :return: A ``json`` string\n\n        .. versionadded:: 1.0.0\n        .. versionchanged:: 3.0.0b7\n            This method returns the serialized data rather than a ``(data, errors)`` duple.\n            A :exc:`ValidationError <marshmallow.exceptions.ValidationError>` is raised\n            if ``obj`` is invalid.\n        \"\"\"\n        serialized = self.dump(obj, many=many)\n        return self.opts.render_module.dumps(serialized, *args, **kwargs)\n\n    def _deserialize(\n        self,\n        data: (\n            typing.Mapping[str, typing.Any]\n            | typing.Iterable[typing.Mapping[str, typing.Any]]\n        ),\n        *,\n        error_store: ErrorStore,\n        many: bool = False,\n        partial=None,\n        unknown=RAISE,\n        index=None,\n    ) -> typing.Any | list[typing.Any]:\n        \"\"\"Deserialize ``data``.\n\n        :param dict data: The data to deserialize.\n        :param ErrorStore error_store: Structure to store errors.\n        :param bool many: `True` if ``data`` should be deserialized as a collection.\n        :param bool|tuple partial: Whether to ignore missing fields and not require\n            any fields declared. Propagates down to ``Nested`` fields as well. If\n            its value is an iterable, only missing fields listed in that iterable\n            will be ignored. Use dot delimiters to specify nested fields.\n        :param unknown: Whether to exclude, include, or raise an error for unknown\n            fields in the data. Use `EXCLUDE`, `INCLUDE` or `RAISE`.\n        :param int index: Index of the item being serialized (for storing errors) if\n            serializing a collection, otherwise `None`.\n        :return: The deserialized data as `dict_class` instance or list of `dict_class`\n        instances if `many` is `True`.\n        \"\"\"\n        index_errors = self.opts.index_errors\n        index = index if index_errors else None\n        if many:\n            if not is_collection(data):\n                error_store.store_error([self.error_messages[\"type\"]], index=index)\n                ret_l = []\n            else:\n                ret_l = [\n                    self._deserialize(\n                        typing.cast(dict, d),\n                        error_store=error_store,\n                        many=False,\n                        partial=partial,\n                        unknown=unknown,\n                        index=idx,\n                    )\n                    for idx, d in enumerate(data)\n                ]\n            return ret_l\n        ret_d = self.dict_class()\n        # Check data is a dict\n        if not isinstance(data, Mapping):\n            error_store.store_error([self.error_messages[\"type\"]], index=index)\n        else:\n            partial_is_collection = is_collection(partial)\n            for attr_name, field_obj in self.load_fields.items():\n                field_name = (\n                    field_obj.data_key if field_obj.data_key is not None else attr_name\n                )\n                raw_value = data.get(field_name, missing)\n                if raw_value is missing:\n                    # Ignore missing field if we're allowed to.\n                    if partial is True or (\n                        partial_is_collection and attr_name in partial\n                    ):\n                        continue\n                d_kwargs = {}\n                # Allow partial loading of nested schemas.\n                if partial_is_collection:\n                    prefix = field_name + \".\"\n                    len_prefix = len(prefix)\n                    sub_partial = [\n                        f[len_prefix:] for f in partial if f.startswith(prefix)\n                    ]\n                    d_kwargs[\"partial\"] = sub_partial\n                elif partial is not None:\n                    d_kwargs[\"partial\"] = partial\n\n                def getter(\n                    val, field_obj=field_obj, field_name=field_name, d_kwargs=d_kwargs\n                ):\n                    return field_obj.deserialize(\n                        val,\n                        field_name,\n                        data,\n                        **d_kwargs,\n                    )\n\n                value = self._call_and_store(\n                    getter_func=getter,\n                    data=raw_value,\n                    field_name=field_name,\n                    error_store=error_store,\n                    index=index,\n                )\n                if value is not missing:\n                    key = field_obj.attribute or attr_name\n                    set_value(ret_d, key, value)\n            if unknown != EXCLUDE:\n                fields = {\n                    field_obj.data_key if field_obj.data_key is not None else field_name\n                    for field_name, field_obj in self.load_fields.items()\n                }\n                for key in set(data) - fields:\n                    value = data[key]\n                    if unknown == INCLUDE:\n                        ret_d[key] = value\n                    elif unknown == RAISE:\n                        error_store.store_error(\n                            [self.error_messages[\"unknown\"]],\n                            key,\n                            (index if index_errors else None),\n                        )\n        return ret_d\n\n    def load(\n        self,\n        data: (\n            typing.Mapping[str, typing.Any]\n            | typing.Iterable[typing.Mapping[str, typing.Any]]\n        ),\n        *,\n        many: bool | None = None,\n        partial: bool | types.StrSequenceOrSet | None = None,\n        unknown: str | None = None,\n    ):\n        \"\"\"Deserialize a data structure to an object defined by this Schema's fields.\n\n        :param data: The data to deserialize.\n        :param many: Whether to deserialize `data` as a collection. If `None`, the\n            value for `self.many` is used.\n        :param partial: Whether to ignore missing fields and not require\n            any fields declared. Propagates down to ``Nested`` fields as well. If\n            its value is an iterable, only missing fields listed in that iterable\n            will be ignored. Use dot delimiters to specify nested fields.\n        :param unknown: Whether to exclude, include, or raise an error for unknown\n            fields in the data. Use `EXCLUDE`, `INCLUDE` or `RAISE`.\n            If `None`, the value for `self.unknown` is used.\n        :return: Deserialized data\n\n        .. versionadded:: 1.0.0\n        .. versionchanged:: 3.0.0b7\n            This method returns the deserialized data rather than a ``(data, errors)`` duple.\n            A :exc:`ValidationError <marshmallow.exceptions.ValidationError>` is raised\n            if invalid data are passed.\n        \"\"\"\n        return self._do_load(\n            data, many=many, partial=partial, unknown=unknown, postprocess=True\n        )\n\n    def loads(\n        self,\n        json_data: str,\n        *,\n        many: bool | None = None,\n        partial: bool | types.StrSequenceOrSet | None = None,\n        unknown: str | None = None,\n        **kwargs,\n    ):\n        \"\"\"Same as :meth:`load`, except it takes a JSON string as input.\n\n        :param json_data: A JSON string of the data to deserialize.\n        :param many: Whether to deserialize `obj` as a collection. If `None`, the\n            value for `self.many` is used.\n        :param partial: Whether to ignore missing fields and not require\n            any fields declared. Propagates down to ``Nested`` fields as well. If\n            its value is an iterable, only missing fields listed in that iterable\n            will be ignored. Use dot delimiters to specify nested fields.\n        :param unknown: Whether to exclude, include, or raise an error for unknown\n            fields in the data. Use `EXCLUDE`, `INCLUDE` or `RAISE`.\n            If `None`, the value for `self.unknown` is used.\n        :return: Deserialized data\n\n        .. versionadded:: 1.0.0\n        .. versionchanged:: 3.0.0b7\n            This method returns the deserialized data rather than a ``(data, errors)`` duple.\n            A :exc:`ValidationError <marshmallow.exceptions.ValidationError>` is raised\n            if invalid data are passed.\n        \"\"\"\n        data = self.opts.render_module.loads(json_data, **kwargs)\n        return self.load(data, many=many, partial=partial, unknown=unknown)\n\n    def _run_validator(\n        self,\n        validator_func,\n        output,\n        *,\n        original_data,\n        error_store,\n        many,\n        partial,\n        pass_original,\n        index=None,\n    ):\n        try:\n            if pass_original:  # Pass original, raw data (before unmarshalling)\n                validator_func(output, original_data, partial=partial, many=many)\n            else:\n                validator_func(output, partial=partial, many=many)\n        except ValidationError as err:\n            error_store.store_error(err.messages, err.field_name, index=index)\n\n    def validate(\n        self,\n        data: (\n            typing.Mapping[str, typing.Any]\n            | typing.Iterable[typing.Mapping[str, typing.Any]]\n        ),\n        *,\n        many: bool | None = None,\n        partial: bool | types.StrSequenceOrSet | None = None,\n    ) -> dict[str, list[str]]:\n        \"\"\"Validate `data` against the schema, returning a dictionary of\n        validation errors.\n\n        :param data: The data to validate.\n        :param many: Whether to validate `data` as a collection. If `None`, the\n            value for `self.many` is used.\n        :param partial: Whether to ignore missing fields and not require\n            any fields declared. Propagates down to ``Nested`` fields as well. If\n            its value is an iterable, only missing fields listed in that iterable\n            will be ignored. Use dot delimiters to specify nested fields.\n        :return: A dictionary of validation errors.\n\n        .. versionadded:: 1.1.0\n        \"\"\"\n        try:\n            self._do_load(data, many=many, partial=partial, postprocess=False)\n        except ValidationError as exc:\n            return typing.cast(dict[str, list[str]], exc.messages)\n        return {}\n\n    ##### Private Helpers #####\n\n    def _do_load(\n        self,\n        data: (\n            typing.Mapping[str, typing.Any]\n            | typing.Iterable[typing.Mapping[str, typing.Any]]\n        ),\n        *,\n        many: bool | None = None,\n        partial: bool | types.StrSequenceOrSet | None = None,\n        unknown: str | None = None,\n        postprocess: bool = True,\n    ):\n        \"\"\"Deserialize `data`, returning the deserialized result.\n        This method is private API.\n\n        :param data: The data to deserialize.\n        :param many: Whether to deserialize `data` as a collection. If `None`, the\n            value for `self.many` is used.\n        :param partial: Whether to validate required fields. If its\n            value is an iterable, only fields listed in that iterable will be\n            ignored will be allowed missing. If `True`, all fields will be allowed missing.\n            If `None`, the value for `self.partial` is used.\n        :param unknown: Whether to exclude, include, or raise an error for unknown\n            fields in the data. Use `EXCLUDE`, `INCLUDE` or `RAISE`.\n            If `None`, the value for `self.unknown` is used.\n        :param postprocess: Whether to run post_load methods..\n        :return: Deserialized data\n        \"\"\"\n        error_store = ErrorStore()\n        errors = {}  # type: dict[str, list[str]]\n        many = self.many if many is None else bool(many)\n        unknown = (\n            self.unknown\n            if unknown is None\n            else validate_unknown_parameter_value(unknown)\n        )\n        if partial is None:\n            partial = self.partial\n        # Run preprocessors\n        if self._hooks[PRE_LOAD]:\n            try:\n                processed_data = self._invoke_load_processors(\n                    PRE_LOAD, data, many=many, original_data=data, partial=partial\n                )\n            except ValidationError as err:\n                errors = err.normalized_messages()\n                result = None  # type: list | dict | None\n        else:\n            processed_data = data\n        if not errors:\n            # Deserialize data\n            result = self._deserialize(\n                processed_data,\n                error_store=error_store,\n                many=many,\n                partial=partial,\n                unknown=unknown,\n            )\n            # Run field-level validation\n            self._invoke_field_validators(\n                error_store=error_store, data=result, many=many\n            )\n            # Run schema-level validation\n            if self._hooks[VALIDATES_SCHEMA]:\n                field_errors = bool(error_store.errors)\n                self._invoke_schema_validators(\n                    error_store=error_store,\n                    pass_many=True,\n                    data=result,\n                    original_data=data,\n                    many=many,\n                    partial=partial,\n                    field_errors=field_errors,\n                )\n                self._invoke_schema_validators(\n                    error_store=error_store,\n                    pass_many=False,\n                    data=result,\n                    original_data=data,\n                    many=many,\n                    partial=partial,\n                    field_errors=field_errors,\n                )\n            errors = error_store.errors\n            # Run post processors\n            if not errors and postprocess and self._hooks[POST_LOAD]:\n                try:\n                    result = self._invoke_load_processors(\n                        POST_LOAD,\n                        result,\n                        many=many,\n                        original_data=data,\n                        partial=partial,\n                    )\n                except ValidationError as err:\n                    errors = err.normalized_messages()\n        if errors:\n            exc = ValidationError(errors, data=data, valid_data=result)\n            self.handle_error(exc, data, many=many, partial=partial)\n            raise exc\n\n        return result\n\n    def _normalize_nested_options(self) -> None:\n        \"\"\"Apply then flatten nested schema options.\n        This method is private API.\n        \"\"\"\n        if self.only is not None:\n            # Apply the only option to nested fields.\n            self.__apply_nested_option(\"only\", self.only, \"intersection\")\n            # Remove the child field names from the only option.\n            self.only = self.set_class([field.split(\".\", 1)[0] for field in self.only])\n        if self.exclude:\n            # Apply the exclude option to nested fields.\n            self.__apply_nested_option(\"exclude\", self.exclude, \"union\")\n            # Remove the parent field names from the exclude option.\n            self.exclude = self.set_class(\n                [field for field in self.exclude if \".\" not in field]\n            )\n\n    def __apply_nested_option(self, option_name, field_names, set_operation) -> None:\n        \"\"\"Apply nested options to nested fields\"\"\"\n        # Split nested field names on the first dot.\n        nested_fields = [name.split(\".\", 1) for name in field_names if \".\" in name]\n        # Partition the nested field names by parent field.\n        nested_options = defaultdict(list)  # type: defaultdict\n        for parent, nested_names in nested_fields:\n            nested_options[parent].append(nested_names)\n        # Apply the nested field options.\n        for key, options in iter(nested_options.items()):\n            new_options = self.set_class(options)\n            original_options = getattr(self.declared_fields[key], option_name, ())\n            if original_options:\n                if set_operation == \"union\":\n                    new_options |= self.set_class(original_options)\n                if set_operation == \"intersection\":\n                    new_options &= self.set_class(original_options)\n            setattr(self.declared_fields[key], option_name, new_options)\n\n    def _init_fields(self) -> None:\n        \"\"\"Update self.fields, self.load_fields, and self.dump_fields based on schema options.\n        This method is private API.\n        \"\"\"\n        if self.opts.fields:\n            available_field_names = self.set_class(self.opts.fields)\n        else:\n            available_field_names = self.set_class(self.declared_fields.keys())\n\n        invalid_fields = self.set_class()\n\n        if self.only is not None:\n            # Return only fields specified in only option\n            field_names: typing.AbstractSet[typing.Any] = self.set_class(self.only)\n\n            invalid_fields |= field_names - available_field_names\n        else:\n            field_names = available_field_names\n\n        # If \"exclude\" option or param is specified, remove those fields.\n        if self.exclude:\n            # Note that this isn't available_field_names, since we want to\n            # apply \"only\" for the actual calculation.\n            field_names = field_names - self.exclude\n            invalid_fields |= self.exclude - available_field_names\n\n        if invalid_fields:\n            message = f\"Invalid fields for {self}: {invalid_fields}.\"\n            raise ValueError(message)\n\n        fields_dict = self.dict_class()\n        for field_name in field_names:\n            field_obj = self.declared_fields[field_name]\n            self._bind_field(field_name, field_obj)\n            fields_dict[field_name] = field_obj\n\n        load_fields, dump_fields = self.dict_class(), self.dict_class()\n        for field_name, field_obj in fields_dict.items():\n            if not field_obj.dump_only:\n                load_fields[field_name] = field_obj\n            if not field_obj.load_only:\n                dump_fields[field_name] = field_obj\n\n        dump_data_keys = [\n            field_obj.data_key if field_obj.data_key is not None else name\n            for name, field_obj in dump_fields.items()\n        ]\n        if len(dump_data_keys) != len(set(dump_data_keys)):\n            data_keys_duplicates = {\n                x for x in dump_data_keys if dump_data_keys.count(x) > 1\n            }\n            raise ValueError(\n                \"The data_key argument for one or more fields collides \"\n                \"with another field's name or data_key argument. \"\n                \"Check the following field names and \"\n                f\"data_key arguments: {list(data_keys_duplicates)}\"\n            )\n        load_attributes = [obj.attribute or name for name, obj in load_fields.items()]\n        if len(load_attributes) != len(set(load_attributes)):\n            attributes_duplicates = {\n                x for x in load_attributes if load_attributes.count(x) > 1\n            }\n            raise ValueError(\n                \"The attribute argument for one or more fields collides \"\n                \"with another field's name or attribute argument. \"\n                \"Check the following field names and \"\n                f\"attribute arguments: {list(attributes_duplicates)}\"\n            )\n\n        self.fields = fields_dict\n        self.dump_fields = dump_fields\n        self.load_fields = load_fields\n\n    def on_bind_field(self, field_name: str, field_obj: ma_fields.Field) -> None:\n        \"\"\"Hook to modify a field when it is bound to the `Schema`.\n\n        No-op by default.\n        \"\"\"\n        return None\n\n    def _bind_field(self, field_name: str, field_obj: ma_fields.Field) -> None:\n        \"\"\"Bind field to the schema, setting any necessary attributes on the\n        field (e.g. parent and name).\n\n        Also set field load_only and dump_only values if field_name was\n        specified in ``class Meta``.\n        \"\"\"\n        if field_name in self.load_only:\n            field_obj.load_only = True\n        if field_name in self.dump_only:\n            field_obj.dump_only = True\n        try:\n            field_obj._bind_to_schema(field_name, self)\n        except TypeError as error:\n            # Field declared as a class, not an instance. Ignore type checking because\n            # we handle unsupported arg types, i.e. this is dead code from\n            # the type checker's perspective.\n            if isinstance(field_obj, type) and issubclass(field_obj, base.FieldABC):\n                msg = (\n                    f'Field for \"{field_name}\" must be declared as a '\n                    \"Field instance, not a class. \"\n                    f'Did you mean \"fields.{field_obj.__name__}()\"?'  # type: ignore\n                )\n                raise TypeError(msg) from error\n            raise error\n        self.on_bind_field(field_name, field_obj)\n\n    def _invoke_dump_processors(\n        self, tag: str, data, *, many: bool, original_data=None\n    ):\n        # The pass_many post-dump processors may do things like add an envelope, so\n        # invoke those after invoking the non-pass_many processors which will expect\n        # to get a list of items.\n        data = self._invoke_processors(\n            tag, pass_many=False, data=data, many=many, original_data=original_data\n        )\n        data = self._invoke_processors(\n            tag, pass_many=True, data=data, many=many, original_data=original_data\n        )\n        return data\n\n    def _invoke_load_processors(\n        self,\n        tag: str,\n        data,\n        *,\n        many: bool,\n        original_data,\n        partial: bool | types.StrSequenceOrSet | None,\n    ):\n        # This has to invert the order of the dump processors, so run the pass_many\n        # processors first.\n        data = self._invoke_processors(\n            tag,\n            pass_many=True,\n            data=data,\n            many=many,\n            original_data=original_data,\n            partial=partial,\n        )\n        data = self._invoke_processors(\n            tag,\n            pass_many=False,\n            data=data,\n            many=many,\n            original_data=original_data,\n            partial=partial,\n        )\n        return data\n\n    def _invoke_field_validators(self, *, error_store: ErrorStore, data, many: bool):\n        for attr_name, _, validator_kwargs in self._hooks[VALIDATES]:\n            validator = getattr(self, attr_name)\n            field_name = validator_kwargs[\"field_name\"]\n\n            try:\n                field_obj = self.fields[field_name]\n            except KeyError as error:\n                if field_name in self.declared_fields:\n                    continue\n                raise ValueError(f'\"{field_name}\" field does not exist.') from error\n\n            data_key = (\n                field_obj.data_key if field_obj.data_key is not None else field_name\n            )\n            if many:\n                for idx, item in enumerate(data):\n                    try:\n                        value = item[field_obj.attribute or field_name]\n                    except KeyError:\n                        pass\n                    else:\n                        validated_value = self._call_and_store(\n                            getter_func=validator,\n                            data=value,\n                            field_name=data_key,\n                            error_store=error_store,\n                            index=(idx if self.opts.index_errors else None),\n                        )\n                        if validated_value is missing:\n                            data[idx].pop(field_name, None)\n            else:\n                try:\n                    value = data[field_obj.attribute or field_name]\n                except KeyError:\n                    pass\n                else:\n                    validated_value = self._call_and_store(\n                        getter_func=validator,\n                        data=value,\n                        field_name=data_key,\n                        error_store=error_store,\n                    )\n                    if validated_value is missing:\n                        data.pop(field_name, None)\n\n    def _invoke_schema_validators(\n        self,\n        *,\n        error_store: ErrorStore,\n        pass_many: bool,\n        data,\n        original_data,\n        many: bool,\n        partial: bool | types.StrSequenceOrSet | None,\n        field_errors: bool = False,\n    ):\n        for attr_name, hook_many, validator_kwargs in self._hooks[VALIDATES_SCHEMA]:\n            if hook_many != pass_many:\n                continue\n            validator = getattr(self, attr_name)\n            if field_errors and validator_kwargs[\"skip_on_field_errors\"]:\n                continue\n            pass_original = validator_kwargs.get(\"pass_original\", False)\n\n            if many and not pass_many:\n                for idx, (item, orig) in enumerate(zip(data, original_data)):\n                    self._run_validator(\n                        validator,\n                        item,\n                        original_data=orig,\n                        error_store=error_store,\n                        many=many,\n                        partial=partial,\n                        index=idx,\n                        pass_original=pass_original,\n                    )\n            else:\n                self._run_validator(\n                    validator,\n                    data,\n                    original_data=original_data,\n                    error_store=error_store,\n                    many=many,\n                    pass_original=pass_original,\n                    partial=partial,\n                )\n\n    def _invoke_processors(\n        self,\n        tag: str,\n        *,\n        pass_many: bool,\n        data,\n        many: bool,\n        original_data=None,\n        **kwargs,\n    ):\n        for attr_name, hook_many, processor_kwargs in self._hooks[tag]:\n            if hook_many != pass_many:\n                continue\n            # This will be a bound method.\n            processor = getattr(self, attr_name)\n            pass_original = processor_kwargs.get(\"pass_original\", False)\n\n            if many and not pass_many:\n                if pass_original:\n                    data = [\n                        processor(item, original, many=many, **kwargs)\n                        for item, original in zip(data, original_data)\n                    ]\n                else:\n                    data = [processor(item, many=many, **kwargs) for item in data]\n            else:\n                if pass_original:\n                    data = processor(data, original_data, many=many, **kwargs)\n                else:\n                    data = processor(data, many=many, **kwargs)\n        return data\n\n\nBaseSchema = Schema  # for backwards compatibility\n"
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "pass_many",
+        "path": "src/marshmallow"
+      },
+      "result": {
+        "error": "You already called this exact tool with these exact arguments earlier in this session and got the same result -- repeating it wastes your limited tool-call budget. Use what you already learned from that earlier call, or call edit_file now if you understand the fix."
+      },
+      "blocked_duplicate": true
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "pass_many",
+        "path": "tests"
+      },
+      "result": {
+        "error": "You already called this exact tool with these exact arguments earlier in this session and got the same result -- repeating it wastes your limited tool-call budget. Use what you already learned from that earlier call, or call edit_file now if you understand the fix."
+      },
+      "blocked_duplicate": true
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "__init__.py",
+        "path": "src/marshmallow"
+      },
+      "result": {
+        "matches": []
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "src/marshmallow/__init__.py"
+      },
+      "result": {
+        "content": "from __future__ import annotations\n\nimport importlib.metadata\nimport typing\n\nfrom packaging.version import Version\n\nfrom marshmallow.decorators import (\n    post_dump,\n    post_load,\n    pre_dump,\n    pre_load,\n    validates,\n    validates_schema,\n)\nfrom marshmallow.exceptions import ValidationError\nfrom marshmallow.schema import Schema, SchemaOpts\nfrom marshmallow.utils import EXCLUDE, INCLUDE, RAISE, missing\n\nfrom . import fields\n\n\ndef __getattr__(name: str) -> typing.Any:\n    import warnings\n\n    if name == \"__version__\":\n        warnings.warn(\n            \"The '__version__' attribute is deprecated and will be removed in\"\n            \" in a future version. Use feature detection or\"\n            \" 'importlib.metadata.version(\\\"marshmallow\\\")' instead.\",\n            DeprecationWarning,\n            stacklevel=2,\n        )\n        return importlib.metadata.version(\"marshmallow\")\n\n    if name == \"__parsed_version__\":\n        warnings.warn(\n            \"The '__parsed_version__' attribute is deprecated and will be removed in\"\n            \" in a future version. Use feature detection or\"\n            \" 'packaging.Version(importlib.metadata.version(\\\"marshmallow\\\"))' instead.\",\n            DeprecationWarning,\n            stacklevel=2,\n        )\n        return Version(importlib.metadata.version(\"marshmallow\"))\n\n    if name == \"__version_info__\":\n        warnings.warn(\n            \"The '__version_info__' attribute is deprecated and will be removed in\"\n            \" in a future version. Use feature detection or\"\n            \" 'packaging.Version(importlib.metadata.version(\\\"marshmallow\\\")).release' instead.\",\n            DeprecationWarning,\n            stacklevel=2,\n        )\n        __parsed_version__ = Version(importlib.metadata.version(\"marshmallow\"))\n        __version_info__: tuple[int, int, int] | tuple[int, int, int, str, int] = (\n            __parsed_version__.release  # type: ignore[assignment]\n        )\n        if __parsed_version__.pre:\n            __version_info__ += __parsed_version__.pre  # type: ignore[assignment]\n        return __version_info__\n\n    raise AttributeError(name)\n\n\n__all__ = [\n    \"EXCLUDE\",\n    \"INCLUDE\",\n    \"RAISE\",\n    \"Schema\",\n    \"SchemaOpts\",\n    \"fields\",\n    \"validates\",\n    \"validates_schema\",\n    \"pre_dump\",\n    \"post_dump\",\n    \"pre_load\",\n    \"post_load\",\n    \"pprint\",\n    \"ValidationError\",\n    \"missing\",\n]\n"
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "search_files",
+      "args": {
+        "pattern": "pass_many",
+        "path": "."
+      },
+      "result": {
+        "matches": [
+          "examples\\peewee_example.py:69: @post_dump(pass_many=True)",
+          "examples\\peewee_example.py:83: @post_dump(pass_many=True)",
+          "tests\\test_decorators.py:45: @post_dump(pass_many=True)",
+          "tests\\test_decorators.py:51: @pre_load(pass_many=True)",
+          "tests\\test_decorators.py:62: @pre_load(pass_many=False)",
+          "tests\\test_decorators.py:161: @post_load(pass_many=True, pass_original=True)",
+          "tests\\test_decorators.py:173: @post_dump(pass_many=True, pass_original=True)",
+          "tests\\test_decorators.py:437: \"pass_many,expected_data,expected_original_data\",",
+          "tests\\test_decorators.py:443: def test_validator_nested_many_pass_original_and_pass_many(",
+          "tests\\test_decorators.py:444: self, pass_many, data, expected_data, expected_original_data",
+          "tests\\test_decorators.py:449: @validates_schema(pass_many=pass_many, pass_original=True)",
+          "tests\\test_decorators.py:463: error = errors[\"nested\"] if pass_many else errors[\"nested\"][0]",
+          "tests\\test_decorators.py:476: @validates_schema(pass_many=True)",
+          "tests\\test_decorators.py:577: @validates_schema(pass_many=True, pass_original=True)",
+          "tests\\test_decorators.py:644: @validates_schema(skip_on_field_errors=True, pass_many=True)",
+          "tests\\test_decorators.py:820: def test_decorator_post_dump_with_nested_original_and_pass_many(",
+          "tests\\test_decorators.py:826: @post_dump(pass_many=False, pass_original=True)",
+          "tests\\test_decorators.py:827: def check_pass_original_when_pass_many_false(",
+          "tests\\test_decorators.py:834: @post_dump(pass_many=True, pass_original=True)",
+          "tests\\test_decorators.py:835: def check_pass_original_when_pass_many_true(",
+          "tests\\test_decorators.py:854: def test_decorator_post_load_with_nested_original_and_pass_many(",
+          "tests\\test_decorators.py:860: @post_load(pass_many=False, pass_original=True)",
+          "tests\\test_decorators.py:861: def check_pass_original_when_pass_many_false(",
+          "tests\\test_decorators.py:868: @post_load(pass_many=True, pass_original=True)",
+          "tests\\test_decorators.py:869: def check_pass_original_when_pass_many_true(",
+          "src\\marshmallow\\decorators.py:38: @pre_load(pass_many=True)",
+          "src\\marshmallow\\decorators.py:43: @post_dump(pass_many=True)",
+          "src\\marshmallow\\decorators.py:96: pass_many: bool = False,",
+          "src\\marshmallow\\decorators.py:104: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:122: many=pass_many,",
+          "src\\marshmallow\\decorators.py:129: fn: Callable[..., Any] | None = None, pass_many: bool = False",
+          "src\\marshmallow\\decorators.py:136: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:141: return set_hook(fn, PRE_DUMP, many=pass_many)",
+          "src\\marshmallow\\decorators.py:146: pass_many: bool = False,",
+          "src\\marshmallow\\decorators.py:154: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:162: return set_hook(fn, POST_DUMP, many=pass_many, pass_original=pass_original)",
+          "src\\marshmallow\\decorators.py:166: fn: Callable[..., Any] | None = None, pass_many: bool = False",
+          "src\\marshmallow\\decorators.py:173: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:179: return set_hook(fn, PRE_LOAD, many=pass_many)",
+          "src\\marshmallow\\decorators.py:184: pass_many: bool = False,",
+          "src\\marshmallow\\decorators.py:192: If ``pass_many=True``, the raw data (which may be a collection) is passed.",
+          "src\\marshmallow\\decorators.py:201: return set_hook(fn, POST_LOAD, many=pass_many, pass_original=pass_original)",
+          "src\\marshmallow\\schema.py:820: pass_many=True,",
+          "src\\marshmallow\\schema.py:829: pass_many=False,",
+          "src\\marshmallow\\schema.py:1002: # The pass_many post-dump processors may do things like add an envelope, so",
+          "src\\marshmallow\\schema.py:1003: # invoke those after invoking the non-pass_many processors which will expect",
+          "src\\marshmallow\\schema.py:1006: tag, pass_many=False, data=data, many=many, original_data=original_data",
+          "src\\marshmallow\\schema.py:1009: tag, pass_many=True, data=data, many=many, original_data=original_data",
+          "src\\marshmallow\\schema.py:1022: # This has to invert the order of the dump processors, so run the pass_many",
+          "src\\marshmallow\\schema.py:1026: pass_many=True,",
+          "src\\marshmallow\\schema.py:1034: pass_many=False,",
+          "src\\marshmallow\\schema.py:1092: pass_many: bool,",
+          "src\\marshmallow\\schema.py:1100: if hook_many != pass_many:",
+          "src\\marshmallow\\schema.py:1107: if many and not pass_many:",
+          "src\\marshmallow\\schema.py:1134: pass_many: bool,",
+          "src\\marshmallow\\schema.py:1141: if hook_many != pass_many:",
+          "src\\marshmallow\\schema.py:1147: if many and not pass_many:"
+        ]
+      },
+      "blocked_duplicate": false
+    },
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "src/marshmallow/decorators.py"
+      },
+      "result": {
+        "error": "You already called this exact tool with these exact arguments earlier in this session and got the same result -- repeating it wastes your limited tool-call budget. Use what you already learned from that earlier call, or call edit_file now if you understand the fix."
+      },
+      "blocked_duplicate": true
+    }
+  ],
+  "tool_call_count": 20,
+  "hit_cap": true,
+  "total_tokens": 245196,
+  "final_message": ""
+}
