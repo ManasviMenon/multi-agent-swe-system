@@ -87,3 +87,26 @@ Final, clean number: **6/25 resolved (24%)**, just under SCOPE.md's >=25% target
 this as the intended humble control, not a shortfall to fix -- every later phase (Tester
 loop, Planner, Reviewer+Judge) gets measured against this exact number, and the point of
 Phase 2 is to be beatable, not good.
+
+## 2026-08-17 — Phase 3 Tester loop: two harness bugs, prediction contradicted, root-caused
+
+Full writeup in `RESULTS.md`'s Phase 3 section. Short version for this log: validating
+the Tester+Coder retry loop on the 10 known tickets (per the pre-registered discipline)
+surfaced two real bugs in the harness itself before either touched a scored number --
+the Tester's mid-loop check was blind to regressions elsewhere in the suite, and once
+fixed, the fix's own "empty suite result" case was being silently read as "all clear"
+instead of "the suite collapsed entirely." Both caught by validating on known tickets
+before a full run, exactly the discipline this practice exists for.
+
+After both fixes, the pre-registered prediction (Tester loop recovers ~4 category-B
+tickets) did not hold -- 0/4 recovered. Root cause, not just the number: reproduce-gate
+variance probing (5 independent runs per ticket, no Coder involved) showed 2 of the 4
+tickets are ones the Tester structurally can't write a reproducing test for at all
+(0/5 and 1/5 successes), not flaky -- genuinely hard for this model. The one ticket that
+did exercise the full retry loop (`marshmallow-2900`) showed the feedback loop working
+correctly (the Coder used "you broke this other test" feedback and genuinely stopped
+breaking it) but never discovering the specific mechanism (`_validate_missing`) the real
+fix needs, across 3 attempts. Capability ceiling, not lack of feedback, not a broken
+loop. Full 25-ticket run deliberately deferred until this was understood -- a
+contradicted prediction isn't something a full run resolves, it's something a full run
+would spend a day's quota merely confirming.
