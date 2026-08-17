@@ -175,6 +175,7 @@ def run_agent_loop(
     max_tool_calls: int,
     system_instruction: str | None = None,
     previous_interaction_id: str | None = None,
+    temperature: float | None = None,
 ) -> dict:
     """Runs one bounded multi-turn tool-calling session.
 
@@ -182,16 +183,25 @@ def run_agent_loop(
     (system_instruction is not re-sent -- it's already established on that chain) rather
     than starting a fresh one. Returns a transcript dict including last_interaction_id so
     a caller can chain further rounds (used for the Coder's multi-attempt retry loop).
+
+    temperature is left at the API default (None) unless a caller opts in -- the Tester
+    passes 0.0 for repeatability on its write-a-test/confirm-it-fails task, the Coder
+    intentionally does not, since some randomness is part of exploring different fix
+    approaches across retry attempts. Applied to every call in the session (not just the
+    first), so it stays consistent across a continued multi-round conversation too.
     """
     client = genai.Client()
     transcript = {"steps": [], "tool_call_count": 0, "hit_cap": False, "total_tokens": 0}
     seen_calls = set()
+    generation_config = {"temperature": temperature} if temperature is not None else None
 
     create_kwargs = {"model": model, "input": initial_input, "tools": tool_defs}
     if previous_interaction_id:
         create_kwargs["previous_interaction_id"] = previous_interaction_id
     elif system_instruction:
         create_kwargs["system_instruction"] = system_instruction
+    if generation_config:
+        create_kwargs["generation_config"] = generation_config
 
     interaction = create_with_retry(client, **create_kwargs)
     transcript["total_tokens"] += interaction.usage.total_tokens or 0
@@ -231,13 +241,15 @@ def run_agent_loop(
         if transcript["hit_cap"] or not results:
             break
 
-        interaction = create_with_retry(
-            client,
-            model=model,
-            input=results,
-            tools=tool_defs,
-            previous_interaction_id=interaction.id,
-        )
+        continue_kwargs = {
+            "model": model,
+            "input": results,
+            "tools": tool_defs,
+            "previous_interaction_id": interaction.id,
+        }
+        if generation_config:
+            continue_kwargs["generation_config"] = generation_config
+        interaction = create_with_retry(client, **continue_kwargs)
         transcript["total_tokens"] += interaction.usage.total_tokens or 0
 
     transcript["final_message"] = interaction.output_text or ""

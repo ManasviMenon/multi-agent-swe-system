@@ -251,8 +251,8 @@ times independently on the tickets that failed it, to separate "stochastic" from
 | Ticket | Valid reproductions | Reading |
 |---|---|---|
 | `marshmallow-1357` | 2/5 | Genuine variance -- works less than half the time |
-| `marshmallow-1424` | 0/5 | Genuinely hard -- never once reproduced |
-| `marshmallow-2936` | 1/5 | Mostly hard, rare success |
+| `marshmallow-1424` | 0/5 | Never once reproduced (but see below -- not necessarily "hard") |
+| `marshmallow-2936` | 1/5 | Mostly hard, rare success (but see below) |
 
 All three used the *full* 10-call budget on every single attempt, success or failure --
 the Tester never confidently concludes on these, it just runs out of room. This means
@@ -260,6 +260,25 @@ the Tester never confidently concludes on these, it just runs out of room. This 
 the Tester structurally can't set up a reproducing test at all, one that's genuinely
 noisy, and only `marshmallow-2900` that actually exercised the Coder retry loop this
 phase exists to test.
+
+**Refinement after reading the full transcripts (free -- both tickets' logged runs
+already existed, no new API calls):** `1424` and `2936` don't look like pure task
+difficulty on closer read -- they look like a round-boundary problem. In `1424`'s single
+recorded run, the Tester wrote a test using `attr`/`attrs` (a package not installed in
+this environment), got an ImportError, correctly diagnosed it, and rewrote the test with
+plain Python classes instead -- a real, sensible self-correction. But that rewrite was
+its *last* tool call before hitting the 10-call cap; it never got to re-run and verify
+the corrected version. `2936` shows the same shape: its first test (broad, using real
+Greek/Arabic/punycode IDN examples) passed against the unfixed code -- not a
+reproduction -- so it went back to the source, reasoned through the actual
+`DOMAIN_REGEX`/`encode("idna")` mechanism in detail (visible as analysis notes written
+directly into the test file), and was mid-rewrite when the same 10-call cap hit. In both
+cases the model was visibly converging on a better test right as the single round ran
+out of room, under the *old* single-round Tester (built before today's round-based
+retry + gold-check gate). This is a more fixable failure mode than "structurally hard,"
+and specifically the kind of problem an additional round should address -- worth
+re-testing under the new 2-round Tester before concluding these tickets resist
+reproduction on the merits, not just on the old budget.
 
 ### The one ticket that did exercise the loop: capability ceiling, not haste
 
@@ -373,3 +392,84 @@ concrete decision or commitment made now.
   already worked, not just gains among the ones that didn't. This is checked the same
   way regression rate is checked elsewhere in this document — by comparing against the
   frozen Phase 2 baseline, ticket by ticket, not just by the aggregate count.
+
+## Phase 4 — Planner: pre-registered experimental design
+
+Written before any Phase 4 code exists, on paper only, per the same discipline as
+Phase 3's design above. This is the plan to build against, not a decision made mid-run.
+
+### 1. Am I solving the right problem?
+
+Phase 2's failure analysis (category D, 9 tickets: never attempted an edit, hit the cap
+exploring) splits into three qualitatively different subgroups, and the Planner should
+not be expected to help them equally:
+
+| Subgroup | Tickets | Why a Planner should/shouldn't help |
+|---|---|---|
+| Diffuse, multi-method bugs | `946`, `1384`, `1404` | **Best fit.** The fix is spread across several methods (`_bind_to_schema`, `__apply_nested_option`, etc.) with no single obvious edit point — exactly "decompose the investigation before coding," the Planner's core job. |
+| Refactors/renames across many call sites | `1369`, `2924`, `2227` | **Partial fit.** A Planner enumerating every call site needing change is directly useful, but the Coder still has to correctly edit all of them — and Phase 3's `marshmallow-2900` finding (capability ceiling on a *single*-location fix) means a multi-location fix is plausibly harder, not easier, for this model. Expect the Planner to help *locate* but not guarantee *execute*. |
+| New-feature tickets (nothing broken to find) | `1312`, `1768`, `1378` | **Weakest fit.** These need designing new code, not finding an existing bug's location — a Planner built around "where does this behavior live" doesn't obviously transfer to "what should a new classmethod/Validator look like." Plausibly needs a different prompt framing more than decomposition. |
+
+**Falsifiable prediction, named tickets, not just a count:** the Planner primarily
+recovers from the diffuse-bug subgroup — predicting **2 of 3** (`946`, `1384`, `1404`)
+resolve, **1 of 3** refactor tickets resolves (predicting `2227`, since deprecation
+warnings are a more mechanical, lower-risk change than the `Number`/`Mapping` ABC
+restructuring in `2924` or the `pass_many`→`pass_collection` rename in `1369`, which
+touches decorator internals more invasively), and **0 of 3** new-feature tickets
+resolve without a separate prompt change. Total: **3/9 category-D tickets**, concentrated
+in one subgroup — a materially different distribution than "roughly a third of D
+resolves evenly," which would instead suggest the Planner helps generically rather than
+for the specific decomposition reason hypothesized here.
+
+**Cost, stated honestly before building:** Phase 4 stacks a third agent's calls on top
+of Tester + Coder. If the Planner runs read-only exploration (~15 calls) *before* the
+Tester/Coder loop even starts, a single category-D ticket could cost Planner(~15) +
+Tester(~10-20) + Coder(up to 3×20) = well over 100 calls, several times Phase 2's
+baseline cost for one ticket. Given the free-tier RPD ceiling, this may mean category-D
+tickets alone approach a full day's quota for a handful of tickets — worth deciding
+up front whether Phase 4 initially runs against a *subset* of category D (the 6
+diffuse+refactor tickets predicted to matter) rather than the full 9, to keep the
+validation-before-full-run discipline affordable.
+
+### 2. What is the Planner's contract?
+
+- **Sees:** the issue text and the same read-only exploration tools already shared
+  between Coder and Tester (`agent_runtime.py`'s `READ_ONLY_TOOL_DEFS` — direct reuse,
+  not a new tool surface). Never sees `gold_patch.diff` or `test_patch.diff`.
+- **Produces:** a structured plan (which files/methods are likely involved and why,
+  not a diff) that becomes additional context handed to the Coder alongside the issue
+  text and the Tester's failing test -- the Planner never edits code itself, only the
+  Coder does, matching the guardrail that each role's tool access is enforced in code.
+- **Bound:** its own tool-call cap (proposing 15 -- more than the Tester's 10 since
+  broad investigation is its whole job, less than the Coder's 20 since it never edits).
+  Runs once per ticket, before the Tester/Coder loop starts -- not part of the retry
+  loop itself, since a plan that's wrong on attempt 1 being silently reused on attempts
+  2 and 3 would just compound the error; if this turns out to matter, letting the
+  Planner revise its plan using Coder failure feedback is a natural later addition, not
+  part of the initial design.
+
+### 3. How will success be measured, and what would prove this wrong?
+
+- **Success criterion, stated in advance:** the 3 named tickets above (`946`, `1384`,
+  `2227`) resolve; the rest of category D and the already-resolved/Phase-3-recovered
+  tickets are unaffected.
+- **Falsification:** if a substantially different set of category-D tickets resolves
+  (e.g. new-feature tickets recover but diffuse-bug ones don't), that contradicts the
+  "decomposition helps diffuse-location bugs specifically" theory and needs its own
+  writeup, not quiet reconciliation.
+- **Cost tracked explicitly:** Planner calls/tokens per ticket, on top of the existing
+  Tester+Coder cost breakdown -- report cost-per-resolved-ticket for the full pipeline,
+  not just the resolution delta.
+
+### 4. What could go wrong or contaminate the result?
+
+- **A wrong plan could steer the Coder worse than no plan at all** -- the same
+  "too-strict trap" shape as Phase 3's Tester risk, but here it's "too-confident-wrong"
+  rather than "too-strict": a plausible-but-incorrect plan handed to the Coder as
+  apparent ground truth could be more misleading than the Coder exploring fresh, since
+  the Coder may trust it over its own investigation. Explicitly check: does adding a
+  Planner regress any ticket that Phase 2 or Phase 3 already resolved without one?
+- **The Coder might explore less because it trusts the plan**, potentially missing a
+  plan error it would otherwise have caught through its own reading -- worth watching
+  for in the transcripts (does the Coder's own tool-call count drop sharply once a
+  Planner is added, and does that correlate with worse outcomes on any ticket).

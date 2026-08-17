@@ -110,3 +110,44 @@ fix needs, across 3 attempts. Capability ceiling, not lack of feedback, not a br
 loop. Full 25-ticket run deliberately deferred until this was understood -- a
 contradicted prediction isn't something a full run resolves, it's something a full run
 would spend a day's quota merely confirming.
+
+## 2026-08-17 (same session, later) — gold-patch verification gate + per-role temperature
+
+Two more pieces added before hitting the daily quota wall.
+
+**Gold-patch verification gate for the Tester's self-written tests.** The reproduce-gate
+variance data above answers "how often does the Tester write a valid test" but not "how
+do we know a test that *looks* valid actually is" -- a test could fail against buggy code
+for the wrong reason (a bug in the test itself, or coincidentally exercising unrelated
+behavior) and still pass the old gate, which only checked outcome=="failed". Fixed with
+a second check: apply the real `gold_patch.diff` (the actual source fix, distinct from
+the hidden `test_patch.diff` verifying test) to a disposable scratch worktree along with
+the Tester's current test, and confirm it now passes. This is leak-free by the same logic
+already used in Phase 1's curation self-check (`scripts/curate_tickets.py`: every gold
+patch is verified to resolve its own ticket before being trusted) -- the gold patch is
+used purely as a harness-internal pass/fail oracle, and only that binary signal (not the
+patch's content) ever reaches a prompt. Verified both mechanically (a genuine test passes
+the gold-check, a deliberately bogus `assert 1==2` test correctly fails it even though it
+also fails against the buggy code) and live end-to-end on marshmallow-2900 before wiring
+it in for real. `run_tester` is now round-based (mirrors `run_coder_round`'s continuation
+design) so a test that fails the gold-check gets fed back ("your test doesn't hold up
+against a correct fix, try a different one" -- never what the fix actually is) and the
+Tester gets up to 2 attempts, same MAX_REPRODUCE_ATTEMPTS pattern as everywhere else in
+this project that touches an LLM's first attempt not being trustworthy on its own.
+
+**Per-role temperature.** Confirmed via a live A/B prompt comparison that Gemini's
+default temperature produces genuine, non-trivial variety (3 different creative
+sentences on repeated identical calls) before hitting the daily quota wall mid-comparison
+against temperature=0.0 -- so the *quantitative* effect of lowering it is still
+unconfirmed, but the qualitative case for doing so on the Tester is solid regardless:
+its task (write a test, confirm it fails) benefits from repeatability, while the Coder's
+task (find a fix, possibly across several retry attempts) plausibly benefits from
+exploring different approaches, so intentionally left at API default. Wired into
+`agent_runtime.py`'s `run_agent_loop` as an opt-in `temperature` parameter applied to
+every call in a session (not just the first, so it holds across a continued multi-round
+conversation) -- `tester.py` passes 0.0, `coder.py` passes nothing.
+
+Next real (quota-costing) steps, in order: finish the temperature A/B comparison,
+decide the k-of-N-runs reporting methodology given the confirmed reproduce-gate
+variance, re-validate the 10 known tickets with all of today's fixes in place, then the
+full 25-ticket run.

@@ -245,6 +245,9 @@ def verify_against_gold(base_commit: str, gold_patch_text: str, test_content: st
         remove_worktree(gold_worktree)
 
 
+TEMPERATURE = 0.0  # repeatability matters more than variety for "write a test, confirm it fails"
+
+
 def run_tester_round(prompt_text: str, worktree: Path, previous_interaction_id: str | None = None) -> dict:
     return run_agent_loop(
         model=MODEL,
@@ -255,6 +258,7 @@ def run_tester_round(prompt_text: str, worktree: Path, previous_interaction_id: 
         max_tool_calls=MAX_TOOL_CALLS,
         system_instruction=SYSTEM_INSTRUCTION,
         previous_interaction_id=previous_interaction_id,
+        temperature=TEMPERATURE,
     )
 
 
