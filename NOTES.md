@@ -177,3 +177,32 @@ section. Three real harness bugs found and fixed during Phase 3 validation total
 (regression-blindness, empty-suite-read-as-clean, this duplicate-block false positive)
 -- all caught by validating on known cases before trusting a broad run, none by the
 broad run itself.
+
+## 2026-08-18 (later) -- two more bugs while re-validating: resumability-poisoning relapse, quota-detection gap
+
+Started the actual 10-ticket re-validation with all fixes in place. Ticket 1
+(`marshmallow-1808`) succeeded (and produced a genuinely interesting calibration data
+point: `internal_verdict: "suite_broken"` but the real hidden grader said
+`resolved: true` -- a "too-strict" case worth a closer look later, not chased today).
+Ticket 3 came back `RuntimeError: exceeded retry attempts on transient rate limiting`
+recorded as a normal per-ticket failure -- the exact resumability-poisoning pattern
+already fixed once for `NetworkError`, just a code path (`agent_runtime.py`'s final
+retry-exhaustion fallback) that fix never covered, and `run_baseline.py` had the
+identical gap. Stopped the run immediately, fixed both scripts to treat a new
+`RateLimitExhausted` exception as run-stopping like `NetworkError`/`DailyQuotaExhausted`
+rather than recordable, stripped the two poisoned entries, resumed.
+
+Then hit the exact same wall three times in a row on the same next ticket -- suspicious
+enough to check the raw API error directly rather than assume "transient, just retry."
+It was the real daily 500-request cap, but `_is_per_day_quota_error`'s string matching
+didn't recognize this particular metric name (`generate_content_free_tier_requests`),
+so a genuine daily exhaustion was being retried as if temporary. Fixed the detection,
+verified against the actual captured error text. Five real harness bugs found and fixed
+across Phase 3 validation now, every one of them before it corrupted a scored number --
+the pattern holding is: don't assume, check the raw evidence, fix at the root, verify
+the fix before moving on.
+
+Genuinely out of quota for today (confirmed via the fixed detection, not just an
+assumption). 10-ticket re-validation is at 1/10 (the real `1808` result). Next session:
+resume `run_phase3.py --tickets ...` with the same ticket list -- it will correctly skip
+the completed one and continue from where it stopped.
