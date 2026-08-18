@@ -31,7 +31,7 @@ from eval.run_eval import (  # noqa: E402
     evaluate,
     remove_worktree,
 )
-from coder import DailyQuotaExhausted, NetworkError, run_coder  # noqa: E402
+from coder import DailyQuotaExhausted, NetworkError, RateLimitExhausted, run_coder  # noqa: E402
 
 RESULTS_DIR = ROOT / "results"
 SUMMARY_LOG = RESULTS_DIR / "baseline_run.jsonl"
@@ -155,6 +155,10 @@ def main():
             # this (and every remaining) ticket forever having never really attempted it.
             print(f"Network error after retries: {e}")
             print(f"Stopping here -- rerun this script to resume from {ticket_id} once connectivity is back.")
+            sys.exit(1)
+        except RateLimitExhausted as e:
+            print(f"Rate limit retries exhausted: {e}")
+            print(f"Stopping here -- rerun this script to resume from {ticket_id} once rate pressure eases.")
             sys.exit(1)
         except Exception as e:
             # A bug or transient failure in one ticket's processing shouldn't cost the

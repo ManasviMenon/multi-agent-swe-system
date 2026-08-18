@@ -11,10 +11,11 @@ failure feedback across retry attempts.
 
 from pathlib import Path
 
-from agent_runtime import (  # noqa: F401  (DailyQuotaExhausted/NetworkError re-exported for callers)
+from agent_runtime import (  # noqa: F401  (exceptions re-exported for callers)
     READ_ONLY_TOOL_DEFS,
     DailyQuotaExhausted,
     NetworkError,
+    RateLimitExhausted,
     execute_read_only_tool,
     run_agent_loop,
 )

@@ -316,6 +316,16 @@ consistently take this model more reasoning than a 20-call budget affords, even 
 determinism and a real duplicate-check bug both fixed. Worth revisiting with a larger
 budget or a Planner's decomposition (Phase 4) rather than further Tester-side fixes.
 
+**k-of-N methodology, decided on this evidence:** `temperature=0.0` + the round-based
+retry made variance rare rather than common (2 of 3 previously-noisy tickets are now
+at or near 5/5). Given that, the full Phase 3 run uses **N=1 per ticket as the primary,
+headline methodology** -- every ticket's single result reported honestly, resolved or
+not, no rescuing. Multiple reruns (N=3-5) remain available as an optional *side*
+investigation for specific tickets that come back unresolved and look like they might
+be genuinely stochastic rather than hard -- but any such rerun is reported as the honest
+fraction (e.g. "1/5 across reruns"), never folded into the headline resolution count as
+if a lucky pass were a real one. A hard ticket gets characterized, not rescued.
+
 ### The one ticket that did exercise the loop: capability ceiling, not haste
 
 `marshmallow-2900`'s 3 Coder rounds were reconstructed and replayed against the mid-loop

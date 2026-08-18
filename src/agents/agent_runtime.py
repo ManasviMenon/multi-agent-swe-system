@@ -30,6 +30,10 @@ class NetworkError(Exception):
     pass
 
 
+class RateLimitExhausted(Exception):
+    pass
+
+
 def resolve_in_worktree(worktree: Path, rel_path: str) -> Path:
     """Resolves a model-supplied path and enforces it stays inside the worktree.
 
@@ -156,7 +160,7 @@ def create_with_retry(client, **kwargs):
             if _is_per_day_quota_error(e):
                 raise DailyQuotaExhausted(str(e)) from e
             time.sleep(min(60, 5 * (2**attempt)))
-    raise RuntimeError("exceeded retry attempts on transient rate limiting")
+    raise RateLimitExhausted("exceeded retry attempts on transient rate limiting")
 
 
 DUPLICATE_CALL_MESSAGE = (

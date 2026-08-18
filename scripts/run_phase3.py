@@ -23,7 +23,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "src" / "agents"))
 
-from agent_runtime import DailyQuotaExhausted, NetworkError  # noqa: E402
+from agent_runtime import DailyQuotaExhausted, NetworkError, RateLimitExhausted  # noqa: E402
 from eval.run_eval import TICKETS_DIR  # noqa: E402
 from orchestrator import run_phase3_ticket  # noqa: E402
 
@@ -86,6 +86,14 @@ def main():
             # this (and every remaining) ticket forever having never really attempted it.
             print(f"Network error after retries: {e}")
             print(f"Stopping here -- rerun this script to resume from {ticket_id} once connectivity is back.")
+            sys.exit(1)
+        except RateLimitExhausted as e:
+            # Same principle as NetworkError -- a transient rate-limit exhaustion is not
+            # a real attempt at this ticket. Recording it as a per-ticket failure would
+            # poison resumability the same way an earlier version of run_baseline.py did
+            # (see NOTES.md) -- stop instead of pretending the ticket was tried.
+            print(f"Rate limit retries exhausted: {e}")
+            print(f"Stopping here -- rerun this script to resume from {ticket_id} once rate pressure eases.")
             sys.exit(1)
         except Exception as e:
             result = {
