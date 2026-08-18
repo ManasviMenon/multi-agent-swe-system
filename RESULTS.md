@@ -280,6 +280,42 @@ and specifically the kind of problem an additional round should address -- worth
 re-testing under the new 2-round Tester before concluding these tickets resist
 reproduction on the merits, not just on the old budget.
 
+**Follow-up (2026-08-18) -- the round-boundary hypothesis confirmed, plus a third real
+harness bug found while testing it.** Re-ran the same 5x variance probe with two fixes
+in place: `temperature=0.0` on the Tester (wired in after the prior session, for
+repeatability), and the round-based retry + gold-check gate. Result:
+
+| Ticket | Before (default temp, 1 round) | After (temp=0, 2 rounds) |
+|---|---|---|
+| `marshmallow-1357` | 2/5 | **5/5** |
+| `marshmallow-1424` | 0/5 | **4/5** |
+| `marshmallow-2936` | 1/5 | 0/5 (see below) |
+
+`1357` and `1424` improved dramatically, confirming the round-boundary hypothesis --
+giving the Tester a second, fresh-budget attempt let it finish what it had already
+correctly started figuring out. `2936` got *worse* (0/5), which is what led to finding
+a third real harness bug: `run_written_test` takes zero parameters, so every call has
+an identical `(tool_name, args)` signature -- the duplicate-call blocker (correct for
+tools like `search_files`, where identical arguments really do mean a wasted repeat)
+was silently rejecting every re-check after the first *in each round*, even though the
+underlying test file had genuinely changed via `write_test` in between. The Tester
+could rewrite its test as many times as it wanted within a round but only ever got to
+verify the first attempt. Confirmed via a from-scratch worktree replay before touching
+any code (0 evidence needed guessing -- the tool schema itself has `"properties": {}`).
+Fixed by exempting specific tool names from duplicate-checking in
+`agent_runtime.py`'s `run_agent_loop` (a `no_duplicate_check_tools` parameter), used
+for `run_written_test` only -- this doesn't affect the Coder, whose tools all have
+genuinely distinguishing arguments.
+
+With that fix, `2936` returned to **1/5** -- back to its original baseline, not an
+improvement. Every one of its 5 runs used the full 20-call budget (both rounds) with
+`hit_cap=True` regardless. Unlike `1357`/`1424`, this ticket's difficulty appears to be
+genuine, not a mechanical artifact this round of fixes happened to address -- Email IDN
+validation's actual mechanism (`DOMAIN_REGEX` vs. `encode("idna")` interaction) seems to
+consistently take this model more reasoning than a 20-call budget affords, even with
+determinism and a real duplicate-check bug both fixed. Worth revisiting with a larger
+budget or a Planner's decomposition (Phase 4) rather than further Tester-side fixes.
+
 ### The one ticket that did exercise the loop: capability ceiling, not haste
 
 `marshmallow-2900`'s 3 Coder rounds were reconstructed and replayed against the mid-loop

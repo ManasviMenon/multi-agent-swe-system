@@ -1,0 +1,98 @@
+{
+  "marshmallow-1357": [
+    {
+      "valid_reproduction": true,
+      "tool_call_count": 10,
+      "hit_cap": true,
+      "reproduce_attempts": 1
+    },
+    {
+      "valid_reproduction": true,
+      "tool_call_count": 10,
+      "hit_cap": true,
+      "reproduce_attempts": 1
+    },
+    {
+      "valid_reproduction": true,
+      "tool_call_count": 10,
+      "hit_cap": true,
+      "reproduce_attempts": 1
+    },
+    {
+      "valid_reproduction": true,
+      "tool_call_count": 10,
+      "hit_cap": true,
+      "reproduce_attempts": 1
+    },
+    {
+      "valid_reproduction": true,
+      "tool_call_count": 10,
+      "hit_cap": true,
+      "reproduce_attempts": 1
+    }
+  ],
+  "marshmallow-1424": [
+    {
+      "valid_reproduction": false,
+      "tool_call_count": 20,
+      "hit_cap": true,
+      "reproduce_attempts": 2
+    },
+    {
+      "valid_reproduction": true,
+      "tool_call_count": 20,
+      "hit_cap": true,
+      "reproduce_attempts": 2
+    },
+    {
+      "valid_reproduction": true,
+      "tool_call_count": 20,
+      "hit_cap": true,
+      "reproduce_attempts": 2
+    },
+    {
+      "valid_reproduction": true,
+      "tool_call_count": 20,
+      "hit_cap": true,
+      "reproduce_attempts": 2
+    },
+    {
+      "valid_reproduction": true,
+      "tool_call_count": 11,
+      "hit_cap": true,
+      "reproduce_attempts": 2
+    }
+  ],
+  "marshmallow-2936": [
+    {
+      "valid_reproduction": false,
+      "tool_call_count": 20,
+      "hit_cap": true,
+      "reproduce_attempts": 2
+    },
+    {
+      "valid_reproduction": false,
+      "tool_call_count": 20,
+      "hit_cap": true,
+      "reproduce_attempts": 2
+    },
+    {
+      "valid_reproduction": false,
+      "tool_call_count": 20,
+      "hit_cap": true,
+      "reproduce_attempts": 2
+    },
+    {
+      "valid_reproduction": false,
+      "tool_call_count": 20,
+      "hit_cap": true,
+      "reproduce_attempts": 2
+    },
+    {
+      "valid_reproduction": false,
+      "tool_call_count": 20,
+      "hit_cap": true,
+      "reproduce_attempts": 2
+    }
+  ]
+}

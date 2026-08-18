@@ -32,11 +32,12 @@ def probe_one(ticket_id: str) -> dict:
     ticket_dir = TICKETS_DIR / ticket_id
     base_commit = (ticket_dir / "base_commit.txt").read_text().strip()
     issue_text = (ticket_dir / "issue.md").read_text(encoding="utf-8")
+    gold_patch_text = (ticket_dir / "gold_patch.diff").read_text(encoding="utf-8")
 
     worktree = create_worktree(base_commit)
     try:
         install_editable(worktree)
-        transcript = run_tester(issue_text, worktree)
+        transcript = run_tester(issue_text, worktree, base_commit, gold_patch_text)
     finally:
         remove_worktree(worktree)
 
@@ -44,6 +45,7 @@ def probe_one(ticket_id: str) -> dict:
         "valid_reproduction": transcript["valid_reproduction"],
         "tool_call_count": transcript["tool_call_count"],
         "hit_cap": transcript["hit_cap"],
+        "reproduce_attempts": transcript["reproduce_attempts"],
     }
 
 

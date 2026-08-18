@@ -176,6 +176,7 @@ def run_agent_loop(
     system_instruction: str | None = None,
     previous_interaction_id: str | None = None,
     temperature: float | None = None,
+    no_duplicate_check_tools: frozenset = frozenset(),
 ) -> dict:
     """Runs one bounded multi-turn tool-calling session.
 
@@ -189,6 +190,15 @@ def run_agent_loop(
     intentionally does not, since some randomness is part of exploring different fix
     approaches across retry attempts. Applied to every call in the session (not just the
     first), so it stays consistent across a continued multi-round conversation too.
+
+    no_duplicate_check_tools exempts specific tool names from duplicate-call blocking.
+    That blocking assumes "same tool + same arguments = same result," which is right for
+    tools like search_files (identical args really do mean a wasted repeat) but wrong for
+    a tool whose real input is external state not captured in its arguments -- e.g. the
+    Tester's run_written_test takes no parameters at all, so every call after the first
+    was being silently blocked as a "duplicate" even when the test file had genuinely
+    changed via write_test in between, capping verification to once per round regardless
+    of how many times the model revised its test.
     """
     client = genai.Client()
     transcript = {"steps": [], "tool_call_count": 0, "hit_cap": False, "total_tokens": 0}
@@ -219,7 +229,7 @@ def run_agent_loop(
             transcript["tool_call_count"] += 1
 
             call_signature = (fc.name, json.dumps(fc.arguments, sort_keys=True))
-            is_duplicate = call_signature in seen_calls
+            is_duplicate = fc.name not in no_duplicate_check_tools and call_signature in seen_calls
             if is_duplicate:
                 result = {"error": DUPLICATE_CALL_MESSAGE}
             else:

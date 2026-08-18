@@ -151,3 +151,29 @@ Next real (quota-costing) steps, in order: finish the temperature A/B comparison
 decide the k-of-N-runs reporting methodology given the confirmed reproduce-gate
 variance, re-validate the 10 known tickets with all of today's fixes in place, then the
 full 25-ticket run.
+
+## 2026-08-18 — temperature confirmed on the real task; third harness bug found (duplicate-block false positive)
+
+Finished the temperature comparison from yesterday: a generic "write a creative
+sentence" prompt showed high variance even at `temperature=0.0` (not a useful proxy),
+but re-running the actual reproduce-gate variance probe on `1357`/`1424`/`2936` with
+`temperature=0.0` wired in showed dramatic, real improvement on 2 of 3 tickets (`1357`
+2/5->5/5, `1424` 0/5->4/5) -- confirming both the temperature fix and yesterday's
+round-boundary hypothesis at once.
+
+`2936` got *worse* (0/5) under the same fix, which led to a third real harness bug:
+`run_written_test` takes zero parameters, so every call is indistinguishable from the
+duplicate-blocker's point of view -- it was silently rejecting every re-check after the
+first one *per round*, even though the test file had genuinely changed via `write_test`
+in between. Confirmed by replaying from scratch before touching any code. Fixed with a
+`no_duplicate_check_tools` exemption parameter on `agent_runtime.py`'s `run_agent_loop`,
+scoped to `run_written_test` only. With the fix, `2936` returned to 1/5 -- its original
+baseline, not an improvement. Unlike the other two, this ticket appears to be genuinely
+hard for this model within a 20-call budget, not a mechanical artifact -- worth
+revisiting with Phase 4's Planner rather than more Tester-side fixes.
+
+Full comparison table and reasoning now in `RESULTS.md`'s reproduce-gate variance
+section. Three real harness bugs found and fixed during Phase 3 validation total
+(regression-blindness, empty-suite-read-as-clean, this duplicate-block false positive)
+-- all caught by validating on known cases before trusting a broad run, none by the
+broad run itself.

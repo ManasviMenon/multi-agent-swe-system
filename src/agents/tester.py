@@ -259,6 +259,11 @@ def run_tester_round(prompt_text: str, worktree: Path, previous_interaction_id: 
         system_instruction=SYSTEM_INSTRUCTION,
         previous_interaction_id=previous_interaction_id,
         temperature=TEMPERATURE,
+        # run_written_test takes no arguments, so every call has an identical signature --
+        # the default duplicate-blocker would (and did) silently reject every re-check
+        # after the first, capping real verification to once per round no matter how many
+        # times the model revised its test via write_test in between.
+        no_duplicate_check_tools=frozenset({"run_written_test"}),
     )
 
 
