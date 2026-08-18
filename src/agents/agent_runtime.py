@@ -134,7 +134,18 @@ def _status_code(e: Exception) -> int | None:
 
 def _is_per_day_quota_error(e: Exception) -> bool:
     text = str(getattr(e, "body", None) or getattr(e, "details", None) or str(e)).lower()
-    return "perday" in text.replace(" ", "") or "generate_requests_per_day" in text.replace(" ", "_")
+    normalized = text.replace(" ", "")
+    # Google has used at least two different metric name patterns for the free-tier
+    # daily request cap across different error responses ("...requests_per_day..." and
+    # "free_tier_requests, limit: 500") -- match both rather than just the first one we
+    # happened to see, since a daily-quota error that isn't recognized as such gets
+    # retried as if it were transient, wasting the retry budget on a wall that won't
+    # move until the next day regardless of how long the backoff is.
+    return (
+        "perday" in normalized
+        or "generate_requests_per_day" in text.replace(" ", "_")
+        or "free_tier_requests" in normalized
+    )
 
 
 RATE_LIMIT_EXCEPTIONS = (errors.ClientError, compat_errors.RateLimitError, compat_errors.APIStatusError)
