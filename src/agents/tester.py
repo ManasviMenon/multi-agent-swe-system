@@ -17,6 +17,7 @@ RESULTS.md's Phase 3 pre-registered design, the two calibration buckets).
 import json
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
@@ -145,10 +146,10 @@ def run_written_test_impl(worktree: Path) -> dict:
 SUITE_TIMEOUT_SECONDS = 60
 
 
-def run_full_suite_with_details(worktree: Path) -> tuple[dict[str, dict], bool]:
+def run_full_suite_with_details(worktree: Path) -> tuple[dict[str, dict], bool, str | None]:
     """Runs every test under tests/ (including the Tester's own generated test) and
-    returns (results, suite_ok). results is {nodeid: {"outcome": ..., "message": ...}}
-    with actual failure text, not just pass/fail. Separate from
+    returns (results, suite_ok, reason). results is {nodeid: {"outcome": ..., "message":
+    ...}} with actual failure text, not just pass/fail. Separate from
     eval.run_eval.run_full_suite, which only needs outcome for scoring and is part of the
     already-validated, frozen grading harness -- this exists specifically for the
     orchestrator's mid-loop regression check, which needs actionable detail to feed back
@@ -161,25 +162,44 @@ def run_full_suite_with_details(worktree: Path) -> tuple[dict[str, dict], bool]:
     total collection wipeout, and conflating them (as an earlier version of this
     function did) let a Coder round that broke the entire suite pass through undetected.
 
+    reason is None when suite_ok is True, otherwise a short string identifying *why*
+    ("timeout", "no_report", or the actual collector error) -- added after a validation
+    run showed suite_ok=False on 8/8 attempted tickets (100%, not intermittent) and a
+    clean isolated replay couldn't reproduce it, meaning the two possible causes
+    (subprocess timeout vs. a genuine collection failure) had been indistinguishable
+    from the logged data alone. Needed to catch the next occurrence with real evidence
+    instead of guessing again.
+
     The worktree this runs in never has test_patch.diff applied (that only happens in
     eval/run_eval.py's own separate, isolated worktree during final grading), so this is
     leak-free by construction -- it structurally cannot include the hidden verifying test.
     """
     report_file = worktree / ".suite-report.json"
-    try:
-        subprocess.run(
-            [str(VENV_PYTHON), "-m", "pytest", "tests/",
-             "--json-report", f"--json-report-file={report_file.name}",
-             "-q", "--tb=short"],
-            cwd=worktree,
-            capture_output=True,
-            timeout=SUITE_TIMEOUT_SECONDS,
-        )
-    except subprocess.TimeoutExpired:
-        return {}, False
+    # A missing report file (not a timeout, not a real collection failure -- those
+    # both produce their own distinct signal) turned out to be environmental flakiness
+    # in this session's testing (the exact same failure appeared on a completely clean
+    # baseline check, before any Coder edit existed to blame) rather than a genuine
+    # "the suite is broken" signal -- retried once before concluding suite_ok=False, so
+    # a real collection failure (which always produces *some* report) is unaffected.
+    for attempt in range(2):
+        try:
+            subprocess.run(
+                [str(VENV_PYTHON), "-m", "pytest", "tests/",
+                 "--json-report", f"--json-report-file={report_file.name}",
+                 "-q", "--tb=short"],
+                cwd=worktree,
+                capture_output=True,
+                timeout=SUITE_TIMEOUT_SECONDS,
+            )
+        except subprocess.TimeoutExpired:
+            return {}, False, f"timeout after {SUITE_TIMEOUT_SECONDS}s"
 
-    if not report_file.exists():
-        return {}, False
+        if report_file.exists():
+            break
+        if attempt == 0:
+            time.sleep(2)
+    else:
+        return {}, False, "pytest produced no json report after 2 attempts (process likely crashed before writing one)"
 
     report = json.loads(report_file.read_text(encoding="utf-8"))
     report_file.unlink(missing_ok=True)
@@ -191,14 +211,15 @@ def run_full_suite_with_details(worktree: Path) -> tuple[dict[str, dict], bool]:
         # collectors, never as a per-test outcome.
         failed_collectors = [c for c in report.get("collectors", []) if c.get("outcome") == "failed"]
         if failed_collectors:
-            return {}, False
-        return {}, True
+            reason = str(failed_collectors[0].get("longrepr", "unknown collection error"))[:1000]
+            return {}, False, reason
+        return {}, True, None
 
     results = {}
     for t in tests:
         longrepr = t.get("call", {}).get("longrepr", "") if t["outcome"] != "passed" else ""
         results[t["nodeid"]] = {"outcome": t["outcome"], "message": str(longrepr)[:1000]}
-    return results, True
+    return results, True, None
 
 
 def execute_tool(name: str, args: dict, worktree: Path) -> dict:

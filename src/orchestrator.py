@@ -162,6 +162,7 @@ def run_phase3_ticket(ticket_id: str) -> dict:
                     "tester_reproduce_attempts": tester_transcript["reproduce_attempts"],
                     "internal_verdict": None,
                     "regressed_mid_loop": [],
+                    "suite_broken_reason": None,
                     "calibration": None,
                 },
                 "tester_transcript": tester_transcript,
@@ -182,13 +183,16 @@ def run_phase3_ticket(ticket_id: str) -> dict:
         # its own isolated collection check) -- if it's somehow not, baseline_pass_set is
         # just empty and regression comparisons degrade to finding nothing to compare
         # against, rather than crashing.
-        baseline_suite, _baseline_suite_ok = run_full_suite_with_details(worktree)
+        baseline_suite, _baseline_suite_ok, baseline_suite_reason = run_full_suite_with_details(worktree)
         baseline_pass_set = {n for n, r in baseline_suite.items() if r["outcome"] == "passed"}
+        if not _baseline_suite_ok:
+            print(f"WARNING: baseline suite check itself failed ({baseline_suite_reason}) -- unexpected, since only the unmodified source + Tester's own already-validated test are present at this point")
 
         prompt = build_initial_coder_prompt(issue_text, test_source, gate_result["message"])
         previous_interaction_id = None
         internal_verdict = None
         regressed_mid_loop = []
+        suite_broken_reason = None
         check_result = {}
 
         for _attempt in range(1, MAX_CODER_ATTEMPTS + 1):
@@ -197,21 +201,24 @@ def run_phase3_ticket(ticket_id: str) -> dict:
             previous_interaction_id = round_transcript["last_interaction_id"]
 
             check_result = run_written_test_impl(worktree)
-            after_suite, suite_ok = run_full_suite_with_details(worktree)
+            after_suite, suite_ok, suite_reason = run_full_suite_with_details(worktree)
 
             if not suite_ok:
                 # Worse than any individual regression: the edit broke the suite's
                 # ability to even collect (e.g. an exception at import/class-definition
                 # time elsewhere). Never treat this as passing, regardless of what the
-                # Tester's own isolated test says.
+                # Tester's own isolated test says. suite_reason is logged verbatim (not
+                # just the generic "suite_broken" label) so a repeat occurrence is
+                # diagnosable from the log alone, not another live investigation.
                 internal_verdict = "suite_broken"
+                suite_broken_reason = suite_reason
                 regressed_mid_loop = ["<entire test suite failed to collect>"]
                 prompt = (
                     "Your previous edit broke something so badly that the ENTIRE test "
                     "suite can no longer even be collected -- not just the target test. "
                     "This usually means an exception or error at import/class-definition "
-                    "time somewhere in the codebase, triggered by your change. Find and "
-                    "fix that, or reconsider your approach.\n\nTry again."
+                    f"time somewhere in the codebase, triggered by your change: {suite_reason}\n\n"
+                    "Find and fix that, or reconsider your approach.\n\nTry again."
                 )
                 continue
 
@@ -271,6 +278,7 @@ def run_phase3_ticket(ticket_id: str) -> dict:
             "tester_reproduce_attempts": tester_transcript["reproduce_attempts"],
             "internal_verdict": internal_verdict,
             "regressed_mid_loop": regressed_mid_loop,
+            "suite_broken_reason": suite_broken_reason,
             "calibration": calibration,
         },
         "tester_transcript": tester_transcript,
