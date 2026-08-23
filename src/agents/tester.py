@@ -181,14 +181,18 @@ def run_full_suite_with_details(worktree: Path) -> tuple[dict[str, dict], bool, 
     # baseline check, before any Coder edit existed to blame) rather than a genuine
     # "the suite is broken" signal -- retried once before concluding suite_ok=False, so
     # a real collection failure (which always produces *some* report) is unaffected.
+    proc = None
     for attempt in range(2):
         try:
-            subprocess.run(
+            proc = subprocess.run(
                 [str(VENV_PYTHON), "-m", "pytest", "tests/",
                  "--json-report", f"--json-report-file={report_file.name}",
                  "-q", "--tb=short"],
                 cwd=worktree,
                 capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=SUITE_TIMEOUT_SECONDS,
             )
         except subprocess.TimeoutExpired:
@@ -199,7 +203,10 @@ def run_full_suite_with_details(worktree: Path) -> tuple[dict[str, dict], bool, 
         if attempt == 0:
             time.sleep(2)
     else:
-        return {}, False, "pytest produced no json report after 2 attempts (process likely crashed before writing one)"
+        # Surface the subprocess's actual output instead of just guessing "it crashed" --
+        # a first retry that still fails deserves real evidence, not another assumption.
+        detail = f"exit_code={proc.returncode}\nstdout:\n{proc.stdout[-1500:]}\nstderr:\n{proc.stderr[-1500:]}"
+        return {}, False, f"pytest produced no json report after 2 attempts:\n{detail}"
 
     report = json.loads(report_file.read_text(encoding="utf-8"))
     report_file.unlink(missing_ok=True)
