@@ -206,3 +206,27 @@ Genuinely out of quota for today (confirmed via the fixed detection, not just an
 assumption). 10-ticket re-validation is at 1/10 (the real `1808` result). Next session:
 resume `run_phase3.py --tickets ...` with the same ticket list -- it will correctly skip
 the completed one and continue from where it stopped.
+
+## 2026-08-23 -- direction change, Phase 3 finished at 6/25 (same as Phase 2, different set)
+
+User call: stop exhaustively validating before running broad -- whatever the 10-ticket
+validation had gotten to (5/8 resolved, all previously-known-good tickets holding) was
+kept as-is, and the plan became "one clean full-25 pass per phase, get the real number,
+move on." Also found one more real clue about the still-not-fully-fixed suite_broken
+flakiness while resuming: a diagnostic reason of `ModuleNotFoundError: No module named
+'marshmallow'` on one run pointed at the actual likely cause -- a single shared `.venv`
+means `pip install -e <worktree>` is a GLOBAL pointer, not per-worktree, so my own
+concurrent diagnostic scripts (which also called install_editable on their own separate
+worktrees while a live run was active) were plausibly hijacking the shared editable-
+install target out from under the live run. Not fixed (out of scope for today's
+direction), but noted: don't run concurrent install_editable-calling scripts while a
+real run is active.
+
+Full 25-ticket run completed across several quota-limited sessions (resumed cleanly
+each time the daily cap was hit, zero poisoned entries this run). Final: **6/25
+resolved, identical to Phase 2's 6/25** -- but a different set (`2270` flipped to
+unresolved, consistent with its known variance; `1378`, a category-D "new feature"
+ticket, flipped to resolved unexpectedly). The original prediction (Tester recovers
+~4 category-B tickets) failed completely on its own terms: 0 of the 4 named tickets
+resolved. Full writeup with cost analysis in RESULTS.md. Moving to Phase 4 (Planner)
+next, per the same per-phase full-run discipline.

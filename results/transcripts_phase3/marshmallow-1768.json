@@ -1,0 +1,414 @@
+{
+  "ticket_id": "marshmallow-1768",
+  "tester": {
+    "steps": [
+      {
+        "tool": "list_directory",
+        "args": {
+          "path": "tests"
+        },
+        "result": {
+          "entries": [
+            "__init__.py",
+            "base.py",
+            "conftest.py",
+            "foo_serializer.py",
+            "test_decorators.py",
+            "test_deserialization.py",
+            "test_error_store.py",
+            "test_exceptions.py",
+            "test_fields.py",
+            "test_options.py",
+            "test_registry.py",
+            "test_schema.py",
+            "test_serialization.py",
+            "test_utils.py",
+            "test_validate.py"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src",
+          "pattern": "class "
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\base.py:13: class FieldABC:",
+            "src\\marshmallow\\base.py:14: \"\"\"Abstract base class from which all Field classes inherit.\"\"\"",
+            "src\\marshmallow\\base.py:32: class SchemaABC:",
+            "src\\marshmallow\\base.py:33: \"\"\"Abstract base class from which all Schemas inherit.\"\"\"",
+            "src\\marshmallow\\class_registry.py:19: #   <class_name>: <list of class objects>",
+            "src\\marshmallow\\class_registry.py:20: #   <module_path_to_class>: <list of class objects>",
+            "src\\marshmallow\\class_registry.py:26: \"\"\"Add a class to the registry of serializer classes. When a class is",
+            "src\\marshmallow\\class_registry.py:32: class MyClass:",
+            "src\\marshmallow\\class_registry.py:43: # Module where the class is located",
+            "src\\marshmallow\\class_registry.py:48: # If the class is already registered; need to check if the entries are",
+            "src\\marshmallow\\class_registry.py:50: # class in the registry",
+            "src\\marshmallow\\class_registry.py:70: \"\"\"Retrieve a class from the registry.",
+            "src\\marshmallow\\class_registry.py:72: :raises: marshmallow.exceptions.RegistryError if the class cannot be found",
+            "src\\marshmallow\\class_registry.py:73: or if there are multiple entries for the given class name.",
+            "src\\marshmallow\\decorators.py:22: class UserSchema(Schema):",
+            "src\\marshmallow\\error_store.py:12: class ErrorStore:",
+            "src\\marshmallow\\exceptions.py:9: class MarshmallowError(Exception):",
+            "src\\marshmallow\\exceptions.py:10: \"\"\"Base class for all marshmallow-related errors.\"\"\"",
+            "src\\marshmallow\\exceptions.py:13: class ValidationError(MarshmallowError):",
+            "src\\marshmallow\\exceptions.py:57: class RegistryError(NameError):",
+            "src\\marshmallow\\exceptions.py:59: class registry.",
+            "src\\marshmallow\\exceptions.py:63: class StringNotCollectionError(MarshmallowError, TypeError):",
+            "src\\marshmallow\\exceptions.py:67: class FieldInstanceResolutionError(MarshmallowError, TypeError):",
+            "src\\marshmallow\\exceptions.py:68: \"\"\"Raised when schema to instantiate is neither a Schema class nor an instance.\"\"\"",
+            "src\\marshmallow\\fields.py:73: class Field(FieldABC):",
+            "src\\marshmallow\\fields.py:376: class TitleCase(Field):",
+            "src\\marshmallow\\fields.py:433: class Raw(Field):",
+            "src\\marshmallow\\fields.py:437: class Nested(Field):",
+            "src\\marshmallow\\fields.py:443: class ChildSchema(Schema):",
+            "src\\marshmallow\\fields.py:450: class ParentSchema(Schema):",
+            "src\\marshmallow\\fields.py:461: you should pass a `Schema <marshmallow.Schema>` class (not an instance) as the first argument.",
+            "src\\marshmallow\\fields.py:471: :param nested: `Schema` instance, class, class name (string), or callable that returns a `Schema` instance.",
+            "src\\marshmallow\\fields.py:535: set_class = self._schema.set_class",
+            "src\\marshmallow\\fields.py:548: schema_class = nested",
+            "src\\marshmallow\\fields.py:555: schema_class = self.root.__class__",
+            "src\\marshmallow\\fields.py:557: schema_class = class_registry.get_class(nested)",
+            "src\\marshmallow\\fields.py:612: class Pluck(Nested):",
+            "src\\marshmallow\\fields.py:619: class ArtistSchema(Schema):",
+            "src\\marshmallow\\fields.py:623: class AlbumSchema(Schema):",
+            "src\\marshmallow\\fields.py:631: :param Schema nested: The Schema class or class name (string)",
+            "src\\marshmallow\\fields.py:668: class List(Field):",
+            "src\\marshmallow\\fields.py:669: \"\"\"A list field, composed with another `Field` class or",
+            "src\\marshmallow\\fields.py:676: :param cls_or_instance: A field class or instance.",
+            "src\\marshmallow\\fields.py:696: \"The list elements must be a subclass or instance of \"",
+            "src\\marshmallow\\fields.py:736: class Tuple(Field):",
+            "src\\marshmallow\\fields.py:820: class String(Field):",
+            "src\\marshmallow\\fields.py:846: class UUID(String):",
+            "src\\marshmallow\\fields.py:870: class Number(Field):",
+            "src\\marshmallow\\fields.py:871: \"\"\"Base class for number fields.",
+            "src\\marshmallow\\fields.py:923: class Integer(Number):",
+            "src\\marshmallow\\fields.py:951: class Float(Number):",
+            "src\\marshmallow\\fields.py:979: class Decimal(Number):",
+            "src\\marshmallow\\fields.py:1064: class Boolean(Field):",
+            "src\\marshmallow\\fields.py:1160: class DateTime(Field):",
+            "src\\marshmallow\\fields.py:1250: class NaiveDateTime(DateTime):",
+            "src\\marshmallow\\fields.py:1288: class AwareDateTime(DateTime):",
+            "src\\marshmallow\\fields.py:1325: class Time(DateTime):",
+            "src\\marshmallow\\fields.py:1350: class Date(DateTime):",
+            "src\\marshmallow\\fields.py:1379: class TimeDelta(Field):",
+            "src\\marshmallow\\fields.py:1449: class Mapping(Field):",
+            "src\\marshmallow\\fields.py:1450: \"\"\"An abstract class for objects with key-value pairs.",
+            "src\\marshmallow\\fields.py:1452: :param keys: A field class or instance for dict keys.",
+            "src\\marshmallow\\fields.py:1453: :param values: A field class or instance for dict values.",
+            "src\\marshmallow\\fields.py:1482: '\"keys\" must be a subclass or instance of '",
+            "src\\marshmallow\\fields.py:1493: '\"values\" must be a subclass or instance of '",
+            "src\\marshmallow\\fields.py:1582: class Dict(Mapping):",
+            "src\\marshmallow\\fields.py:1598: class Url(String):",
+            "src\\marshmallow\\fields.py:1635: class Email(String):",
+            "src\\marshmallow\\fields.py:1653: class IP(Field):",
+            "src\\marshmallow\\fields.py:1690: class IPv4(IP):",
+            "src\\marshmallow\\fields.py:1701: class IPv6(IP):",
+            "src\\marshmallow\\fields.py:1712: class IPInterface(Field):",
+            "src\\marshmallow\\fields.py:1756: class IPv4Interface(IPInterface):",
+            "src\\marshmallow\\fields.py:1764: class IPv6Interface(IPInterface):",
+            "src\\marshmallow\\fields.py:1772: class Method(Field):",
+            "src\\marshmallow\\fields.py:1834: class Function(Field):",
+            "src\\marshmallow\\fields.py:1900: class Constant(Field):",
+            "src\\marshmallow\\fields.py:1925: class Inferred(Field):",
+            "src\\marshmallow\\fields.py:1930: This class is treated as private API.",
+            "src\\marshmallow\\fields.py:1931: Users should not need to use this class directly.",
+            "src\\marshmallow\\orderedset.py:26: class OrderedSet(MutableSet):",
+            "src\\marshmallow\\schema.py:1: \"\"\"The :class:`Schema` class, including its metaclass and options (class Meta).\"\"\"",
+            "src\\marshmallow\\schema.py:44: :param attrs: Mapping of class attributes",
+            "src\\marshmallow\\schema.py:60: class itself is excluded from the search; only its parents are checked. Get",
+            "src\\marshmallow\\schema.py:79: class SchemaMeta(type):",
+            "src\\marshmallow\\schema.py:80: \"\"\"Metaclass for the Schema class. Binds the declared fields to",
+            "src\\marshmallow\\schema.py:82: names to field objects. Also sets the ``opts`` class attribute, which is",
+            "src\\marshmallow\\schema.py:83: the Schema class's ``class Meta`` options.",
+            "src\\marshmallow\\schema.py:92: # yet have access to the class object",
+            "src\\marshmallow\\schema.py:108: # Add fields specified in the `include` class Meta option",
+            "src\\marshmallow\\schema.py:131: computed from class Meta options.",
+            "src\\marshmallow\\schema.py:133: :param klass: The class object.",
+            "src\\marshmallow\\schema.py:135: by the ``include`` class Meta option.",
+            "src\\marshmallow\\schema.py:188: class SchemaOpts:",
+            "src\\marshmallow\\schema.py:189: \"\"\"class Meta options for the :class:`Schema`. Defines defaults.\"\"\"",
+            "src\\marshmallow\\schema.py:211: \"The json_module class Meta option is deprecated. Use render_module instead.\",",
+            "src\\marshmallow\\schema.py:227: class Schema(base.SchemaABC, metaclass=SchemaMeta):",
+            "src\\marshmallow\\schema.py:228: \"\"\"Base schema class with which to define custom schemas.",
+            "src\\marshmallow\\schema.py:241: class Album:",
+            "src\\marshmallow\\schema.py:246: class AlbumSchema(Schema):"
+          ],
+          "truncated": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "list_directory",
+        "args": {
+          "path": "src/marshmallow"
+        },
+        "result": {
+          "entries": [
+            "__init__.py",
+            "base.py",
+            "class_registry.py",
+            "decorators.py",
+            "error_store.py",
+            "exceptions.py",
+            "fields.py",
+            "orderedset.py",
+            "py.typed",
+            "schema.py",
+            "types.py",
+            "utils.py",
+            "validate.py",
+            "warnings.py"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "path": "src/marshmallow/validate.py"
+        },
+        "result": {
+          "content": "\"\"\"Validation classes for various types of data.\"\"\"\nimport re\nimport typing\nfrom abc import ABC, abstractmethod\nfrom itertools import zip_longest\nfrom operator import attrgetter\n\nfrom marshmallow import types\nfrom marshmallow.exceptions import ValidationError\n\n_T = typing.TypeVar(\"_T\")\n\n\nclass Validator(ABC):\n    \"\"\"Abstract base class for validators.\n\n    .. note::\n        This class does not provide any validation behavior. It is only used to\n        add a useful `__repr__` implementation for validators.\n    \"\"\"\n\n    error = None  # type: typing.Optional[str]\n\n    def __repr__(self) -> str:\n        args = self._repr_args()\n        args = \"{}, \".format(args) if args else \"\"\n\n        return \"<{self.__class__.__name__}({args}error={self.error!r})>\".format(\n            self=self, args=args\n        )\n\n    def _repr_args(self) -> str:\n        \"\"\"A string representation of the args passed to this validator. Used by\n        `__repr__`.\n        \"\"\"\n        return \"\"\n\n    @abstractmethod\n    def __call__(self, value: typing.Any) -> typing.Any:\n        ...\n\n\nclass URL(Validator):\n    \"\"\"Validate a URL.\n\n    :param relative: Whether to allow relative URLs.\n    :param error: Error message to raise in case of a validation error.\n        Can be interpolated with `{input}`.\n    :param schemes: Valid schemes. By default, ``http``, ``https``,\n        ``ftp``, and ``ftps`` are allowed.\n    :param require_tld: Whether to reject non-FQDN hostnames.\n    \"\"\"\n\n    class RegexMemoizer:\n        def __init__(self):\n            self._memoized = {}\n\n        def _regex_generator(self, relative: bool, require_tld: bool) -> typing.Pattern:\n            return re.compile(\n                r\"\".join(\n                    (\n                        r\"^\",\n                        r\"(\" if relative else r\"\",\n                        r\"(?:[a-z0-9\\.\\-\\+]*)://\",  # scheme is validated separately\n                        r\"(?:[^:@]+?(:[^:@]*?)?@|)\",  # basic auth\n                        r\"(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\\.)+\",\n                        r\"(?:[A-Z]{2,6}\\.?|[A-Z0-9-]{2,}\\.?)|\",  # domain...\n                        r\"localhost|\",  # localhost...\n                        (\n                            r\"(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\\.?)|\"\n                            if not require_tld\n                            else r\"\"\n                        ),  # allow dotless hostnames\n                        r\"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|\",  # ...or ipv4\n                        r\"\\[[A-F0-9]*:[A-F0-9:]+\\])\",  # ...or ipv6\n                        r\"(?::\\d+)?\",  # optional port\n                        r\")?\"\n                        if relative\n                        else r\"\",  # host is optional, allow for relative URLs\n                        r\"(?:/?|[/?]\\S+)\\Z\",\n                    )\n                ),\n                re.IGNORECASE,\n            )\n\n        def __call__(self, relative: bool, require_tld: bool) -> typing.Pattern:\n            key = (relative, require_tld)\n            if key not in self._memoized:\n                self._memoized[key] = self._regex_generator(relative, require_tld)\n\n            return self._memoized[key]\n\n    _regex = RegexMemoizer()\n\n    default_message = \"Not a valid URL.\"\n    default_schemes = {\"http\", \"https\", \"ftp\", \"ftps\"}\n\n    def __init__(\n        self,\n        *,\n        relative: bool = False,\n        schemes: typing.Optional[types.StrSequenceOrSet] = None,\n        require_tld: bool = True,\n        error: typing.Optional[str] = None\n    ):\n        self.relative = relative\n        self.error = error or self.default_message  # type: str\n        self.schemes = schemes or self.default_schemes\n        self.require_tld = require_tld\n\n    def _repr_args(self) -> str:\n        return \"relative={!r}\".format(self.relative)\n\n    def _format_error(self, value) -> str:\n        return self.error.format(input=value)\n\n    def __call__(self, value: str) -> str:\n        message = self._format_error(value)\n        if not value:\n            raise ValidationError(message)\n\n        # Check first if the scheme is valid\n        if \"://\" in value:\n            scheme = value.split(\"://\")[0].lower()\n            if scheme not in self.schemes:\n                raise ValidationError(message)\n\n        regex = self._regex(self.relative, self.require_tld)\n\n        if not regex.search(value):\n            raise ValidationError(message)\n\n        return value\n\n\nclass Email(Validator):\n    \"\"\"Validate an email address.\n\n    :param error: Error message to raise in case of a validation error. Can be\n        interpolated with `{input}`.\n    \"\"\"\n\n    USER_REGEX = re.compile(\n        r\"(^[-!#$%&'*+/=?^`{}|~\\w]+(\\.[-!#$%&'*+/=?^`{}|~\\w]+)*\\Z\"  # dot-atom\n        # quoted-string\n        r'|^\"([\\001-\\010\\013\\014\\016-\\037!#-\\[\\]-\\177]'\n        r'|\\\\[\\001-\\011\\013\\014\\016-\\177])*\"\\Z)',\n        re.IGNORECASE | re.UNICODE,\n    )\n\n    DOMAIN_REGEX = re.compile(\n        # domain\n        r\"(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\\.)+\" r\"(?:[A-Z]{2,6}|[A-Z0-9-]{2,})\\Z\"\n        # literal form, ipv4 address (SMTP 4.1.3)\n        r\"|^\\[(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)\"\n        r\"(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}\\]\\Z\",\n        re.IGNORECASE | re.UNICODE,\n    )\n\n    DOMAIN_WHITELIST = (\"localhost\",)\n\n    default_message = \"Not a valid email address.\"\n\n    def __init__(self, *, error: typing.Optional[str] = None):\n        self.error = error or self.default_message  # type: str\n\n    def _format_error(self, value: str) -> str:\n        return self.error.format(input=value)\n\n    def __call__(self, value: str) -> str:\n        message = self._format_error(value)\n\n        if not value or \"@\" not in value:\n            raise ValidationError(message)\n\n        user_part, domain_part = value.rsplit(\"@\", 1)\n\n        if not self.USER_REGEX.match(user_part):\n            raise ValidationError(message)\n\n        if domain_part not in self.DOMAIN_WHITELIST:\n            if not self.DOMAIN_REGEX.match(domain_part):\n                try:\n                    domain_part = domain_part.encode(\"idna\").decode(\"ascii\")\n                except UnicodeError:\n                    pass\n                else:\n                    if self.DOMAIN_REGEX.match(domain_part):\n                        return value\n                raise ValidationError(message)\n\n        return value\n\n\nclass Range(Validator):\n    \"\"\"Validator which succeeds if the value passed to it is within the specified\n    range. If ``min`` is not specified, or is specified as `None`,\n    no lower bound exists. If ``max`` is not specified, or is specified as `None`,\n    no upper bound exists. The inclusivity of the bounds (if they exist) is configurable.\n    If ``min_inclusive`` is not specified, or is specified as `True`, then\n    the ``min`` bound is included in the range. If ``max_inclusive`` is not specified,\n    or is specified as `True`, then the ``max`` bound is included in the range.\n\n    :param min: The minimum value (lower bound). If not provided, minimum\n        value will not be checked.\n    :param max: The maximum value (upper bound). If not provided, maximum\n        value will not be checked.\n    :param min_inclusive: Whether the `min` bound is included in the range.\n    :param max_inclusive: Whether the `max` bound is included in the range.\n    :param error: Error message to raise in case of a validation error.\n        Can be interpolated with `{input}`, `{min}` and `{max}`.\n    \"\"\"\n\n    message_min = \"Must be {min_op} {{min}}.\"\n    message_max = \"Must be {max_op} {{max}}.\"\n    message_all = \"Must be {min_op} {{min}} and {max_op} {{max}}.\"\n\n    message_gte = \"greater than or equal to\"\n    message_gt = \"greater than\"\n    message_lte = \"less than or equal to\"\n    message_lt = \"less than\"\n\n    def __init__(\n        self,\n        min=None,\n        max=None,\n        *,\n        min_inclusive: bool = True,\n        max_inclusive: bool = True,\n        error: typing.Optional[str] = None\n    ):\n        self.min = min\n        self.max = max\n        self.error = error\n        self.min_inclusive = min_inclusive\n        self.max_inclusive = max_inclusive\n\n        # interpolate messages based on bound inclusivity\n        self.message_min = self.message_min.format(\n            min_op=self.message_gte if self.min_inclusive else self.message_gt\n        )\n        self.message_max = self.message_max.format(\n            max_op=self.message_lte if self.max_inclusive else self.message_lt\n        )\n        self.message_all = self.message_all.format(\n            min_op=self.message_gte if self.min_inclusive else self.message_gt,\n            max_op=self.message_lte if self.max_inclusive else self.message_lt,\n        )\n\n    def _repr_args(self) -> str:\n        return \"min={!r}, max={!r}, min_inclusive={!r}, max_inclusive={!r}\".format(\n            self.min, self.max, self.min_inclusive, self.max_inclusive\n        )\n\n    def _format_error(self, value: _T, message: str) -> str:\n        return (self.error or message).format(input=value, min=self.min, max=self.max)\n\n    def __call__(self, value: _T) -> _T:\n        if self.min is not None and (\n            value < self.min if self.min_inclusive else value <= self.min\n        ):\n            message = self.message_min if self.max is None else self.message_all\n            raise ValidationError(self._format_error(value, message))\n\n        if self.max is not None and (\n            value > self.max if self.max_inclusive else value >= self.max\n        ):\n            message = self.message_max if self.min is None else self.message_all\n            raise ValidationError(self._format_error(value, message))\n\n        return value\n\n\nclass Length(Validator):\n    \"\"\"Validator which succeeds if the value passed to it has a\n    length between a minimum and maximum. Uses len(), so it\n    can work for strings, lists, or anything with length.\n\n    :param min: The minimum length. If not provided, minimum length\n        will not be checked.\n    :param max: The maximum length. If not provided, maximum length\n        will not be checked.\n    :param equal: The exact length. If provided, maximum and minimum\n        length will not be checked.\n    :param error: Error message to raise in case of a validation error.\n        Can be interpolated with `{input}`, `{min}` and `{max}`.\n    \"\"\"\n\n    message_min = \"Shorter than minimum length {min}.\"\n    message_max = \"Longer than maximum length {max}.\"\n    message_all = \"Length must be between {min} and {max}.\"\n    message_equal = \"Length must be {equal}.\"\n\n    def __init__(\n        self,\n        min: typing.Optional[int] = None,\n        max: typing.Optional[int] = None,\n        *,\n        equal: typing.Optional[int] = None,\n        error: typing.Optional[str] = None\n    ):\n        if equal is not None and any([min, max]):\n            raise ValueError(\n                \"The `equal` parameter was provided, maximum or \"\n                \"minimum parameter must not be provided.\"\n            )\n\n        self.min = min\n        self.max = max\n        self.error = error\n        self.equal = equal\n\n    def _repr_args(self) -> str:\n        return \"min={!r}, max={!r}, equal={!r}\".format(self.min, self.max, self.equal)\n\n    def _format_error(self, value: typing.Sized, message: str) -> str:\n        return (self.error or message).format(\n            input=value, min=self.min, max=self.max, equal=self.equal\n        )\n\n    def __call__(self, value: typing.Sized) -> typing.Sized:\n        length = len(value)\n\n        if self.equal is not None:\n            if length != self.equal:\n                raise ValidationError(self._format_error(value, self.message_equal))\n            return value\n\n        if self.min is not None and length < self.min:\n            message = self.message_min if self.max is None else self.message_all\n            raise ValidationError(self._format_error(value, message))\n\n        if self.max is not None and length > self.max:\n            message = self.message_max if self.min is None else self.message_all\n            raise ValidationError(self._format_error(value, message))\n\n        return value\n\n\nclass Equal(Validator):\n    \"\"\"Validator which succeeds if the ``value`` passed to it is\n    equal to ``comparable``.\n\n    :param comparable: The object to compare to.\n    :param error: Error message to raise in case of a validation error.\n        Can be interpolated with `{input}` and `{other}`.\n    \"\"\"\n\n    default_message = \"Must be equal to {other}.\"\n\n    def __init__(self, comparable, *, error: typing.Optional[str] = None):\n        self.comparable = comparable\n        self.error = error or self.default_message  # type: str\n\n    def _repr_args(self) -> str:\n        return \"comparable={!r}\".format(self.comparable)\n\n    def _format_error(self, value: _T) -> str:\n        return self.error.format(input=value, other=self.comparable)\n\n    def __call__(self, value: _T) -> _T:\n        if value != self.comparable:\n            raise ValidationError(self._format_error(value))\n        return value\n\n\nclass Regexp(Validator):\n    \"\"\"Validator which succeeds if the ``value`` matches ``regex``.\n\n    .. note::\n\n        Uses `re.match`, which searches for a match at the beginning of a string.\n\n    :param regex: The regular expression string to use. Can also be a compiled\n        regular expression pattern.\n    :param flags: The regexp flags to use, for example re.IGNORECASE. Ignored\n        if ``regex`` is not a string.\n    :param error: Error message to raise in case of a validation error.\n        Can be interpolated with `{input}` and `{regex}`.\n    \"\"\"\n\n    default_message = \"String does not match expected pattern.\"\n\n    def __init__(\n        self,\n        regex: typing.Union[str, bytes, typing.Pattern],\n        flags: int = 0,\n        *,\n        error: typing.Optional[str] = None\n    ):\n        self.regex = (\n            re.compile(regex, flags) if isinstance(regex, (str, bytes)) else regex\n        )\n        self.error = error or self.default_message  # type: str\n\n    def _repr_args(self) -> str:\n        return \"regex={!r}\".format(self.regex)\n\n    def _format_error(self, value: typing.Union[str, bytes]) -> str:\n        return self.error.format(input=value, regex=self.regex.pattern)\n\n    @typing.overload\n    def __call__(self, value: str) -> str:\n        ...\n\n    @typing.overload\n    def __call__(self, value: bytes) -> bytes:\n        ...\n\n    def __call__(self, value):\n        if self.regex.match(value) is None:\n            raise ValidationError(self._format_error(value))\n\n        return value\n\n\nclass Predicate(Validator):\n    \"\"\"Call the specified ``method`` of the ``value`` object. The\n    validator succeeds if the invoked method returns an object that\n    evaluates to True in a Boolean context. Any additional keyword\n    argument will be passed to the method.\n\n    :param method: The name of the method to invoke.\n    :param error: Error message to raise in case of a validation error.\n        Can be interpolated with `{input}` and `{method}`.\n    :param kwargs: Additional keyword arguments to pass to the method.\n    \"\"\"\n\n    default_message = \"Invalid input.\"\n\n    def __init__(self, method: str, *, error: typing.Optional[str] = None, **kwargs):\n        self.method = method\n        self.error = error or self.default_message  # type: str\n        self.kwargs = kwargs\n\n    def _repr_args(self) -> str:\n        return \"method={!r}, kwargs={!r}\".format(self.method, self.kwargs)\n\n    def _format_error(self, value: typing.Any) -> str:\n        return self.error.format(input=value, method=self.method)\n\n    def __call__(self, value: typing.Any) -> typing.Any:\n        method = getattr(value, self.method)\n\n        if not method(**self.kwargs):\n            raise ValidationError(self._format_error(value))\n\n        return value\n\n\nclass NoneOf(Validator):\n    \"\"\"Validator which fails if ``value`` is a member of ``iterable``.\n\n    :param iterable: A sequence of invalid values.\n    :param error: Error message to raise in case of a validation error. Can be\n        interpolated using `{input}` and `{values}`.\n    \"\"\"\n\n    default_message = \"Invalid input.\"\n\n    def __init__(\n        self, iterable: typing.Iterable, *, error: typing.Optional[str] = None\n    ):\n        self.iterable = iterable\n        self.values_text = \", \".join(str(each) for each in self.iterable)\n        self.error = error or self.default_message  # type: str\n\n    def _repr_args(self) -> str:\n        return \"iterable={!r}\".format(self.iterable)\n\n    def _format_error(self, value) -> str:\n        return self.error.format(input=value, values=self.values_text)\n\n    def __call__(self, value: typing.Any) -> typing.Any:\n        try:\n            if value in self.iterable:\n                raise ValidationError(self._format_error(value))\n        except TypeError:\n            pass\n\n        return value\n\n\nclass OneOf(Validator):\n    \"\"\"Validator which succeeds if ``value`` is a member of ``choices``.\n\n    :param choices: A sequence of valid values.\n    :param labels: Optional sequence of labels to pair with the choices.\n    :param error: Error message to raise in case of a validation error. Can be\n        interpolated with `{input}`, `{choices}` and `{labels}`.\n    \"\"\"\n\n    default_message = \"Must be one of: {choices}.\"\n\n    def __init__(\n        self,\n        choices: typing.Iterable,\n        labels: typing.Optional[typing.Iterable[str]] = None,\n        *,\n        error: typing.Optional[str] = None\n    ):\n        self.choices = choices\n        self.choices_text = \", \".join(str(choice) for choice in self.choices)\n        self.labels = labels if labels is not None else []\n        self.labels_text = \", \".join(str(label) for label in self.labels)\n        self.error = error or self.default_message  # type: str\n\n    def _repr_args(self) -> str:\n        return \"choices={!r}, labels={!r}\".format(self.choices, self.labels)\n\n    def _format_error(self, value) -> str:\n        return self.error.format(\n            input=value, choices=self.choices_text, labels=self.labels_text\n        )\n\n    def __call__(self, value: typing.Any) -> typing.Any:\n        try:\n            if value not in self.choices:\n                raise ValidationError(self._format_error(value))\n        except TypeError as error:\n            raise ValidationError(self._format_error(value)) from error\n\n        return value\n\n    def options(\n        self,\n        valuegetter: typing.Union[str, typing.Callable[[typing.Any], typing.Any]] = str,\n    ) -> typing.Iterable[typing.Tuple[typing.Any, str]]:\n        \"\"\"Return a generator over the (value, label) pairs, where value\n        is a string associated with each choice. This convenience method\n        is useful to populate, for instance, a form select field.\n\n        :param valuegetter: Can be a callable or a string. In the former case, it must\n            be a one-argument callable which returns the value of a\n            choice. In the latter case, the string specifies the name\n            of an attribute of the choice objects. Defaults to `str()`\n            or `str()`.\n        \"\"\"\n        valuegetter = valuegetter if callable(valuegetter) else attrgetter(valuegetter)\n        pairs = zip_longest(self.choices, self.labels, fillvalue=\"\")\n\n        return ((valuegetter(choice), label) for choice, label in pairs)\n\n\nclass ContainsOnly(OneOf):\n    \"\"\"Validator which succeeds if ``value`` is a sequence and each element\n    in the sequence is also in the sequence passed as ``choices``. Empty input\n    is considered valid.\n\n    :param iterable choices: Same as :class:`OneOf`.\n    :param iterable labels: Same as :class:`OneOf`.\n    :param str error: Same as :class:`OneOf`.\n\n    .. versionchanged:: 3.0.0b2\n        Duplicate values are considered valid.\n    .. versionchanged:: 3.0.0b2\n        Empty input is considered valid. Use `validate.Length(min=1) <marshmallow.validate.Length>`\n        to validate against empty inputs.\n    \"\"\"\n\n    default_message = \"One or more of the choices you made was not in: {choices}.\"\n\n    def _format_error(self, value) -> str:\n        value_text = \", \".join(str(val) for val in value)\n        return super()._format_error(value_text)\n\n    def __call__(self, value: typing.Sequence[_T]) -> typing.Sequence[_T]:\n        # We can't use set.issubset because does not handle unhashable types\n        for val in value:\n            if val not in self.choices:\n                raise ValidationError(self._format_error(value))\n        return value\n\n\nclass ContainsNoneOf(NoneOf):\n    \"\"\"Validator which fails if ``value`` is a sequence and any element\n    in the sequence is a member of the sequence passed as ``iterable``. Empty input\n    is considered valid.\n\n    :param iterable iterable: Same as :class:`NoneOf`.\n    :param str error: Same as :class:`NoneOf`.\n\n    .. versionadded:: 3.6.0\n    \"\"\"\n\n    default_message = \"One or more of the choices you made was in: {values}.\"\n\n    def _format_error(self, value) -> str:\n        value_text = \", \".join(str(val) for val in value)\n        return super()._format_error(value_text)\n\n    def __call__(self, value: typing.Sequence[_T]) -> typing.Sequence[_T]:\n        for val in value:\n            if val in self.iterable:\n                raise ValidationError(self._format_error(value))\n        return value\n"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "path": "tests/test_validate.py"
+        },
+        "result": {
+          "content": "\"\"\"Tests for marshmallow.validate\"\"\"\n\nimport re\nimport pytest\n\nfrom marshmallow import validate, ValidationError\n\n\n@pytest.mark.parametrize(\n    \"valid_url\",\n    [\n        \"http://example.org\",\n        \"https://example.org\",\n        \"ftp://example.org\",\n        \"ftps://example.org\",\n        \"http://example.co.jp\",\n        \"http://www.example.com/a%C2%B1b\",\n        \"http://www.example.com/~username/\",\n        \"http://info.example.com/?fred\",\n        \"http://xn--mgbh0fb.xn--kgbechtv/\",\n        \"http://example.com/blue/red%3Fand+green\",\n        \"http://www.example.com/?array%5Bkey%5D=value\",\n        \"http://xn--rsum-bpad.example.org/\",\n        \"http://123.45.67.8/\",\n        \"http://123.45.67.8:8329/\",\n        \"http://[2001:db8::ff00:42]:8329\",\n        \"http://[2001::1]:8329\",\n        \"http://www.example.com:8000/foo\",\n        \"http://user@example.com\",\n        \"http://user:pass@example.com\",\n    ],\n)\ndef test_url_absolute_valid(valid_url):\n    validator = validate.URL(relative=False)\n    assert validator(valid_url) == valid_url\n\n\n@pytest.mark.parametrize(\n    \"invalid_url\",\n    [\n        \"http:///example.com/\",\n        \"https:///example.com/\",\n        \"https://example.org\\\\\",\n        \"https://example.org\\n\",\n        \"ftp:///example.com/\",\n        \"ftps:///example.com/\",\n        \"http//example.org\",\n        \"http:///\",\n        \"http:/example.org\",\n        \"foo://example.org\",\n        \"../icons/logo.gif\",\n        \"http://2001:db8::ff00:42:8329\",\n        \"http://[192.168.1.1]:8329\",\n        \"abc\",\n        \"..\",\n        \"/\",\n        \" \",\n        \"\",\n        None,\n    ],\n)\ndef test_url_absolute_invalid(invalid_url):\n    validator = validate.URL(relative=False)\n    with pytest.raises(ValidationError):\n        validator(invalid_url)\n\n\n@pytest.mark.parametrize(\n    \"valid_url\",\n    [\n        \"http://example.org\",\n        \"http://123.45.67.8/\",\n        \"http://example.com/foo/bar/../baz\",\n        \"https://example.com/../icons/logo.gif\",\n        \"http://example.com/./icons/logo.gif\",\n        \"ftp://example.com/../../../../g\",\n        \"http://example.com/g?y/./x\",\n    ],\n)\ndef test_url_relative_valid(valid_url):\n    validator = validate.URL(relative=True)\n    assert validator(valid_url) == valid_url\n\n\n@pytest.mark.parametrize(  # noqa: W605\n    \"invalid_url\",\n    [\n        \"http//example.org\",\n        \"http://example.org\\n\",\n        \"suppliers.html\",\n        \"../icons/logo.gif\",\n        \"icons/logo.gif\",\n        \"../.../g\",\n        \"...\",\n        \"\\\\\",\n        \" \",\n        \"\",\n        None,\n    ],\n)\ndef test_url_relative_invalid(invalid_url):\n    validator = validate.URL(relative=True)\n    with pytest.raises(ValidationError):\n        validator(invalid_url)\n\n\n@pytest.mark.parametrize(\n    \"valid_url\",\n    [\n        \"http://example.org\",\n        \"http://123.45.67.8/\",\n        \"http://example\",\n        \"http://example.\",\n        \"http://example:80\",\n        \"http://user.name:pass.word@example\",\n        \"http://example/foo/bar\",\n    ],\n)\ndef test_url_dont_require_tld_valid(valid_url):\n    validator = validate.URL(require_tld=False)\n    assert validator(valid_url) == valid_url\n\n\n@pytest.mark.parametrize(\n    \"invalid_url\",\n    [\n        \"http//example\",\n        \"http://example\\n\",\n        \"http://.example.org\",\n        \"http:///foo/bar\",\n        \"http:// /foo/bar\",\n        \"\",\n        None,\n    ],\n)\ndef test_url_dont_require_tld_invalid(invalid_url):\n    validator = validate.URL(require_tld=False)\n    with pytest.raises(ValidationError):\n        validator(invalid_url)\n\n\ndef test_url_custom_scheme():\n    validator = validate.URL()\n    # By default, ws not allowed\n    url = \"ws://test.test\"\n    with pytest.raises(ValidationError):\n        validator(url)\n\n    validator = validate.URL(schemes={\"http\", \"https\", \"ws\"})\n    assert validator(url) == url\n\n\ndef test_url_relative_and_custom_schemes():\n    validator = validate.URL(relative=True)\n    # By default, ws not allowed\n    url = \"ws://test.test\"\n    with pytest.raises(ValidationError):\n        validator(url)\n\n    validator = validate.URL(relative=True, schemes={\"http\", \"https\", \"ws\"})\n    assert validator(url) == url\n\n\ndef test_url_custom_message():\n    validator = validate.URL(error=\"{input} ain't an URL\")\n    with pytest.raises(ValidationError, match=\"invalid ain't an URL\"):\n        validator(\"invalid\")\n\n\ndef test_url_repr():\n    assert repr(\n        validate.URL(relative=False, error=None)\n    ) == \"<URL(relative=False, error={!r})>\".format(\"Not a valid URL.\")\n    assert repr(\n        validate.URL(relative=True, error=\"foo\")\n    ) == \"<URL(relative=True, error={!r})>\".format(\"foo\")\n\n\n@pytest.mark.parametrize(\n    \"valid_email\",\n    [\n        \"niceandsimple@example.com\",\n        \"NiCeAnDsImPlE@eXaMpLe.CoM\",\n        \"very.common@example.com\",\n        \"a.little.lengthy.but.fine@a.iana-servers.net\",\n        \"disposable.style.email.with+symbol@example.com\",\n        '\"very.unusual.@.unusual.com\"@example.com',\n        \"!#$%&'*+-/=?^_`{}|~@example.org\",\n        \"niceandsimple@[64.233.160.0]\",\n        \"niceandsimple@localhost\",\n        \"jos\u00e9@blah.com\",\n        \"\u03b4\u03bf\u03ba.\u03b9\u03bc\u03ae@\u03c0\u03b1\u03c1\u03ac\u03b4\u03b5\u03b9\u03b3\u03bc\u03b1.\u03b4\u03bf\u03ba\u03b9\u03bc\u03ae\",\n    ],\n)\ndef test_email_valid(valid_email):\n    validator = validate.Email()\n    assert validator(valid_email) == valid_email\n\n\n@pytest.mark.parametrize(\n    \"invalid_email\",\n    [\n        \"niceandsimple\\n@example.com\",\n        \"NiCeAnDsImPlE@eXaMpLe.CoM\\n\",\n        'a\"b(c)d,e:f;g<h>i[j\\\\k]l@example.com',\n        'just\"not\"right@example.com',\n        'this is\"not\\allowed@example.com',\n        'this\\\\ still\\\\\"not\\\\\\\\allowed@example.com',\n        '\"much.more unusual\"@example.com',\n        '\"very.(),:;<>[]\".VERY.\"very@\\\\ \"very\".unusual\"@strange.example.com',\n        '\" \"@example.org',\n        \"user@example\",\n        \"@nouser.com\",\n        \"example.com\",\n        \"user\",\n        \"\",\n        None,\n    ],\n)\ndef test_email_invalid(invalid_email):\n    validator = validate.Email()\n    with pytest.raises(ValidationError):\n        validator(invalid_email)\n\n\ndef test_email_custom_message():\n    validator = validate.Email(error=\"{input} is not an email addy.\")\n    with pytest.raises(ValidationError, match=\"invalid is not an email addy.\"):\n        validator(\"invalid\")\n\n\ndef test_email_repr():\n    assert repr(validate.Email(error=None)) == \"<Email(error={!r})>\".format(\n        \"Not a valid email address.\"\n    )\n    assert repr(validate.Email(error=\"foo\")) == \"<Email(error={!r})>\".format(\"foo\")\n\n\ndef test_range_min():\n    assert validate.Range(1, 2)(1) == 1\n    assert validate.Range(0)(1) == 1\n    assert validate.Range()(1) == 1\n    assert validate.Range(min_inclusive=False, max_inclusive=False)(1) == 1\n    assert validate.Range(1, 1)(1) == 1\n\n    with pytest.raises(ValidationError, match=\"Must be greater than or equal to 2\"):\n        validate.Range(2, 3)(1)\n    with pytest.raises(ValidationError, match=\"Must be greater than or equal to 2\"):\n        validate.Range(2)(1)\n    with pytest.raises(ValidationError, match=\"Must be greater than 1\"):\n        validate.Range(1, 2, min_inclusive=False, max_inclusive=True, error=None)(1)\n    with pytest.raises(ValidationError, match=\"less than 1\"):\n        validate.Range(1, 1, min_inclusive=True, max_inclusive=False, error=None)(1)\n\n\ndef test_range_max():\n    assert validate.Range(1, 2)(2) == 2\n    assert validate.Range(None, 2)(2) == 2\n    assert validate.Range()(2) == 2\n    assert validate.Range(min_inclusive=False, max_inclusive=False)(2) == 2\n    assert validate.Range(2, 2)(2) == 2\n\n    with pytest.raises(ValidationError, match=\"less than or equal to 1\"):\n        validate.Range(0, 1)(2)\n    with pytest.raises(ValidationError, match=\"less than or equal to 1\"):\n        validate.Range(None, 1)(2)\n    with pytest.raises(ValidationError, match=\"less than 2\"):\n        validate.Range(1, 2, min_inclusive=True, max_inclusive=False, error=None)(2)\n    with pytest.raises(ValidationError, match=\"greater than 2\"):\n        validate.Range(2, 2, min_inclusive=False, max_inclusive=True, error=None)(2)\n\n\ndef test_range_custom_message():\n    v = validate.Range(2, 3, error=\"{input} is not between {min} and {max}\")\n    with pytest.raises(ValidationError, match=\"1 is not between 2 and 3\"):\n        v(1)\n\n    v = validate.Range(2, None, error=\"{input} is less than {min}\")\n    with pytest.raises(ValidationError, match=\"1 is less than 2\"):\n        v(1)\n\n    v = validate.Range(None, 3, error=\"{input} is greater than {max}\")\n    with pytest.raises(ValidationError, match=\"4 is greater than 3\"):\n        v(4)\n\n\ndef test_range_repr():\n    assert (\n        repr(\n            validate.Range(\n                min=None, max=None, error=None, min_inclusive=True, max_inclusive=True\n            )\n        )\n        == \"<Range(min=None, max=None, min_inclusive=True, max_inclusive=True, error=None)>\"  # noqa: B950\n    )\n    assert repr(\n        validate.Range(\n            min=1, max=3, error=\"foo\", min_inclusive=False, max_inclusive=False\n        )\n    ) == \"<Range(min=1, max=3, min_inclusive=False, max_inclusive=False, error={!r})>\".format(  # noqa: B950\n        \"foo\"\n    )\n\n\ndef test_length_min():\n    assert validate.Length(3, 5)(\"foo\") == \"foo\"\n    assert validate.Length(3, 5)([1, 2, 3]) == [1, 2, 3]\n    assert validate.Length(0)(\"a\") == \"a\"\n    assert validate.Length(0)([1]) == [1]\n    assert validate.Length()(\"\") == \"\"\n    assert validate.Length()([]) == []\n    assert validate.Length(1, 1)(\"a\") == \"a\"\n    assert validate.Length(1, 1)([1]) == [1]\n\n    with pytest.raises(ValidationError):\n        validate.Length(4, 5)(\"foo\")\n    with pytest.raises(ValidationError):\n        validate.Length(4, 5)([1, 2, 3])\n    with pytest.raises(ValidationError):\n        validate.Length(5)(\"foo\")\n    with pytest.raises(ValidationError):\n        validate.Length(5)([1, 2, 3])\n\n\ndef test_length_max():\n    assert validate.Length(1, 3)(\"foo\") == \"foo\"\n    assert validate.Length(1, 3)([1, 2, 3]) == [1, 2, 3]\n    assert validate.Length(None, 1)(\"a\") == \"a\"\n    assert validate.Length(None, 1)([1]) == [1]\n    assert validate.Length()(\"\") == \"\"\n    assert validate.Length()([]) == []\n    assert validate.Length(2, 2)(\"ab\") == \"ab\"\n    assert validate.Length(2, 2)([1, 2]) == [1, 2]\n\n    with pytest.raises(ValidationError):\n        validate.Length(1, 2)(\"foo\")\n    with pytest.raises(ValidationError):\n        validate.Length(1, 2)([1, 2, 3])\n    with pytest.raises(ValidationError):\n        validate.Length(None, 2)(\"foo\")\n    with pytest.raises(ValidationError):\n        validate.Length(None, 2)([1, 2, 3])\n\n\ndef test_length_equal():\n    assert validate.Length(equal=3)(\"foo\") == \"foo\"\n    assert validate.Length(equal=3)([1, 2, 3]) == [1, 2, 3]\n    assert validate.Length(equal=None)(\"\") == \"\"\n    assert validate.Length(equal=None)([]) == []\n\n    with pytest.raises(ValidationError):\n        validate.Length(equal=2)(\"foo\")\n    with pytest.raises(ValidationError):\n        validate.Length(equal=2)([1, 2, 3])\n\n    with pytest.raises(ValueError):\n        validate.Length(1, None, equal=3)(\"foo\")\n    with pytest.raises(ValueError):\n        validate.Length(None, 5, equal=3)(\"foo\")\n    with pytest.raises(ValueError):\n        validate.Length(1, 5, equal=3)(\"foo\")\n\n\ndef test_length_custom_message():\n    v = validate.Length(5, 6, error=\"{input} is not between {min} and {max}\")\n    with pytest.raises(ValidationError, match=\"foo is not between 5 and 6\"):\n        v(\"foo\")\n\n    v = validate.Length(5, None, error=\"{input} is shorter than {min}\")\n    with pytest.raises(ValidationError, match=\"foo is shorter than 5\"):\n        v(\"foo\")\n\n    v = validate.Length(None, 2, error=\"{input} is longer than {max}\")\n    with pytest.raises(ValidationError, match=\"foo is longer than 2\"):\n        v(\"foo\")\n\n    v = validate.Length(None, None, equal=4, error=\"{input} does not have {equal}\")\n    with pytest.raises(ValidationError, match=\"foo does not have 4\"):\n        v(\"foo\")\n\n\ndef test_length_repr():\n    assert (\n        repr(validate.Length(min=None, max=None, error=None, equal=None))\n        == \"<Length(min=None, max=None, equal=None, error=None)>\"\n    )\n    assert repr(\n        validate.Length(min=1, max=3, error=\"foo\", equal=None)\n    ) == \"<Length(min=1, max=3, equal=None, error={!r})>\".format(\"foo\")\n    assert repr(\n        validate.Length(min=None, max=None, error=\"foo\", equal=5)\n    ) == \"<Length(min=None, max=None, equal=5, error={!r})>\".format(\"foo\")\n\n\ndef test_equal():\n    assert validate.Equal(\"a\")(\"a\") == \"a\"\n    assert validate.Equal(1)(1) == 1\n    assert validate.Equal([1])([1]) == [1]\n\n    with pytest.raises(ValidationError):\n        validate.Equal(\"b\")(\"a\")\n    with pytest.raises(ValidationError):\n        validate.Equal(2)(1)\n    with pytest.raises(ValidationError):\n        validate.Equal([2])([1])\n\n\ndef test_equal_custom_message():\n    v = validate.Equal(\"a\", error=\"{input} is not equal to {other}.\")\n    with pytest.raises(ValidationError, match=\"b is not equal to a.\"):\n        v(\"b\")\n\n\ndef test_equal_repr():\n    assert repr(\n        validate.Equal(comparable=123, error=None)\n    ) == \"<Equal(comparable=123, error={!r})>\".format(\"Must be equal to {other}.\")\n    assert repr(\n        validate.Equal(comparable=123, error=\"foo\")\n    ) == \"<Equal(comparable=123, error={!r})>\".format(\"foo\")\n\n\ndef test_regexp_str():\n    assert validate.Regexp(r\"a\")(\"a\") == \"a\"\n    assert validate.Regexp(r\"\\w\")(\"_\") == \"_\"\n    assert validate.Regexp(r\"\\s\")(\" \") == \" \"\n    assert validate.Regexp(r\"1\")(\"1\") == \"1\"\n    assert validate.Regexp(r\"[0-9]+\")(\"1\") == \"1\"\n    assert validate.Regexp(r\"a\", re.IGNORECASE)(\"A\") == \"A\"\n\n    with pytest.raises(ValidationError):\n        validate.Regexp(r\"[0-9]+\")(\"a\")\n    with pytest.raises(ValidationError):\n        validate.Regexp(r\"[a-z]+\")(\"1\")\n    with pytest.raises(ValidationError):\n        validate.Regexp(r\"a\")(\"A\")\n\n\ndef test_regexp_compile():\n    assert validate.Regexp(re.compile(r\"a\"))(\"a\") == \"a\"\n    assert validate.Regexp(re.compile(r\"\\w\"))(\"_\") == \"_\"\n    assert validate.Regexp(re.compile(r\"\\s\"))(\" \") == \" \"\n    assert validate.Regexp(re.compile(r\"1\"))(\"1\") == \"1\"\n    assert validate.Regexp(re.compile(r\"[0-9]+\"))(\"1\") == \"1\"\n    assert validate.Regexp(re.compile(r\"a\", re.IGNORECASE))(\"A\") == \"A\"\n    assert validate.Regexp(re.compile(r\"a\", re.IGNORECASE), re.IGNORECASE)(\"A\") == \"A\"\n\n    with pytest.raises(ValidationError):\n        validate.Regexp(re.compile(r\"[0-9]+\"))(\"a\")\n    with pytest.raises(ValidationError):\n        validate.Regexp(re.compile(r\"[a-z]+\"))(\"1\")\n    with pytest.raises(ValidationError):\n        validate.Regexp(re.compile(r\"a\"))(\"A\")\n    with pytest.raises(ValidationError):\n        validate.Regexp(re.compile(r\"a\"), re.IGNORECASE)(\"A\")\n\n\ndef test_regexp_custom_message():\n    rex = r\"[0-9]+\"\n    v = validate.Regexp(rex, error=\"{input} does not match {regex}\")\n    with pytest.raises(ValidationError, match=\"a does not match\"):\n        v(\"a\")\n\n\ndef test_regexp_repr():\n    assert repr(\n        validate.Regexp(regex=\"abc\", flags=0, error=None)\n    ) == \"<Regexp(regex={!r}, error={!r})>\".format(\n        re.compile(\"abc\"), \"String does not match expected pattern.\"\n    )\n    assert repr(\n        validate.Regexp(regex=\"abc\", flags=re.IGNORECASE, error=\"foo\")\n    ) == \"<Regexp(regex={!r}, error={!r})>\".format(\n        re.compile(\"abc\", re.IGNORECASE), \"foo\"\n    )\n\n\ndef test_predicate():\n    class Dummy:\n        def _true(self):\n            return True\n\n        def _false(self):\n            return False\n\n        def _list(self):\n            return [1, 2, 3]\n\n        def _empty(self):\n            return []\n\n        def _identity(self, arg):\n            return arg\n\n    d = Dummy()\n\n    assert validate.Predicate(\"_true\")(d) == d\n    assert validate.Predicate(\"_list\")(d) == d\n    assert validate.Predicate(\"_identity\", arg=True)(d) == d\n    assert validate.Predicate(\"_identity\", arg=1)(d) == d\n    assert validate.Predicate(\"_identity\", arg=\"abc\")(d) == d\n\n    with pytest.raises(ValidationError, match=\"Invalid input.\"):\n        validate.Predicate(\"_false\")(d)\n    with pytest.raises(ValidationError):\n        validate.Predicate(\"_empty\")(d)\n    with pytest.raises(ValidationError):\n        validate.Predicate(\"_identity\", arg=False)(d)\n    with pytest.raises(ValidationError):\n        validate.Predicate(\"_identity\", arg=0)(d)\n    with pytest.raises(ValidationError):\n        validate.Predicate(\"_identity\", arg=\"\")(d)\n\n\ndef test_predicate_custom_message():\n    class Dummy:\n        def _false(self):\n            return False\n\n        def __str__(self):\n            return \"Dummy\"\n\n    d = Dummy()\n    with pytest.raises(ValidationError, match=\"Dummy._false is invalid!\"):\n        validate.Predicate(\"_false\", error=\"{input}.{method} is invalid!\")(d)\n\n\ndef test_predicate_repr():\n    assert repr(\n        validate.Predicate(method=\"foo\", error=None)\n    ) == \"<Predicate(method={!r}, kwargs={!r}, error={!r})>\".format(\n        \"foo\", {}, \"Invalid input.\"\n    )\n    assert repr(\n        validate.Predicate(method=\"foo\", error=\"bar\", zoo=1)\n    ) == \"<Predicate(method={!r}, kwargs={!r}, error={!r})>\".format(\n        \"foo\", {\"zoo\": 1}, \"bar\"\n    )\n\n\ndef test_noneof():\n    assert validate.NoneOf([1, 2, 3])(4) == 4\n    assert validate.NoneOf(\"abc\")(\"d\") == \"d\"\n    assert validate.NoneOf(\"\")([]) == []\n    assert validate.NoneOf([])(\"\") == \"\"\n    assert validate.NoneOf([])([]) == []\n    assert validate.NoneOf([1, 2, 3])(None) is None\n\n    with pytest.raises(ValidationError, match=\"Invalid input.\"):\n        validate.NoneOf([1, 2, 3])(3)\n    with pytest.raises(ValidationError):\n        validate.NoneOf(\"abc\")(\"c\")\n    with pytest.raises(ValidationError):\n        validate.NoneOf([1, 2, None])(None)\n    with pytest.raises(ValidationError):\n        validate.NoneOf(\"\")(\"\")\n\n\ndef test_noneof_custom_message():\n    with pytest.raises(ValidationError, match=\"<not valid>\"):\n        validate.NoneOf([1, 2], error=\"<not valid>\")(1)\n\n    none_of = validate.NoneOf([1, 2], error=\"{input} cannot be one of {values}\")\n    with pytest.raises(ValidationError, match=\"1 cannot be one of 1, 2\"):\n        none_of(1)\n\n\ndef test_noneof_repr():\n    assert repr(\n        validate.NoneOf(iterable=[1, 2, 3], error=None)\n    ) == \"<NoneOf(iterable=[1, 2, 3], error={!r})>\".format(\"Invalid input.\")\n    assert repr(\n        validate.NoneOf(iterable=[1, 2, 3], error=\"foo\")\n    ) == \"<NoneOf(iterable=[1, 2, 3], error={!r})>\".format(\"foo\")\n\n\ndef test_oneof():\n    assert validate.OneOf([1, 2, 3])(2) == 2\n    assert validate.OneOf(\"abc\")(\"b\") == \"b\"\n    assert validate.OneOf(\"\")(\"\") == \"\"\n    assert validate.OneOf(dict(a=0, b=1))(\"a\") == \"a\"\n    assert validate.OneOf((1, 2, None))(None) is None\n\n    with pytest.raises(ValidationError, match=\"Must be one of: 1, 2, 3.\"):\n        validate.OneOf([1, 2, 3])(4)\n    with pytest.raises(ValidationError):\n        validate.OneOf(\"abc\")(\"d\")\n    with pytest.raises(ValidationError):\n        validate.OneOf((1, 2, 3))(None)\n    with pytest.raises(ValidationError):\n        validate.OneOf([])([])\n    with pytest.raises(ValidationError):\n        validate.OneOf(())(())\n    with pytest.raises(ValidationError):\n        validate.OneOf(dict(a=0, b=1))(0)\n    with pytest.raises(ValidationError):\n        validate.OneOf(\"123\")(1)\n\n\ndef test_oneof_options():\n    oneof = validate.OneOf([1, 2, 3], [\"one\", \"two\", \"three\"])\n    expected = [(\"1\", \"one\"), (\"2\", \"two\"), (\"3\", \"three\")]\n    assert list(oneof.options()) == expected\n\n    oneof = validate.OneOf([1, 2, 3], [\"one\", \"two\"])\n    expected = [(\"1\", \"one\"), (\"2\", \"two\"), (\"3\", \"\")]\n    assert list(oneof.options()) == expected\n\n    oneof = validate.OneOf([1, 2], [\"one\", \"two\", \"three\"])\n    expected = [(\"1\", \"one\"), (\"2\", \"two\"), (\"\", \"three\")]\n    assert list(oneof.options()) == expected\n\n    oneof = validate.OneOf([1, 2])\n    expected = [(\"1\", \"\"), (\"2\", \"\")]\n    assert list(oneof.options()) == expected\n\n\ndef test_oneof_text():\n    oneof = validate.OneOf([1, 2, 3], [\"one\", \"two\", \"three\"])\n    assert oneof.choices_text == \"1, 2, 3\"\n    assert oneof.labels_text == \"one, two, three\"\n\n    oneof = validate.OneOf([1], [\"one\"])\n    assert oneof.choices_text == \"1\"\n    assert oneof.labels_text == \"one\"\n\n    oneof = validate.OneOf(dict(a=0, b=1))\n    assert \", \".join(sorted(oneof.choices_text.split(\", \"))) == \"a, b\"\n    assert oneof.labels_text == \"\"\n\n\ndef test_oneof_custom_message():\n    oneof = validate.OneOf([1, 2, 3], error=\"{input} is not one of {choices}\")\n    expected = \"4 is not one of 1, 2, 3\"\n    with pytest.raises(ValidationError):\n        oneof(4)\n    assert expected in str(expected)\n\n    oneof = validate.OneOf(\n        [1, 2, 3], [\"one\", \"two\", \"three\"], error=\"{input} is not one of {labels}\"\n    )\n    expected = \"4 is not one of one, two, three\"\n    with pytest.raises(ValidationError):\n        oneof(4)\n    assert expected in str(expected)\n\n\ndef test_oneof_repr():\n    assert repr(\n        validate.OneOf(choices=[1, 2, 3], labels=None, error=None)\n    ) == \"<OneOf(choices=[1, 2, 3], labels=[], error={!r})>\".format(\n        \"Must be one of: {choices}.\"\n    )\n    assert repr(\n        validate.OneOf(choices=[1, 2, 3], labels=[\"a\", \"b\", \"c\"], error=\"foo\")\n    ) == \"<OneOf(choices=[1, 2, 3], labels={!r}, error={!r})>\".format(\n        [\"a\", \"b\", \"c\"], \"foo\"\n    )\n\n\ndef test_containsonly_in_list():\n    assert validate.ContainsOnly([])([]) == []\n    assert validate.ContainsOnly([1, 2, 3])([1]) == [1]\n    assert validate.ContainsOnly([1, 1, 2])([1, 1]) == [1, 1]\n    assert validate.ContainsOnly([1, 2, 3])([1, 2]) == [1, 2]\n    assert validate.ContainsOnly([1, 2, 3])([2, 1]) == [2, 1]\n    assert validate.ContainsOnly([1, 2, 3])([1, 2, 3]) == [1, 2, 3]\n    assert validate.ContainsOnly([1, 2, 3])([3, 1, 2]) == [3, 1, 2]\n    assert validate.ContainsOnly([1, 2, 3])([2, 3, 1]) == [2, 3, 1]\n    assert validate.ContainsOnly([1, 2, 3])([1, 2, 3, 1]) == [1, 2, 3, 1]\n    assert validate.ContainsOnly([1, 2, 3])([]) == []\n\n    with pytest.raises(\n        ValidationError,\n        match=\"One or more of the choices you made was not in: 1, 2, 3.\",\n    ):\n        validate.ContainsOnly([1, 2, 3])([4])\n    with pytest.raises(ValidationError):\n        validate.ContainsOnly([])([1])\n\n\ndef test_contains_only_unhashable_types():\n    assert validate.ContainsOnly([[1], [2], [3]])([[1]]) == [[1]]\n    assert validate.ContainsOnly([[1], [1], [2]])([[1], [1]]) == [[1], [1]]\n    assert validate.ContainsOnly([[1], [2], [3]])([[1], [2]]) == [[1], [2]]\n    assert validate.ContainsOnly([[1], [2], [3]])([[2], [1]]) == [[2], [1]]\n    assert validate.ContainsOnly([[1], [2], [3]])([[1], [2], [3]]) == [[1], [2], [3]]\n    assert validate.ContainsOnly([[1], [2], [3]])([[3], [1], [2]]) == [[3], [1], [2]]\n    assert validate.ContainsOnly([[1], [2], [3]])([[2], [3], [1]]) == [[2], [3], [1]]\n    assert validate.ContainsOnly([[1], [2], [3]])([]) == []\n\n    with pytest.raises(ValidationError):\n        validate.ContainsOnly([[1], [2], [3]])([[4]])\n    with pytest.raises(ValidationError):\n        validate.ContainsOnly([])([1])\n\n\ndef test_containsonly_in_tuple():\n    assert validate.ContainsOnly(())(()) == ()\n    assert validate.ContainsOnly((1, 2, 3))((1,)) == (1,)\n    assert validate.ContainsOnly((1, 1, 2))((1, 1)) == (1, 1)\n    assert validate.ContainsOnly((1, 2, 3))((1, 2)) == (1, 2)\n    assert validate.ContainsOnly((1, 2, 3))((2, 1)) == (2, 1)\n    assert validate.ContainsOnly((1, 2, 3))((1, 2, 3)) == (1, 2, 3)\n    assert validate.ContainsOnly((1, 2, 3))((3, 1, 2)) == (3, 1, 2)\n    assert validate.ContainsOnly((1, 2, 3))((2, 3, 1)) == (2, 3, 1)\n    assert validate.ContainsOnly((1, 2, 3))(()) == tuple()\n    with pytest.raises(ValidationError):\n        validate.ContainsOnly((1, 2, 3))((4,))\n    with pytest.raises(ValidationError):\n        validate.ContainsOnly(())((1,))\n\n\ndef test_contains_only_in_string():\n    assert validate.ContainsOnly(\"\")(\"\") == \"\"\n    assert validate.ContainsOnly(\"abc\")(\"a\") == \"a\"\n    assert validate.ContainsOnly(\"aab\")(\"aa\") == \"aa\"\n    assert validate.ContainsOnly(\"abc\")(\"ab\") == \"ab\"\n    assert validate.ContainsOnly(\"abc\")(\"ba\") == \"ba\"\n    assert validate.ContainsOnly(\"abc\")(\"abc\") == \"abc\"\n    assert validate.ContainsOnly(\"abc\")(\"cab\") == \"cab\"\n    assert validate.ContainsOnly(\"abc\")(\"bca\") == \"bca\"\n    assert validate.ContainsOnly(\"abc\")(\"\") == \"\"\n\n    with pytest.raises(ValidationError):\n        validate.ContainsOnly(\"abc\")(\"d\")\n    with pytest.raises(ValidationError):\n        validate.ContainsOnly(\"\")(\"a\")\n\n\ndef test_containsonly_custom_message():\n    containsonly = validate.ContainsOnly(\n        [1, 2, 3], error=\"{input} is not one of {choices}\"\n    )\n    expected = \"4, 5 is not one of 1, 2, 3\"\n    with pytest.raises(ValidationError):\n        containsonly([4, 5])\n    assert expected in str(expected)\n\n    containsonly = validate.ContainsOnly(\n        [1, 2, 3], [\"one\", \"two\", \"three\"], error=\"{input} is not one of {labels}\"\n    )\n    expected = \"4, 5 is not one of one, two, three\"\n    with pytest.raises(ValidationError):\n        containsonly([4, 5])\n    assert expected in str(expected)\n\n\ndef test_containsonly_repr():\n    assert repr(\n        validate.ContainsOnly(choices=[1, 2, 3], labels=None, error=None)\n    ) == \"<ContainsOnly(choices=[1, 2, 3], labels=[], error={!r})>\".format(\n        \"One or more of the choices you made was not in: {choices}.\"\n    )\n    assert repr(\n        validate.ContainsOnly(choices=[1, 2, 3], labels=[\"a\", \"b\", \"c\"], error=\"foo\")\n    ) == \"<ContainsOnly(choices=[1, 2, 3], labels={!r}, error={!r})>\".format(\n        [\"a\", \"b\", \"c\"], \"foo\"\n    )\n\n\ndef test_containsnoneof_error_message():\n    with pytest.raises(\n        ValidationError, match=\"One or more of the choices you made was in: 1\"\n    ):\n        validate.ContainsNoneOf([1])([1])\n\n    with pytest.raises(\n        ValidationError, match=\"One or more of the choices you made was in: 1, 2, 3\"\n    ):\n        validate.ContainsNoneOf([1, 2, 3])([1])\n\n    with pytest.raises(\n        ValidationError, match=\"One or more of the choices you made was in: one, two\"\n    ):\n        validate.ContainsNoneOf([\"one\", \"two\"])([\"one\"])\n\n    with pytest.raises(\n        ValidationError, match=\"One or more of the choices you made was in: @, !, &, ?\"\n    ):\n        validate.ContainsNoneOf(\"@!&?\")(\"@\")\n\n\ndef test_containsnoneof_in_list():\n    assert validate.ContainsNoneOf([])([]) == []\n    assert validate.ContainsNoneOf([])([1, 2, 3]) == [1, 2, 3]\n    assert validate.ContainsNoneOf([4])([1, 2, 3]) == [1, 2, 3]\n    assert validate.ContainsNoneOf([2])([1, 3, 4]) == [1, 3, 4]\n    assert validate.ContainsNoneOf([1, 2, 3])([4]) == [4]\n    assert validate.ContainsNoneOf([4])([1, 1, 1, 1]) == [1, 1, 1, 1]\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf([1])([1, 2, 3])\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf([1, 1, 1])([1, 2, 3])\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf([1, 2])([1, 2])\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf([1])([1, 1, 1, 1])\n\n\ndef test_containsnoneof_unhashable_types():\n    assert validate.ContainsNoneOf([[1], [2], [3]])([]) == []\n    assert validate.ContainsNoneOf([[1], [2], [3]])([[4]]) == [[4]]\n    assert validate.ContainsNoneOf([[1], [2], [3]])([[4], [4]]) == [[4], [4]]\n    assert validate.ContainsNoneOf([[1], [2], [3]])([[4], [5]]) == [[4], [5]]\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf([[1], [2], [3]])([[1]])\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf([[1], [2], [3]])([[1], [2]])\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf([[1], [2], [3]])([[2], [1]])\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf([[1], [2], [3]])([[1], [2], [3]])\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf([[1], [2], [3]])([[3], [2], [1]])\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf([[1], [2], [3]])([[2], [3], [1]])\n\n\ndef test_containsnoneof_in_tuple():\n    assert validate.ContainsNoneOf(())(()) == ()\n    assert validate.ContainsNoneOf(())((1, 2, 3)) == (1, 2, 3)\n    assert validate.ContainsNoneOf((4,))((1, 2, 3)) == (1, 2, 3)\n    assert validate.ContainsNoneOf((2,))((1, 3, 4)) == (1, 3, 4)\n    assert validate.ContainsNoneOf((1, 2, 3))((4,)) == (4,)\n    assert validate.ContainsNoneOf((4,))((1, 1, 1, 1)) == (1, 1, 1, 1)\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf((1,))((1, 2, 3))\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf((1, 1, 1))((1, 2, 3))\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf((1, 2))((1, 2))\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf((1,))((1, 1, 1, 1))\n\n\ndef test_containsnoneof_in_string():\n    assert validate.ContainsNoneOf(\"\")(\"\") == \"\"\n    assert validate.ContainsNoneOf(\"\")(\"abc\") == \"abc\"\n    assert validate.ContainsNoneOf(\"d\")(\"abc\") == \"abc\"\n    assert validate.ContainsNoneOf(\"b\")(\"acd\") == \"acd\"\n    assert validate.ContainsNoneOf(\"abc\")(\"d\") == \"d\"\n    assert validate.ContainsNoneOf(\"d\")(\"aaaa\") == \"aaaa\"\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf(\"a\")(\"abc\")\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf(\"aaa\")(\"abc\")\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf(\"ab\")(\"ab\")\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf(\"a\")(\"aaaa\")\n\n\ndef test_containsnoneof_custom_message():\n    validator = validate.ContainsNoneOf(\n        [1, 2, 3], error=\"{input} was in the banned list: {values}\"\n    )\n    expected = \"1 was in the banned list: 1, 2, 3\"\n    with pytest.raises(ValidationError, match=expected):\n        validator([1])\n\n\ndef test_containsnoneof_mixing_types():\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf(\"abc\")([\"a\"])\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf([\"a\", \"b\", \"c\"])(\"a\")\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf((1, 2, 3))([1])\n\n    with pytest.raises(ValidationError):\n        validate.ContainsNoneOf([1, 2, 3])((1,))\n"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "write_test",
+        "args": {
+          "content": "import pytest\nfrom marshmallow import validate, ValidationError\n\ndef test_and_validator():\n    v1 = validate.Range(min=1)\n    v2 = validate.Range(max=10)\n    and_v = validate.And(v1, v2)\n\n    assert and_v(5) == 5\n\n    with pytest.raises(ValidationError):\n        and_v(0)\n\n    with pytest.raises(ValidationError):\n        and_v(15)\n\ndef test_and_function_helper():\n    v1 = validate.Range(min=1)\n    v2 = validate.Range(max=10)\n    and_v = validate.and_(v1, v2)\n\n    assert and_v(5) == 5\n\n    with pytest.raises(ValidationError):\n        and_v(0)\n"
+        },
+        "result": {
+          "ok": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "run_written_test",
+        "args": {},
+        "result": {
+          "outcome": "failed",
+          "message": "tests\\test_agent_generated.py:7: in test_and_validator\n    and_v = validate.And(v1, v2)\n            ^^^^^^^^^^^^\nE   AttributeError: module 'marshmallow.validate' has no attribute 'And'",
+          "note": "2 test functions found, reporting the first failing one"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "class Range",
+          "path": "src"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\validate.py:195: class Range(Validator):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src",
+          "pattern": "__all__"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:31: __all__ = [",
+            "src\\marshmallow\\__init__.py:18: __all__ = ["
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "path": "src/marshmallow/__init__.py"
+        },
+        "result": {
+          "content": "from marshmallow.schema import Schema, SchemaOpts\n\nfrom . import fields\nfrom marshmallow.decorators import (\n    pre_dump,\n    post_dump,\n    pre_load,\n    post_load,\n    validates,\n    validates_schema,\n)\nfrom marshmallow.utils import EXCLUDE, INCLUDE, RAISE, pprint, missing\nfrom marshmallow.exceptions import ValidationError\nfrom distutils.version import LooseVersion\n\n__version__ = \"3.11.1\"\n__version_info__ = tuple(LooseVersion(__version__).version)\n__all__ = [\n    \"EXCLUDE\",\n    \"INCLUDE\",\n    \"RAISE\",\n    \"Schema\",\n    \"SchemaOpts\",\n    \"fields\",\n    \"validates\",\n    \"validates_schema\",\n    \"pre_dump\",\n    \"post_dump\",\n    \"pre_load\",\n    \"post_load\",\n    \"pprint\",\n    \"ValidationError\",\n    \"missing\",\n]\n"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "write_test",
+        "args": {
+          "content": "import pytest\nfrom marshmallow import validate, ValidationError\n\ndef test_and_validator():\n    v1 = validate.Range(min=1)\n    v2 = validate.Range(max=10)\n    and_v = validate.And(v1, v2)\n\n    assert and_v(5) == 5\n\n    with pytest.raises(ValidationError):\n        and_v(0)\n\n    with pytest.raises(ValidationError):\n        and_v(15)\n\ndef test_and_function_helper():\n    v1 = validate.Range(min=1)\n    v2 = validate.Range(max=10)\n    and_v = validate.and_(v1, v2)\n\n    assert and_v(5) == 5\n\n    with pytest.raises(ValidationError):\n        and_v(0)\n"
+        },
+        "result": {
+          "ok": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "run_written_test",
+        "args": {},
+        "result": {
+          "outcome": "error",
+          "message": "pytest produced no report -- the test run failed to start"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "tests",
+          "pattern": "test_"
+        },
+        "result": {
+          "matches": [
+            "tests\\test_agent_generated.py:4: def test_and_validator():",
+            "tests\\test_agent_generated.py:17: def test_and_function_helper():",
+            "tests\\test_decorators.py:20: def test_decorated_processors(partial_val):",
+            "tests\\test_decorators.py:94: def test_decorated_processor_returning_none(unknown):",
+            "tests\\test_decorators.py:128: def test_pass_original_single(self):",
+            "tests\\test_decorators.py:155: def test_pass_original_many(self):",
+            "tests\\test_decorators.py:190: test_values = [e[\"_post_load\"] for e in items_loaded]",
+            "tests\\test_decorators.py:191: assert test_values == [24, 242]",
+            "tests\\test_decorators.py:209: def test_decorated_processor_inheritance():",
+            "tests\\test_decorators.py:246: def test_pre_dump_is_invoked_before_implicit_field_generation():",
+            "tests\\test_decorators.py:272: def test_validates(self):",
+            "tests\\test_decorators.py:286: def test_validates_with_attribute(self):",
+            "tests\\test_decorators.py:301: def test_validates_decorator(self):",
+            "tests\\test_decorators.py:340: def test_field_not_present(self):",
+            "tests\\test_decorators.py:351: def test_precedence(self):",
+            "tests\\test_decorators.py:379: def test_validates_with_data_key(self):",
+            "tests\\test_decorators.py:400: def test_validator_nested_many_invalid_data(self):",
+            "tests\\test_decorators.py:414: def test_validator_nested_many_schema_error(self):",
+            "tests\\test_decorators.py:432: def test_validator_nested_many_field_error(self):",
+            "tests\\test_decorators.py:458: def test_validator_nested_many_pass_original_and_pass_many(",
+            "tests\\test_decorators.py:481: def test_decorated_validators(self):",
+            "tests\\test_decorators.py:518: def test_multiple_validators(self):",
+            "tests\\test_decorators.py:550: def test_multiple_validators_merge_dict_errors(self):",
+            "tests\\test_decorators.py:580: def test_passing_original_data(self):",
+            "tests\\test_decorators.py:615: def test_allow_reporting_field_errors_in_schema_validator(self):",
+            "tests\\test_decorators.py:640: def test_allow_arbitrary_field_names_in_error(self):",
+            "tests\\test_decorators.py:649: def test_skip_on_field_errors(self):",
+            "tests\\test_decorators.py:690: def test_decorator_error_handling():  # noqa: C901",
+            "tests\\test_decorators.py:777: def test_decorator_error_handling_with_load(decorator):",
+            "tests\\test_decorators.py:791: def test_decorator_error_handling_with_load_dict_error(decorator):",
+            "tests\\test_decorators.py:805: def test_decorator_error_handling_with_dump(decorator):",
+            "tests\\test_decorators.py:835: def test_decorator_post_dump_with_nested_original_and_pass_many(",
+            "tests\\test_decorators.py:869: def test_decorator_post_load_with_nested_original_and_pass_many(",
+            "tests\\test_deserialization.py:18: def test_fields_allow_none_deserialize_to_none(self, FieldClass):",
+            "tests\\test_deserialization.py:24: def test_fields_dont_allow_none_by_default(self, FieldClass):",
+            "tests\\test_deserialization.py:29: def test_allow_none_is_true_if_missing_is_true(self):",
+            "tests\\test_deserialization.py:34: def test_list_field_deserialize_none_to_none(self):",
+            "tests\\test_deserialization.py:38: def test_tuple_field_deserialize_none_to_none(self):",
+            "tests\\test_deserialization.py:42: def test_list_of_nested_allow_none_deserialize_none_to_none(self):",
+            "tests\\test_deserialization.py:46: def test_list_of_nested_non_allow_none_deserialize_none_to_validation_error(self):",
+            "tests\\test_deserialization.py:53: def test_float_field_deserialization(self):",
+            "tests\\test_deserialization.py:59: def test_invalid_float_field_deserialization(self, in_val):",
+            "tests\\test_deserialization.py:65: def test_float_field_overflow(self):",
+            "tests\\test_deserialization.py:71: def test_integer_field_deserialization(self):",
+            "tests\\test_deserialization.py:84: def test_strict_integer_field_deserialization(self):",
+            "tests\\test_deserialization.py:97: def test_decimal_field_deserialization(self):",
+            "tests\\test_deserialization.py:121: def test_decimal_field_with_places(self):",
+            "tests\\test_deserialization.py:142: def test_decimal_field_with_places_and_rounding(self):",
+            "tests\\test_deserialization.py:161: def test_decimal_field_deserialization_string(self):",
+            "tests\\test_deserialization.py:180: def test_decimal_field_special_values(self):",
+            "tests\\test_deserialization.py:219: def test_decimal_field_special_values_not_permitted(self):",
+            "tests\\test_deserialization.py:252: def test_float_field_allow_nan(self, value, allow_nan):",
+            "tests\\test_deserialization.py:274: def test_string_field_deserialization(self):",
+            "tests\\test_deserialization.py:287: def test_boolean_field_deserialization(self):",
+            "tests\\test_deserialization.py:326: def test_boolean_field_deserialization_with_custom_truthy_values(self):",
+            "tests\\test_deserialization.py:338: def test_boolean_field_deserialization_with_custom_truthy_values_invalid(",
+            "tests\\test_deserialization.py:365: def test_boolean_field_deserialization_with_empty_truthy(self):",
+            "tests\\test_deserialization.py:371: def test_boolean_field_deserialization_with_custom_falsy_values(self):",
+            "tests\\test_deserialization.py:376: def test_field_toggle_show_invalid_value_in_error_message(self):",
+            "tests\\test_deserialization.py:412: def test_invalid_datetime_deserialization(self, in_value):",
+            "tests\\test_deserialization.py:417: def test_custom_date_format_datetime_field_deserialization(self):",
+            "tests\\test_deserialization.py:461: def test_rfc_datetime_field_deserialization(self, fmt, value, expected, aware):",
+            "tests\\test_deserialization.py:505: def test_iso_datetime_field_deserialization(self, fmt, value, expected, aware):",
+            "tests\\test_deserialization.py:557: def test_naive_datetime_with_timezone(self, fmt, timezone, value, expected):",
+            "tests\\test_deserialization.py:566: def test_aware_datetime_default_timezone(self, fmt, timezone, value):",
+            "tests\\test_deserialization.py:572: def test_time_field_deserialization(self):",
+            "tests\\test_deserialization.py:586: def test_invalid_time_field_deserialization(self, in_data):",
+            "tests\\test_deserialization.py:592: def test_custom_time_format_time_field_deserialization(self):",
+            "tests\\test_deserialization.py:614: def test_iso_time_field_deserialization(self, fmt, value, expected):",
+            "tests\\test_deserialization.py:621: def test_invalid_timedelta_precision(self):",
+            "tests\\test_deserialization.py:625: def test_timedelta_field_deserialization(self):",
+            "tests\\test_deserialization.py:696: def test_invalid_timedelta_field_deserialization(self, in_value):",
+            "tests\\test_deserialization.py:703: def test_date_field_deserialization(self, format):",
+            "tests\\test_deserialization.py:714: def test_invalid_date_field_deserialization(self, in_value):",
+            "tests\\test_deserialization.py:721: def test_dict_field_deserialization(self):",
+            "tests\\test_deserialization.py:733: def test_structured_dict_value_deserialization(self):",
+            "tests\\test_deserialization.py:744: def test_structured_dict_key_deserialization(self):",
+            "tests\\test_deserialization.py:752: def test_structured_dict_key_value_deserialization(self):",
+            "tests\\test_deserialization.py:790: def test_url_field_deserialization(self):",
+            "tests\\test_deserialization.py:802: def test_url_field_non_list_validators(self):",
+            "tests\\test_deserialization.py:807: def test_relative_url_field_deserialization(self):",
+            "tests\\test_deserialization.py:811: def test_url_field_schemes_argument(self):",
+            "tests\\test_deserialization.py:819: def test_email_field_deserialization(self):",
+            "tests\\test_deserialization.py:827: def test_email_field_non_list_validators(self):",
+            "tests\\test_deserialization.py:832: def test_function_field_deserialization_is_noop_by_default(self):",
+            "tests\\test_deserialization.py:838: def test_function_field_deserialization_with_callable(self):",
+            "tests\\test_deserialization.py:842: def test_function_field_deserialization_with_context(self):",
+            "tests\\test_deserialization.py:853: def test_function_field_passed_deserialize_only_is_load_only(self):",
+            "tests\\test_deserialization.py:857: def test_function_field_passed_deserialize_and_serialize_is_not_load_only(self):",
+            "tests\\test_deserialization.py:863: def test_uuid_field_deserialization(self):",
+            "tests\\test_deserialization.py:881: def test_invalid_uuid_deserialization(self, in_value):",
+            "tests\\test_deserialization.py:888: def test_ip_field_deserialization(self):",
+            "tests\\test_deserialization.py:904: def test_invalid_ip_deserialization(self, in_value):",
+            "tests\\test_deserialization.py:911: def test_ipv4_field_deserialization(self):",
+            "tests\\test_deserialization.py:929: def test_invalid_ipv4_deserialization(self, in_value):",
+            "tests\\test_deserialization.py:936: def test_ipv6_field_deserialization(self):",
+            "tests\\test_deserialization.py:943: def test_ipinterface_field_deserialization(self):",
+            "tests\\test_deserialization.py:967: def test_invalid_ipinterface_deserialization(self, in_value):",
+            "tests\\test_deserialization.py:974: def test_ipv4interface_field_deserialization(self):",
+            "tests\\test_deserialization.py:993: def test_invalid_ipv4interface_deserialization(self, in_value):"
+          ],
+          "truncated": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "write_test",
+        "args": {
+          "content": "import pytest\nfrom marshmallow import validate, ValidationError\n\ndef test_and_validator():\n    v1 = validate.Range(min=1)\n    v2 = validate.Range(max=10)\n    and_v = validate.And(v1, v2)\n\n    assert and_v(5) == 5\n\n    with pytest.raises(ValidationError):\n        and_v(0)\n\n    with pytest.raises(ValidationError):\n        and_v(15)\n\ndef test_and_function_helper():\n    v1 = validate.Range(min=1)\n    v2 = validate.Range(max=10)\n    and_v = validate.and_(v1, v2)\n\n    assert and_v(5) == 5\n\n    with pytest.raises(ValidationError):\n        and_v(0)\n"
+        },
+        "result": {
+          "error": "You already called this exact tool with these exact arguments earlier in this session and got the same result -- repeating it wastes your limited tool-call budget. Use what you already learned from that earlier call instead."
+        },
+        "blocked_duplicate": true
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "class Equal",
+          "path": "src"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\validate.py:340: class Equal(Validator):"
+          ]
+        },
+        "blocked_duplicate": false
+      }
+    ],
+    "tool_call_count": 15,
+    "total_tokens": 296040,
+    "hit_cap": true,
+    "valid_reproduction": false,
+    "gold_check_result": {
+      "outcome": "failed",
+      "message": "tests\\test_agent_generated.py:20: in test_and_function_helper\n    and_v = validate.and_(v1, v2)\n            ^^^^^^^^^^^^^\nE   AttributeError: module 'marshmallow.validate' has no attribute 'and_'. Did you mean: 'And'?",
+      "note": "2 test functions found, reporting the first failing one"
+    },
+    "reproduce_attempts": 2
+  },
+  "coder_rounds": []
+}

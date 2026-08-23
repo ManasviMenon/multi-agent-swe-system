@@ -439,6 +439,58 @@ concrete decision or commitment made now.
   way regression rate is checked elsewhere in this document — by comparing against the
   frozen Phase 2 baseline, ticket by ticket, not just by the aggregate count.
 
+## Phase 3 — final result: full 25-ticket run
+
+**6/25 resolved — identical to Phase 2's 6/25.** After six real harness bugs found and
+fixed during validation (see above), a full clean pass across all 25 tickets, one run,
+current code:
+
+| Status | Count | Tickets |
+|---|---|---|
+| Resolved | 6 | `1808, 2249, 2821, 2868, 2870, 1378` |
+| `no_reproducing_test` | 5 | `2985, 2936, 2118, 1768, 1350` |
+| Model-level error | 1 | `1357` (malformed tool-call JSON — an API-level hiccup, not a capability signal) |
+| Attempted, not resolved | 13 | everything else |
+
+Same headline count as Phase 2, but **not the same set of tickets** — which matters
+more than the number matching would have:
+
+- `marshmallow-2270` flipped from resolved (Phase 2, and most Phase 3 validation runs)
+  to unresolved this run — consistent with the reproduce-gate variance already
+  documented for this ticket, an honest N=1 result rather than a regression to chase.
+- `marshmallow-1378` flipped from unresolved to resolved — but it's a **category-D
+  "new feature" ticket** (`empty string data_key disallowed`), not one of the four
+  category-B tickets the Tester loop was specifically built to fix.
+- **The original pre-registered prediction failed on its own terms**: 0 of the 4 named
+  category-B tickets (`1357`, `1424`, `2900`, `2936`) resolved. `1357` hit a model-level
+  error, `1424`/`2900` were attempted across all 3 Coder rounds without resolving,
+  `2936` couldn't produce a reproducing test at all in this run.
+
+Per the falsification clause written into the original pre-registered design ("if
+Phase 3 resolves a substantially different set of tickets than predicted, that's
+itself a finding worth writing up") — this is exactly that case, and it should be read
+as such rather than quietly filed as "no change." The honest interpretation, combining
+this result with the deep-dive evidence gathered during validation: the Tester+Coder
+retry loop mechanically works (verified: it correctly used regression feedback and
+stopped breaking things on `marshmallow-2900`'s replay; it correctly avoided harming
+any of the 6 previously-resolved tickets in aggregate), but the specific hypothesis
+that *this* mechanism would recover *these* 4 category-B tickets did not hold. The
+recovery that did happen (`1378`) came from a category the design didn't predict for,
+which is a real, if serendipitous, data point for Phase 4's premise that different
+failure categories need different interventions — not proof the Tester loop overall
+was worth its ~3-4x cost over Phase 2 on this ticket set.
+
+**Cost, reported as promised in the pre-registered design (not just resolution):**
+every attempted ticket used all 3 Coder rounds and the Tester's full available budget
+regardless of outcome — cost per ticket rose substantially over Phase 2's baseline
+(individual tickets ran 400K-3M+ tokens combined across Tester+Coder, vs. Phase 2's
+single-shot ~200K-1M token range) for a 0-net resolution change. Taken at face value,
+Phase 3 did not earn its added cost on this ticket set. Taken with the mechanism
+evidence from validation, the more precise conclusion is that the loop works correctly
+but this model hits a capability ceiling on category B specifically, which more retries
+alone don't fix — motivating Phase 4's different kind of intervention (decomposition
+before coding) rather than more retries of the same kind.
+
 ## Phase 4 — Planner: pre-registered experimental design
 
 Written before any Phase 4 code exists, on paper only, per the same discipline as
