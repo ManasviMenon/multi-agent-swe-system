@@ -230,3 +230,48 @@ ticket, flipped to resolved unexpectedly). The original prediction (Tester recov
 ~4 category-B tickets) failed completely on its own terms: 0 of the 4 named tickets
 resolved. Full writeup with cost analysis in RESULTS.md. Moving to Phase 4 (Planner)
 next, per the same per-phase full-run discipline.
+
+## 2026-08-23/24 -- the real cause of days of "quota exhausted" confusion: our own token bloat
+
+Started Phase 4 (planner.py, run_phase4.py). A smoke test hit persistent 429s that
+looked like daily-quota exhaustion -- same error every retry, no matter how long
+waited. Chased several wrong turns before finding the real cause, worth recording
+honestly since each one taught something:
+
+1. First real bug: the Planner's own worktree was calling install_editable
+   unnecessarily (it only ever reads files, never imports/runs marshmallow). Doing so
+   on a second worktree for the same ticket made pip skip reinstalling (already
+   "satisfied" from the Planner's now-deleted worktree), leaving a stale editable-
+   install pointer for the Tester/Coder's separate worktree -- ModuleNotFoundError.
+   Fixed by simply not installing where it was never needed.
+2. Second: create_with_retry was classifying a 429 as DailyQuotaExhausted on first
+   sight, without ever running the actual backoff/retry loop -- fixed to always retry
+   first (parsing the server's "retry in Xs" hint), only classifying after retries
+   genuinely exhaust.
+3. That fix was then verified directly and empirically (not just by re-reading the
+   code): a live timed test showed create_with_retry spending 195.8 real seconds
+   actually retrying -- proving the retry logic itself was not the bug.
+4. Checked the account's live rate-limit dashboard from two time-range views and ruled
+   out a stale/cached reading; confirmed the API key matches the dashboard's project.
+5. The actual answer: computed tokens-per-call from existing transcript data (free --
+   no new API calls). Average across all 25 Phase 3 tickets is ~42K tokens/call, but
+   that average is diluted by cheap early turns -- since a multi-turn session's context
+   keeps growing, LATE-session calls in a 60-80-call ticket cost far more than the
+   average, and a full read_file on a large file (fields.py, ~72KB) permanently
+   inflates every subsequent turn's cost for the rest of that session regardless of
+   duplicate-call blocking (which only stops literal re-reads, not context growth from
+   a file already read once). A handful of late, expensive calls landing within one
+   real minute is enough to blow the 250K TPM cap on its own -- meaning long tickets
+   were plausibly throttling themselves *by design*, independent of daily quota.
+
+Fixed at the source: read_file now takes optional start_line/end_line; without a range,
+files over 200 lines return a 30-line preview + a note pointing at search_files instead
+of the whole file. Content stays raw (no injected line numbers) even when sliced, so it
+remains directly usable in edit_file's old_text. Verified mechanically against
+fields.py: preview is 615 chars vs. the full ~72KB. This should reduce token growth
+across every phase (Coder, Tester, Planner all share this tool), not just fix Phase 4.
+
+Not yet re-verified live whether this actually clears the throttling -- that's the next
+concrete test, and it's the most consequential finding in days: something that looked
+like an external quota mystery for a long stretch was actually our own code sending too
+much per minute.
