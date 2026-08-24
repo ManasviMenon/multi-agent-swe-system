@@ -5,6 +5,7 @@ pieces -- not a speculative abstraction, a real second caller.
 """
 
 import json
+import re
 import time
 from pathlib import Path
 
@@ -151,7 +152,19 @@ def _is_per_day_quota_error(e: Exception) -> bool:
 RATE_LIMIT_EXCEPTIONS = (errors.ClientError, compat_errors.RateLimitError, compat_errors.APIStatusError)
 
 
+def _retry_after_seconds(e: Exception, default: float) -> float:
+    """Parses the server's own "Please retry in X.Ys" hint out of the error text when
+    present, rather than blindly backing off on our own schedule -- more accurate for
+    clearing a short per-minute (TPM/RPM) burst than a generic exponential wait."""
+    text = str(getattr(e, "body", None) or getattr(e, "details", None) or str(e))
+    match = re.search(r"retry in (\d+(?:\.\d+)?)s", text, re.IGNORECASE)
+    if match:
+        return min(65.0, float(match.group(1)) + 2.0)  # small buffer past the server's own hint
+    return default
+
+
 def create_with_retry(client, **kwargs):
+    last_error = None
     for attempt in range(MAX_RETRY_ATTEMPTS):
         try:
             return client.interactions.create(**kwargs)
@@ -168,9 +181,22 @@ def create_with_retry(client, **kwargs):
         except RATE_LIMIT_EXCEPTIONS as e:
             if _status_code(e) != 429:
                 raise
-            if _is_per_day_quota_error(e):
-                raise DailyQuotaExhausted(str(e)) from e
-            time.sleep(min(60, 5 * (2**attempt)))
+            # Do NOT immediately raise DailyQuotaExhausted on the first sighting of
+            # something that looks like a daily-quota error -- the account's own live
+            # dashboard showed RPD with headroom (239/500) while TPM was over its cap
+            # (363K/250K) at the exact time this was misfiring, meaning the "requests"
+            # wording in Google's error text doesn't reliably mean "genuinely exhausted
+            # for the day" -- a short-lived per-minute burst can produce the same
+            # message. Always let the real retry loop run first; only decide it's a
+            # true daily exhaustion if it's STILL failing after actual backoff attempts
+            # (a real per-day exhaustion won't clear in under two minutes no matter what
+            # it's classified as, so this costs nothing in the genuine case).
+            last_error = e
+            if attempt >= MAX_RETRY_ATTEMPTS - 1:
+                break
+            time.sleep(_retry_after_seconds(e, default=min(60, 5 * (2**attempt))))
+    if last_error is not None and _is_per_day_quota_error(last_error):
+        raise DailyQuotaExhausted(str(last_error)) from last_error
     raise RateLimitExhausted("exceeded retry attempts on transient rate limiting")
 
 

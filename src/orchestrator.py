@@ -47,6 +47,7 @@ from eval.run_eval import (  # noqa: E402
     remove_worktree,
 )
 from coder import run_coder_round  # noqa: E402
+from planner import run_planner  # noqa: E402
 from tester import (  # noqa: E402
     TEST_FILE_PATH,
     run_full_suite_with_details,
@@ -89,12 +90,23 @@ def compute_regressions(baseline_pass_set: set, after_results: dict) -> list:
     )
 
 
-def build_initial_coder_prompt(issue_text: str, test_source: str, failure_message: str) -> str:
+def build_initial_coder_prompt(
+    issue_text: str, test_source: str, failure_message: str, plan_text: str | None = None
+) -> str:
+    plan_section = (
+        f"\n\nA Planner agent investigated this issue first and produced the following "
+        f"plan for where the fix likely needs to happen:\n\n{plan_text}\n\n"
+        "Use this as a starting point, but verify it against the actual code yourself -- "
+        "the plan may be incomplete or wrong.\n"
+        if plan_text
+        else ""
+    )
     return (
         f"GitHub issue:\n\n{issue_text}\n\n"
         "A Tester agent has written the following test, which reproduces this bug "
         f"(it currently fails against the unfixed code):\n\n```python\n{test_source}\n```\n\n"
-        f"The test currently fails with:\n{failure_message}\n\n"
+        f"The test currently fails with:\n{failure_message}\n"
+        f"{plan_section}\n"
         "Fix the underlying bug so this test passes. You cannot see or run this test "
         "yourself -- it will be re-run after your edit and you'll be told the result, "
         "along with whether your fix broke any other previously-passing test."
@@ -133,10 +145,34 @@ def build_retry_coder_prompt(check_result: dict, regressions: list, after_result
     return "\n\n".join(parts)
 
 
-def run_phase3_ticket(ticket_id: str) -> dict:
-    """Runs the full Phase 3 loop for one ticket. Returns a dict with:
-    result -- the summary to log, tester_transcript -- for the transcripts dir,
-    coder_rounds -- list of per-attempt Coder transcripts."""
+def run_planner_for_ticket(ticket_id: str) -> dict:
+    """Runs the Planner in its own dedicated worktree. The Planner only ever calls
+    read_file/list_directory/search_files -- pure filesystem reads, it never imports or
+    executes marshmallow -- so it deliberately does NOT call install_editable here.
+    Doing so originally (copied out of habit from the Tester/Coder setup) caused a real
+    bug: pip sees the same marshmallow version already installed from a different
+    worktree path and skips reinstalling rather than repointing the editable link, so by
+    the time the Tester/Coder's *separate* worktree ran its suite check, the editable
+    install still pointed at the Planner's already-deleted worktree
+    (ModuleNotFoundError: No module named 'marshmallow'). The real fix is just not doing
+    an install this function never needed in the first place."""
+    ticket_dir = TICKETS_DIR / ticket_id
+    base_commit = (ticket_dir / "base_commit.txt").read_text().strip()
+    issue_text = (ticket_dir / "issue.md").read_text(encoding="utf-8")
+
+    worktree = create_worktree(base_commit)
+    try:
+        return run_planner(issue_text, worktree)
+    finally:
+        remove_worktree(worktree)
+
+
+def _run_ticket(ticket_id: str, plan_text: str | None = None, planner_stats: dict | None = None) -> dict:
+    """Runs the Tester-gated Coder retry loop for one ticket, optionally seeded with a
+    Planner's plan (Phase 4) -- with plan_text=None this is exactly Phase 3's behavior,
+    unchanged. Returns a dict with: result -- the summary to log, tester_transcript --
+    for the transcripts dir, coder_rounds -- list of per-attempt Coder transcripts."""
+    planner_stats = planner_stats or {"tool_calls": 0, "tokens": 0}
     ticket_dir = TICKETS_DIR / ticket_id
     base_commit = (ticket_dir / "base_commit.txt").read_text().strip()
     issue_text = (ticket_dir / "issue.md").read_text(encoding="utf-8")
@@ -160,6 +196,8 @@ def run_phase3_ticket(ticket_id: str) -> dict:
                     "tester_tool_calls": tester_transcript["tool_call_count"],
                     "tester_tokens": tester_transcript["total_tokens"],
                     "tester_reproduce_attempts": tester_transcript["reproduce_attempts"],
+                    "planner_tool_calls": planner_stats["tool_calls"],
+                    "planner_tokens": planner_stats["tokens"],
                     "internal_verdict": None,
                     "regressed_mid_loop": [],
                     "suite_broken_reason": None,
@@ -188,7 +226,7 @@ def run_phase3_ticket(ticket_id: str) -> dict:
         if not _baseline_suite_ok:
             print(f"WARNING: baseline suite check itself failed ({baseline_suite_reason}) -- unexpected, since only the unmodified source + Tester's own already-validated test are present at this point")
 
-        prompt = build_initial_coder_prompt(issue_text, test_source, gate_result["message"])
+        prompt = build_initial_coder_prompt(issue_text, test_source, gate_result["message"], plan_text)
         previous_interaction_id = None
         internal_verdict = None
         regressed_mid_loop = []
@@ -276,6 +314,8 @@ def run_phase3_ticket(ticket_id: str) -> dict:
             "tester_tool_calls": tester_transcript["tool_call_count"],
             "tester_tokens": tester_transcript["total_tokens"],
             "tester_reproduce_attempts": tester_transcript["reproduce_attempts"],
+            "planner_tool_calls": planner_stats["tool_calls"],
+            "planner_tokens": planner_stats["tokens"],
             "internal_verdict": internal_verdict,
             "regressed_mid_loop": regressed_mid_loop,
             "suite_broken_reason": suite_broken_reason,
@@ -284,3 +324,28 @@ def run_phase3_ticket(ticket_id: str) -> dict:
         "tester_transcript": tester_transcript,
         "coder_rounds": coder_rounds,
     }
+
+
+def run_phase3_ticket(ticket_id: str) -> dict:
+    """Phase 3: no Planner. Identical behavior to before this function was refactored
+    to share logic with Phase 4 -- plan_text=None means build_initial_coder_prompt
+    produces exactly the same prompt it always did."""
+    return _run_ticket(ticket_id)
+
+
+def run_phase4_ticket(ticket_id: str) -> dict:
+    """Phase 4: runs the Planner first, then the same Tester-gated Coder retry loop
+    seeded with its plan. Returns the same shape as run_phase3_ticket, plus a top-level
+    'planner_transcript' key."""
+    planner_transcript = run_planner_for_ticket(ticket_id)
+    plan_text = planner_transcript["final_message"]
+    outcome = _run_ticket(
+        ticket_id,
+        plan_text=plan_text,
+        planner_stats={
+            "tool_calls": planner_transcript["tool_call_count"],
+            "tokens": planner_transcript["total_tokens"],
+        },
+    )
+    outcome["planner_transcript"] = planner_transcript
+    return outcome
