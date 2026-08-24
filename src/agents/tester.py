@@ -249,7 +249,7 @@ def execute_tool(name: str, args: dict, worktree: Path) -> dict:
         return {"error": f"{type(e).__name__}: {e}"}
 
 
-def verify_against_gold(base_commit: str, gold_patch_text: str, test_content: str) -> dict:
+def verify_against_gold(worktree: Path, base_commit: str, gold_patch_text: str, test_content: str) -> dict:
     """Harness-internal quality gate: applies the REAL gold source fix (never shown to
     any agent, never included in any prompt) plus the Tester's current test to a
     disposable scratch worktree, and checks whether the test passes there.
@@ -271,6 +271,11 @@ def verify_against_gold(base_commit: str, gold_patch_text: str, test_content: st
         return run_written_test_impl(gold_worktree)
     finally:
         remove_worktree(gold_worktree)
+        # install_editable above repointed the venv's single shared editable install at
+        # gold_worktree, which is now gone -- every check against the caller's own
+        # worktree for the rest of this ticket (later Tester rounds, baseline suite
+        # check, the whole Coder loop) would otherwise silently ModuleNotFoundError.
+        install_editable(worktree)
 
 
 TEMPERATURE = 0.0  # repeatability matters more than variety for "write a test, confirm it fails"
@@ -340,7 +345,7 @@ def run_tester(issue_text: str, worktree: Path, base_commit: str, gold_patch_tex
 
         if last_result and last_result["outcome"] == "failed":
             test_content = (worktree / TEST_FILE_PATH).read_text(encoding="utf-8")
-            gold_check_result = verify_against_gold(base_commit, gold_patch_text, test_content)
+            gold_check_result = verify_against_gold(worktree, base_commit, gold_patch_text, test_content)
             if gold_check_result["outcome"] == "passed":
                 valid_reproduction = True
                 break
