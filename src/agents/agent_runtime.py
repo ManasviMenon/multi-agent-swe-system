@@ -48,14 +48,29 @@ def resolve_in_worktree(worktree: Path, rel_path: str) -> Path:
     return resolved
 
 
+LARGE_FILE_LINE_THRESHOLD = 200
+
+
 READ_ONLY_TOOL_DEFS = [
     {
         "type": "function",
         "name": "read_file",
-        "description": "Read the full contents of a file in the repository.",
+        "description": (
+            "Read a file's contents. For large files (over "
+            f"{LARGE_FILE_LINE_THRESHOLD} lines), reading without start_line/end_line "
+            "returns a preview (line count + a snippet) instead of the whole file -- "
+            "use search_files first to find the relevant line numbers, then pass "
+            "start_line/end_line here to read just that section. Every full-file read "
+            "you make permanently inflates the token cost of every later turn in this "
+            "session, so read only the section you actually need."
+        ),
         "parameters": {
             "type": "object",
-            "properties": {"path": {"type": "string", "description": "Path relative to repo root"}},
+            "properties": {
+                "path": {"type": "string", "description": "Path relative to repo root"},
+                "start_line": {"type": "integer", "description": "1-indexed first line to read (optional)"},
+                "end_line": {"type": "integer", "description": "1-indexed last line to read, inclusive (optional)"},
+            },
             "required": ["path"],
         },
     },
@@ -92,7 +107,32 @@ def execute_read_only_tool(name: str, args: dict, worktree: Path) -> dict | None
         path = resolve_in_worktree(worktree, args["path"])
         if not path.is_file():
             return {"error": f"no such file: {args['path']}"}
-        return {"content": path.read_text(encoding="utf-8", errors="replace")}
+        lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+        start_line, end_line = args.get("start_line"), args.get("end_line")
+
+        # Content is always returned raw (no injected line-number prefixes) even when
+        # sliced -- edit_file needs to match this text verbatim against the real file,
+        # and prefixing lines with "N: " would break that the same way the earlier
+        # escaped-quote bug did (see coder.py's edit_file history).
+        if start_line is not None or end_line is not None:
+            start = max(1, start_line or 1)
+            end = min(len(lines), end_line or len(lines))
+            return {"content": "\n".join(lines[start - 1:end]), "total_lines": len(lines), "shown_lines": f"{start}-{end}"}
+
+        if len(lines) > LARGE_FILE_LINE_THRESHOLD:
+            return {
+                "content": "\n".join(lines[:30]),
+                "total_lines": len(lines),
+                "note": (
+                    f"This file has {len(lines)} lines -- only showing lines 1-30 (a "
+                    "preview) because reading a large file whole permanently inflates "
+                    "every later turn's token cost for the rest of this session. Use "
+                    "search_files to find the lines you actually need, then call "
+                    "read_file again with start_line/end_line for just that section."
+                ),
+            }
+
+        return {"content": "\n".join(lines)}
 
     if name == "list_directory":
         path = resolve_in_worktree(worktree, args.get("path", "."))
