@@ -11,7 +11,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from google import genai
-from google.genai import errors
+from google.genai import errors, types
 
 # The interactions API (used for multi-turn function calling) raises through a
 # different, more internal error hierarchy than the rest of the SDK -- errors.ClientError
@@ -281,7 +281,11 @@ def run_agent_loop(
     changed via write_test in between, capping verification to once per round regardless
     of how many times the model revised its test.
     """
-    client = genai.Client()
+    # Without an explicit timeout, a stalled connection to the API blocks the whole
+    # pipeline indefinitely -- observed directly: a Phase 3 rerun sat at ~0 CPU seconds
+    # for 40+ minutes on one call with no retry ever triggering, since create_with_retry
+    # only reacts to exceptions the underlying request never raised.
+    client = genai.Client(http_options=types.HttpOptions(timeout=180_000))
     transcript = {"steps": [], "tool_call_count": 0, "hit_cap": False, "total_tokens": 0}
     seen_calls = set()
     generation_config = {"temperature": temperature} if temperature is not None else None
