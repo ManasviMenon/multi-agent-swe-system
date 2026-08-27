@@ -1,0 +1,318 @@
+{
+  "ticket_id": "marshmallow-2985",
+  "tester": {
+    "steps": [
+      {
+        "tool": "list_directory",
+        "args": {
+          "path": "tests"
+        },
+        "result": {
+          "entries": [
+            "__init__.py",
+            "base.py",
+            "conftest.py",
+            "foo_serializer.py",
+            "mypy_test_cases/",
+            "test_context.py",
+            "test_decorators.py",
+            "test_deserialization.py",
+            "test_error_store.py",
+            "test_exceptions.py",
+            "test_fields.py",
+            "test_options.py",
+            "test_registry.py",
+            "test_schema.py",
+            "test_serialization.py",
+            "test_utils.py",
+            "test_validate.py"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src",
+          "pattern": "class Enum"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:1921: class Enum(Field[_EnumT]):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "start_line": 1910,
+          "end_line": 2000,
+          "path": "src/marshmallow/fields.py"
+        },
+        "result": {
+          "content": "class IPv6Interface(IPInterface):\n    \"\"\"A IPv6 Network Interface field.\"\"\"\n\n    default_error_messages = {\"invalid_ip_interface\": \"Not a valid IPv6 interface.\"}\n\n    DESERIALIZATION_CLASS = ipaddress.IPv6Interface\n\n\n_EnumT = typing.TypeVar(\"_EnumT\", bound=EnumType)\n\n\nclass Enum(Field[_EnumT]):\n    \"\"\"An Enum field (de)serializing enum members by symbol (name) or by value.\n\n    :param enum: Enum class\n    :param by_value: Whether to (de)serialize by value or by name,\n        or Field class or instance to use to (de)serialize by value. Defaults to False.\n\n    If `by_value` is `False` (default), enum members are (de)serialized by symbol (name).\n    If it is `True`, they are (de)serialized by value using `marshmallow.fields.Raw`.\n    If it is a field instance or class, they are (de)serialized by value using this field.\n\n    .. versionadded:: 3.18.0\n    \"\"\"\n\n    default_error_messages = {\n        \"unknown\": \"Must be one of: {choices}.\",\n    }\n\n    def __init__(\n        self,\n        enum: type[_EnumT],\n        *,\n        by_value: bool | Field | type[Field] = False,\n        **kwargs: Unpack[_BaseFieldKwargs],\n    ):\n        super().__init__(**kwargs)\n        self.enum = enum\n        self.by_value = by_value\n\n        # Serialization by name\n        if by_value is False:\n            self.field: Field = String()\n            self.choices_text = \", \".join(\n                str(self.field._serialize(m, None, None)) for m in enum.__members__\n            )\n        # Serialization by value\n        else:\n            if by_value is True:\n                self.field = Raw()\n            else:\n                try:\n                    self.field = _resolve_field_instance(by_value)\n                except _FieldInstanceResolutionError as error:\n                    raise ValueError(\n                        '\"by_value\" must be either a bool or a subclass or instance of '\n                        \"marshmallow.fields.Field.\"\n                    ) from error\n            self.choices_text = \", \".join(\n                str(self.field._serialize(m.value, None, None)) for m in enum\n            )\n\n    def _serialize(\n        self, value: _EnumT | None, attr: str | None, obj: typing.Any, **kwargs\n    ) -> typing.Any | None:\n        if value is None:\n            return None\n        if self.by_value:\n            val = value.value\n        else:\n            val = value.name\n        return self.field._serialize(val, attr, obj, **kwargs)\n\n    def _deserialize(self, value, attr, data, **kwargs) -> _EnumT:\n        if isinstance(value, self.enum):\n            return value\n        val = self.field._deserialize(value, attr, data, **kwargs)\n        if self.by_value:\n            try:\n                return self.enum(val)\n            except ValueError as error:\n                raise self.make_error(\"unknown\", choices=self.choices_text) from error\n        try:\n            ret = self.enum[val]\n        except KeyError as error:\n            raise self.make_error(\"unknown\", choices=self.choices_text) from error\n        return ret\n\n\nclass Method(Field):\n    \"\"\"A field that takes the value returned by a `Schema <marshmallow.Schema>` method.",
+          "total_lines": 2148,
+          "shown_lines": "1910-2000"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "allow_none",
+          "path": "src"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:100: allow_none: bool | None",
+            "src\\marshmallow\\fields.py:152: :param allow_none: Set this to `True` if `None` should be considered a valid value during",
+            "src\\marshmallow\\fields.py:154: If ``load_default`` is explicitly set to `None` and ``allow_none`` is unset,",
+            "src\\marshmallow\\fields.py:155: `allow_none` is implicitly set to ``True``.",
+            "src\\marshmallow\\fields.py:207: allow_none: bool | None = None,",
+            "src\\marshmallow\\fields.py:223: # If allow_none is None and load_default is None",
+            "src\\marshmallow\\fields.py:225: self.allow_none = load_default is None if allow_none is None else allow_none",
+            "src\\marshmallow\\fields.py:251: f\"load_default={self.load_default}, allow_none={self.allow_none}, \"",
+            "src\\marshmallow\\fields.py:311: if value is None and not self.allow_none:",
+            "src\\marshmallow\\fields.py:389: if self.allow_none and value is None:",
+            "src\\marshmallow\\fields.py:2125: # If allow_none was not explicitly provided and the constant is None,",
+            "src\\marshmallow\\fields.py:2127: if kwargs.get(\"allow_none\") is None and constant is None:",
+            "src\\marshmallow\\fields.py:2128: self.allow_none = True",
+            "src\\marshmallow\\fields.py:2133: if value is None and not self.allow_none:"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "class Constant",
+          "path": "src"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:2110: class Constant(Field[_ContantT]):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "end_line": 2148,
+          "start_line": 2105,
+          "path": "src/marshmallow/fields.py"
+        },
+        "result": {
+          "content": "\n\n_ContantT = typing.TypeVar(\"_ContantT\")\n\n\nclass Constant(Field[_ContantT]):\n    \"\"\"A field that (de)serializes to a preset constant.  If you only want the\n    constant added for serialization or deserialization, you should use\n    ``dump_only=True`` or ``load_only=True`` respectively.\n\n    :param constant: The constant to return for the field attribute.\n    \"\"\"\n\n    _CHECK_ATTRIBUTE = False\n\n    def __init__(self, constant: _ContantT, **kwargs: Unpack[_BaseFieldKwargs]):\n        super().__init__(**kwargs)\n        self.constant = constant\n        self.load_default = constant\n        self.dump_default = constant\n        # If allow_none was not explicitly provided and the constant is None,\n        # None should be considered valid (mirrors Field.__init__ logic).\n        if kwargs.get(\"allow_none\") is None and constant is None:\n            self.allow_none = True\n\n    def _validate_missing(self, value):\n        # Omit check for value is missing_\n        # Below is just a paranoid check\n        if value is None and not self.allow_none:\n            raise self.make_error(\"null\")\n\n    def _serialize(self, value, *args, **kwargs) -> _ContantT:\n        return self.constant\n\n    def _deserialize(self, value, *args, **kwargs) -> _ContantT:\n        return self.constant\n\n\n# Aliases\nURL = Url\n\nStr = String\nBool = Boolean\nInt = Integer",
+          "total_lines": 2148,
+          "shown_lines": "2105-2148"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "class Enum",
+          "path": "tests"
+        },
+        "result": {
+          "matches": []
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "fields\\.Enum",
+          "path": "tests"
+        },
+        "result": {
+          "matches": [
+            "tests\\base.py:57: functools.partial(fields.Enum, GenderEnum),",
+            "tests\\base.py:58: functools.partial(fields.Enum, HairColorEnum, by_value=fields.String),",
+            "tests\\base.py:59: functools.partial(fields.Enum, GenderEnum, by_value=fields.Integer),",
+            "tests\\test_deserialization.py:1198: field = fields.Enum(GenderEnum)",
+            "tests\\test_deserialization.py:1202: field = fields.Enum(GenderEnum)",
+            "tests\\test_deserialization.py:1210: field = fields.Enum(GenderEnum)",
+            "tests\\test_deserialization.py:1217: field = fields.Enum(GenderEnum)",
+            "tests\\test_deserialization.py:1222: field = fields.Enum(HairColorEnum, by_value=True)",
+            "tests\\test_deserialization.py:1224: field2 = fields.Enum(GenderEnum, by_value=True)",
+            "tests\\test_deserialization.py:1228: field = fields.Enum(HairColorEnum, by_value=fields.String)",
+            "tests\\test_deserialization.py:1230: field2 = fields.Enum(GenderEnum, by_value=fields.Integer)",
+            "tests\\test_deserialization.py:1232: field3 = fields.Enum(DateEnum, by_value=fields.Date(format=\"%d/%m/%Y\"))",
+            "tests\\test_deserialization.py:1236: field = fields.Enum(HairColorEnum, by_value=True)",
+            "tests\\test_deserialization.py:1242: field2 = fields.Enum(GenderEnum, by_value=True)",
+            "tests\\test_deserialization.py:1247: field = fields.Enum(HairColorEnum, by_value=fields.String)",
+            "tests\\test_deserialization.py:1253: field2 = fields.Enum(GenderEnum, by_value=fields.Integer)",
+            "tests\\test_deserialization.py:1256: field3 = fields.Enum(DateEnum, by_value=fields.Date(format=\"%d/%m/%Y\"))",
+            "tests\\test_deserialization.py:1263: field = fields.Enum(HairColorEnum, by_value=True)",
+            "tests\\test_deserialization.py:1269: field = fields.Enum(GenderEnum, by_value=True)",
+            "tests\\test_deserialization.py:1274: field = fields.Enum(HairColorEnum, by_value=fields.String)",
+            "tests\\test_deserialization.py:1277: field = fields.Enum(GenderEnum, by_value=fields.Integer)",
+            "tests\\test_deserialization.py:1280: field = fields.Enum(DateEnum, by_value=fields.Date(format=\"%d/%m/%Y\"))",
+            "tests\\test_deserialization.py:1539: pytest.param(fields.Enum(GenderEnum), GenderEnum.non_binary, id=\"Enum\"),",
+            "tests\\test_serialization.py:233: field = fields.Enum(GenderEnum)",
+            "tests\\test_serialization.py:238: field = fields.Enum(HairColorEnum, by_value=True)",
+            "tests\\test_serialization.py:241: field2 = fields.Enum(GenderEnum, by_value=True)",
+            "tests\\test_serialization.py:247: field = fields.Enum(HairColorEnum, by_value=fields.String)",
+            "tests\\test_serialization.py:250: field2 = fields.Enum(GenderEnum, by_value=fields.Integer)",
+            "tests\\test_serialization.py:253: field3 = fields.Enum(DateEnum, by_value=fields.Date(format=\"%d/%m/%Y\"))"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "#2868",
+          "path": "tests"
+        },
+        "result": {
+          "matches": []
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "2868",
+          "path": "src"
+        },
+        "result": {
+          "matches": []
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "write_test",
+        "args": {
+          "content": "import pytest\nfrom enum import Enum\nimport marshmallow as ma\nfrom marshmallow import Schema, fields, ValidationError\n\nclass MyEnum(Enum):\n    A = \"a\"\n    NONE = None\n\ndef test_enum_with_none_value_by_value():\n    class S(Schema):\n        sentinel = fields.Enum(MyEnum, by_value=True)\n\n    data = {\"sentinel\": None}\n    result = S().load(data)\n    assert result[\"sentinel\"] == MyEnum.NONE\n"
+        },
+        "result": {
+          "ok": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "run_written_test",
+        "args": {},
+        "result": {
+          "outcome": "failed",
+          "message": "tests\\test_agent_generated.py:15: in test_enum_with_none_value_by_value\n    result = S().load(data)\n             ^^^^^^^^^^^^^^\nsrc\\marshmallow\\schema.py:734: in load\n    return self._do_load(\nsrc\\marshmallow\\schema.py:942: in _do_load\n    raise exc\nE   marshmallow.exceptions.ValidationError: {'sentinel': ['Field may not be null.']}"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "end_line": 1990,
+          "start_line": 1920,
+          "path": "src/marshmallow/fields.py"
+        },
+        "result": {
+          "content": "\nclass Enum(Field[_EnumT]):\n    \"\"\"An Enum field (de)serializing enum members by symbol (name) or by value.\n\n    :param enum: Enum class\n    :param by_value: Whether to (de)serialize by value or by name,\n        or Field class or instance to use to (de)serialize by value. Defaults to False.\n\n    If `by_value` is `False` (default), enum members are (de)serialized by symbol (name).\n    If it is `True`, they are (de)serialized by value using `marshmallow.fields.Raw`.\n    If it is a field instance or class, they are (de)serialized by value using this field.\n\n    .. versionadded:: 3.18.0\n    \"\"\"\n\n    default_error_messages = {\n        \"unknown\": \"Must be one of: {choices}.\",\n    }\n\n    def __init__(\n        self,\n        enum: type[_EnumT],\n        *,\n        by_value: bool | Field | type[Field] = False,\n        **kwargs: Unpack[_BaseFieldKwargs],\n    ):\n        super().__init__(**kwargs)\n        self.enum = enum\n        self.by_value = by_value\n\n        # Serialization by name\n        if by_value is False:\n            self.field: Field = String()\n            self.choices_text = \", \".join(\n                str(self.field._serialize(m, None, None)) for m in enum.__members__\n            )\n        # Serialization by value\n        else:\n            if by_value is True:\n                self.field = Raw()\n            else:\n                try:\n                    self.field = _resolve_field_instance(by_value)\n                except _FieldInstanceResolutionError as error:\n                    raise ValueError(\n                        '\"by_value\" must be either a bool or a subclass or instance of '\n                        \"marshmallow.fields.Field.\"\n                    ) from error\n            self.choices_text = \", \".join(\n                str(self.field._serialize(m.value, None, None)) for m in enum\n            )\n\n    def _serialize(\n        self, value: _EnumT | None, attr: str | None, obj: typing.Any, **kwargs\n    ) -> typing.Any | None:\n        if value is None:\n            return None\n        if self.by_value:\n            val = value.value\n        else:\n            val = value.name\n        return self.field._serialize(val, attr, obj, **kwargs)\n\n    def _deserialize(self, value, attr, data, **kwargs) -> _EnumT:\n        if isinstance(value, self.enum):\n            return value\n        val = self.field._deserialize(value, attr, data, **kwargs)\n        if self.by_value:\n            try:\n                return self.enum(val)\n            except ValueError as error:",
+          "total_lines": 2148,
+          "shown_lines": "1920-1990"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "allow_none",
+          "path": "src"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:100: allow_none: bool | None",
+            "src\\marshmallow\\fields.py:152: :param allow_none: Set this to `True` if `None` should be considered a valid value during",
+            "src\\marshmallow\\fields.py:154: If ``load_default`` is explicitly set to `None` and ``allow_none`` is unset,",
+            "src\\marshmallow\\fields.py:155: `allow_none` is implicitly set to ``True``.",
+            "src\\marshmallow\\fields.py:207: allow_none: bool | None = None,",
+            "src\\marshmallow\\fields.py:223: # If allow_none is None and load_default is None",
+            "src\\marshmallow\\fields.py:225: self.allow_none = load_default is None if allow_none is None else allow_none",
+            "src\\marshmallow\\fields.py:251: f\"load_default={self.load_default}, allow_none={self.allow_none}, \"",
+            "src\\marshmallow\\fields.py:311: if value is None and not self.allow_none:",
+            "src\\marshmallow\\fields.py:389: if self.allow_none and value is None:",
+            "src\\marshmallow\\fields.py:2125: # If allow_none was not explicitly provided and the constant is None,",
+            "src\\marshmallow\\fields.py:2127: if kwargs.get(\"allow_none\") is None and constant is None:",
+            "src\\marshmallow\\fields.py:2128: self.allow_none = True",
+            "src\\marshmallow\\fields.py:2133: if value is None and not self.allow_none:"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src",
+          "pattern": "class Enum"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:1921: class Enum(Field[_EnumT]):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "end_line": 255,
+          "start_line": 200,
+          "path": "src/marshmallow/fields.py"
+        },
+        "result": {
+          "content": "        pre_load: (\n            types.PreLoadCallable | typing.Iterable[types.PreLoadCallable] | None\n        ) = None,\n        post_load: (\n            types.PostLoadCallable | typing.Iterable[types.PostLoadCallable] | None\n        ) = None,\n        required: bool = False,\n        allow_none: bool | None = None,\n        load_only: bool = False,\n        dump_only: bool = False,\n        error_messages: types.ErrorMessages | None = None,\n        metadata: typing.Mapping[str, typing.Any] | None = None,\n    ) -> None:\n        self.dump_default = dump_default\n        self.load_default = load_default\n\n        self.attribute = attribute\n        self.data_key = data_key\n        self.validate = validate\n        self.validators = self._normalize_processors(validate, param=\"validate\")\n        self.pre_load = self._normalize_processors(pre_load, param=\"pre_load\")\n        self.post_load = self._normalize_processors(post_load, param=\"post_load\")\n\n        # If allow_none is None and load_default is None\n        # None should be considered valid by default\n        self.allow_none = load_default is None if allow_none is None else allow_none\n        self.load_only = load_only\n        self.dump_only = dump_only\n        if required is True and load_default is not missing_:\n            raise ValueError(\"'load_default' must not be set for required fields.\")\n        self.required = required\n\n        metadata = metadata or {}\n        self.metadata = metadata\n        # Collect default error message from self and parent classes\n        messages: types.ErrorMessages = {}\n        for cls in reversed(self.__class__.__mro__):\n            messages.update(getattr(cls, \"default_error_messages\", {}))\n        messages.update(error_messages or {})\n        self.error_messages = messages\n\n        self.parent: Field | Schema | None = None\n        self.name: str | None = None\n        self.root: Schema | None = None\n\n    def __repr__(self) -> str:\n        return (\n            f\"<fields.{self.__class__.__name__}(dump_default={self.dump_default!r}, \"\n            f\"attribute={self.attribute!r}, \"\n            f\"validate={self.validate}, required={self.required}, \"\n            f\"load_only={self.load_only}, dump_only={self.dump_only}, \"\n            f\"load_default={self.load_default}, allow_none={self.allow_none}, \"\n            f\"error_messages={self.error_messages})>\"\n        )\n\n    def __deepcopy__(self, memo):",
+          "total_lines": 2148,
+          "shown_lines": "200-255"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src",
+          "pattern": "def _deserialize"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:438: def _deserialize(",
+            "src\\marshmallow\\fields.py:650: def _deserialize(",
+            "src\\marshmallow\\fields.py:723: def _deserialize(self, value, attr, data, partial=None, **kwargs):",
+            "src\\marshmallow\\fields.py:780: def _deserialize(self, value, attr, data, **kwargs) -> list[_InternalT | None]:",
+            "src\\marshmallow\\fields.py:866: def _deserialize(",
+            "src\\marshmallow\\fields.py:911: def _deserialize(self, value, attr, data, **kwargs) -> str:",
+            "src\\marshmallow\\fields.py:942: def _deserialize(self, value, attr, data, **kwargs) -> uuid.UUID:",
+            "src\\marshmallow\\fields.py:1003: def _deserialize(self, value, attr, data, **kwargs) -> _NumT:",
+            "src\\marshmallow\\fields.py:1224: def _deserialize(",
+            "src\\marshmallow\\fields.py:1290: def _deserialize(self, value, attr, data, **kwargs) -> _D:",
+            "src\\marshmallow\\fields.py:1380: def _deserialize(self, value, attr, data, **kwargs) -> dt.datetime:",
+            "src\\marshmallow\\fields.py:1417: def _deserialize(self, value, attr, data, **kwargs) -> dt.datetime:",
+            "src\\marshmallow\\fields.py:1572: def _deserialize(self, value, attr, data, **kwargs) -> dt.timedelta:",
+            "src\\marshmallow\\fields.py:1686: def _deserialize(self, value, attr, data, **kwargs):",
+            "src\\marshmallow\\fields.py:1829: def _deserialize(",
+            "src\\marshmallow\\fields.py:1891: def _deserialize(",
+            "src\\marshmallow\\fields.py:1983: def _deserialize(self, value, attr, data, **kwargs) -> _EnumT:",
+            "src\\marshmallow\\fields.py:2048: def _deserialize(self, value, attr, data, **kwargs):",
+            "src\\marshmallow\\fields.py:2101: def _deserialize(self, value, attr, data, **kwargs):",
+            "src\\marshmallow\\fields.py:2139: def _deserialize(self, value, *args, **kwargs) -> _ContantT:",
+            "src\\marshmallow\\schema.py:597: def _deserialize("
+          ]
+        },
+        "blocked_duplicate": false
+      }
+    ],
+    "tool_call_count": 17,
+    "total_tokens": 73680,
+    "hit_cap": true,
+    "valid_reproduction": false,
+    "gold_check_result": {
+      "outcome": "failed",
+      "message": "tests\\test_agent_generated.py:16: in test_enum_with_none_value_by_value\n    assert result[\"sentinel\"] == MyEnum.NONE\nE   assert None == <MyEnum.NONE: None>\nE    +  where <MyEnum.NONE: None> = MyEnum.NONE"
+    },
+    "reproduce_attempts": 2
+  },
+  "coder_rounds": []
+}

@@ -1,0 +1,413 @@
+{
+  "ticket_id": "marshmallow-1350",
+  "tester": {
+    "steps": [
+      {
+        "tool": "list_directory",
+        "args": {
+          "path": "tests"
+        },
+        "result": {
+          "entries": [
+            "__init__.py",
+            "base.py",
+            "conftest.py",
+            "foo_serializer.py",
+            "test_decorators.py",
+            "test_deserialization.py",
+            "test_error_store.py",
+            "test_exceptions.py",
+            "test_fields.py",
+            "test_options.py",
+            "test_registry.py",
+            "test_schema.py",
+            "test_serialization.py",
+            "test_utils.py",
+            "test_validate.py"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "metadata",
+          "path": "tests"
+        },
+        "result": {
+          "matches": [
+            "tests\\test_fields.py:193: def test_extra_metadata_may_be_added_to_field(self, FieldClass):  # noqa",
+            "tests\\test_fields.py:195: assert field.metadata[\"description\"] == \"Just a normal field.\"",
+            "tests\\test_fields.py:203: assert field.metadata == {\"description\": \"foo\", \"widget\": \"select\"}",
+            "tests\\test_schema.py:354: field_obj.metadata[\"fname\"] = field_name",
+            "tests\\test_schema.py:357: assert schema.fields[\"foo\"].metadata[\"fname\"] == \"foo\"",
+            "tests\\test_schema.py:366: field_obj.metadata[\"fname\"] = self.context[\"fname\"]",
+            "tests\\test_schema.py:373: assert schema1.fields[\"foo\"].schema.fields[\"bar\"].metadata[\"fname\"] == \"foobar\"",
+            "tests\\test_schema.py:374: assert schema2.fields[\"foo\"].schema.fields[\"bar\"].metadata[\"fname\"] == \"quxquux\""
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "metadata",
+          "path": "src"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:104: :param metadata: Extra arguments to be stored as metadata.",
+            "src\\marshmallow\\fields.py:163: **metadata",
+            "src\\marshmallow\\fields.py:190: self.metadata = metadata"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "kwargs",
+          "path": "src"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\base.py:25: def _serialize(self, value, attr, obj, **kwargs):",
+            "src\\marshmallow\\base.py:28: def _deserialize(self, value, attr, data, **kwargs):",
+            "src\\marshmallow\\base.py:53: **kwargs",
+            "src\\marshmallow\\decorators.py:11: ``partial``. If you don't need these arguments, add ``**kwargs`` to your method",
+            "src\\marshmallow\\decorators.py:28: def lowerstrip_email(self, item, many, **kwargs):",
+            "src\\marshmallow\\decorators.py:33: def remove_envelope(self, data, many, **kwargs):",
+            "src\\marshmallow\\decorators.py:38: def add_envelope(self, data, many, **kwargs):",
+            "src\\marshmallow\\decorators.py:43: def validate_email(self, data, **kwargs):",
+            "src\\marshmallow\\decorators.py:48: def validate_age(self, data, **kwargs):",
+            "src\\marshmallow\\decorators.py:174: def set_hook(fn, key, **kwargs):",
+            "src\\marshmallow\\decorators.py:187: return functools.partial(set_hook, key=key, **kwargs)",
+            "src\\marshmallow\\decorators.py:195: # Also save the kwargs for the tagged function on",
+            "src\\marshmallow\\decorators.py:197: hook_config[key] = kwargs",
+            "src\\marshmallow\\exceptions.py:42: **kwargs",
+            "src\\marshmallow\\exceptions.py:48: self.kwargs = kwargs",
+            "src\\marshmallow\\fields.py:236: kwargs = {}",
+            "src\\marshmallow\\fields.py:243: kwargs.update(err.kwargs)",
+            "src\\marshmallow\\fields.py:249: raise ValidationError(errors, **kwargs)",
+            "src\\marshmallow\\fields.py:251: def make_error(self, key: str, **kwargs) -> ValidationError:",
+            "src\\marshmallow\\fields.py:265: msg = msg.format(**kwargs)",
+            "src\\marshmallow\\fields.py:268: def fail(self, key: str, **kwargs):",
+            "src\\marshmallow\\fields.py:281: raise self.make_error(key=key, **kwargs)",
+            "src\\marshmallow\\fields.py:301: **kwargs",
+            "src\\marshmallow\\fields.py:309: :param kwargs: Field-specific keyword arguments.",
+            "src\\marshmallow\\fields.py:320: return self._serialize(value, attr, obj, **kwargs)",
+            "src\\marshmallow\\fields.py:327: **kwargs",
+            "src\\marshmallow\\fields.py:334: :param kwargs: Field-specific keyword arguments.",
+            "src\\marshmallow\\fields.py:346: output = self._deserialize(value, attr, data, **kwargs)",
+            "src\\marshmallow\\fields.py:362: def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):",
+            "src\\marshmallow\\fields.py:369: def _serialize(self, value, attr, obj, **kwargs):",
+            "src\\marshmallow\\fields.py:377: :param dict kwargs: Field-specific keyword arguments.",
+            "src\\marshmallow\\fields.py:387: **kwargs",
+            "src\\marshmallow\\fields.py:394: :param kwargs: Field-specific keyword arguments.",
+            "src\\marshmallow\\fields.py:402: Added ``**kwargs`` to signature.",
+            "src\\marshmallow\\fields.py:470: :param kwargs: The same keyword arguments that :class:`Field` receives.",
+            "src\\marshmallow\\fields.py:485: **kwargs",
+            "src\\marshmallow\\fields.py:506: super().__init__(default=default, **kwargs)",
+            "src\\marshmallow\\fields.py:568: def _serialize(self, nested_obj, attr, obj, **kwargs):",
+            "src\\marshmallow\\fields.py:591: def _deserialize(self, value, attr, data, partial=None, **kwargs):",
+            "src\\marshmallow\\fields.py:626: :param kwargs: The same keyword arguments that :class:`Nested` receives.",
+            "src\\marshmallow\\fields.py:633: **kwargs",
+            "src\\marshmallow\\fields.py:635: super().__init__(nested, only=(field_name,), **kwargs)",
+            "src\\marshmallow\\fields.py:643: def _serialize(self, nested_obj, attr, obj, **kwargs):",
+            "src\\marshmallow\\fields.py:644: ret = super()._serialize(nested_obj, attr, obj, **kwargs)",
+            "src\\marshmallow\\fields.py:651: def _deserialize(self, value, attr, data, partial=None, **kwargs):",
+            "src\\marshmallow\\fields.py:669: :param kwargs: The same keyword arguments that :class:`Field` receives.",
+            "src\\marshmallow\\fields.py:682: def __init__(self, cls_or_instance: typing.Union[Field, type], **kwargs):",
+            "src\\marshmallow\\fields.py:683: super().__init__(**kwargs)",
+            "src\\marshmallow\\fields.py:704: self, value, attr, obj, **kwargs",
+            "src\\marshmallow\\fields.py:708: return [self.inner._serialize(each, attr, obj, **kwargs) for each in value]",
+            "src\\marshmallow\\fields.py:710: def _deserialize(self, value, attr, data, **kwargs) -> typing.List[typing.Any]:",
+            "src\\marshmallow\\fields.py:718: result.append(self.inner.deserialize(each, **kwargs))",
+            "src\\marshmallow\\fields.py:743: :param kwargs: The same keyword arguments that :class:`Field` receives.",
+            "src\\marshmallow\\fields.py:751: def __init__(self, tuple_fields, *args, **kwargs):",
+            "src\\marshmallow\\fields.py:752: super().__init__(*args, **kwargs)",
+            "src\\marshmallow\\fields.py:781: def _serialize(self, value, attr, obj, **kwargs) -> typing.Optional[typing.Tuple]:",
+            "src\\marshmallow\\fields.py:786: field._serialize(each, attr, obj, **kwargs)",
+            "src\\marshmallow\\fields.py:790: def _deserialize(self, value, attr, data, **kwargs) -> typing.Tuple:",
+            "src\\marshmallow\\fields.py:801: result.append(field.deserialize(each, **kwargs))",
+            "src\\marshmallow\\fields.py:815: :param kwargs: The same keyword arguments that :class:`Field` receives.",
+            "src\\marshmallow\\fields.py:824: def _serialize(self, value, attr, obj, **kwargs) -> typing.Optional[str]:",
+            "src\\marshmallow\\fields.py:829: def _deserialize(self, value, attr, data, **kwargs) -> typing.Any:",
+            "src\\marshmallow\\fields.py:858: def _deserialize(self, value, attr, data, **kwargs) -> typing.Optional[uuid.UUID]:",
+            "src\\marshmallow\\fields.py:866: :param kwargs: The same keyword arguments that :class:`Field` receives.",
+            "src\\marshmallow\\fields.py:877: def __init__(self, *, as_string: bool = False, **kwargs):",
+            "src\\marshmallow\\fields.py:879: super().__init__(**kwargs)",
+            "src\\marshmallow\\fields.py:903: self, value, attr, obj, **kwargs",
+            "src\\marshmallow\\fields.py:911: def _deserialize(self, value, attr, data, **kwargs) -> typing.Optional[_T]:",
+            "src\\marshmallow\\fields.py:920: :param kwargs: The same keyword arguments that :class:`Number` receives.",
+            "src\\marshmallow\\fields.py:928: def __init__(self, *, strict: bool = False, **kwargs):",
+            "src\\marshmallow\\fields.py:930: super().__init__(**kwargs)",
+            "src\\marshmallow\\fields.py:949: :param kwargs: The same keyword arguments that :class:`Number` receives.",
+            "src\\marshmallow\\fields.py:959: def __init__(self, *, allow_nan: bool = False, as_string: bool = False, **kwargs):",
+            "src\\marshmallow\\fields.py:961: super().__init__(as_string=as_string, **kwargs)",
+            "src\\marshmallow\\fields.py:1003: :param kwargs: The same keyword arguments that :class:`Number` receives.",
+            "src\\marshmallow\\fields.py:1022: **kwargs",
+            "src\\marshmallow\\fields.py:1029: super().__init__(as_string=as_string, **kwargs)",
+            "src\\marshmallow\\fields.py:1064: :param kwargs: The same keyword arguments that :class:`Field` receives.",
+            "src\\marshmallow\\fields.py:1115: **kwargs",
+            "src\\marshmallow\\fields.py:1117: super().__init__(**kwargs)",
+            "src\\marshmallow\\fields.py:1124: def _serialize(self, value, attr, obj, **kwargs):",
+            "src\\marshmallow\\fields.py:1138: def _deserialize(self, value, attr, data, **kwargs):",
+            "src\\marshmallow\\fields.py:1159: :param kwargs: The same keyword arguments that :class:`Field` receives.",
+            "src\\marshmallow\\fields.py:1192: def __init__(self, format: typing.Optional[str] = None, **kwargs):",
+            "src\\marshmallow\\fields.py:1193: super().__init__(**kwargs)",
+            "src\\marshmallow\\fields.py:1207: def _serialize(self, value, attr, obj, **kwargs):",
+            "src\\marshmallow\\fields.py:1217: def _deserialize(self, value, attr, data, **kwargs):",
+            "src\\marshmallow\\fields.py:1250: :param kwargs: The same keyword arguments that :class:`Field` receives.",
+            "src\\marshmallow\\fields.py:1262: **kwargs",
+            "src\\marshmallow\\fields.py:1264: super().__init__(format=format, **kwargs)",
+            "src\\marshmallow\\fields.py:1267: def _deserialize(self, value, attr, data, **kwargs):",
+            "src\\marshmallow\\fields.py:1268: ret = super()._deserialize(value, attr, data, **kwargs)",
+            "src\\marshmallow\\fields.py:1287: :param kwargs: The same keyword arguments that :class:`Field` receives.",
+            "src\\marshmallow\\fields.py:1299: **kwargs",
+            "src\\marshmallow\\fields.py:1301: super().__init__(format=format, **kwargs)",
+            "src\\marshmallow\\fields.py:1304: def _deserialize(self, value, attr, data, **kwargs):",
+            "src\\marshmallow\\fields.py:1305: ret = super()._deserialize(value, attr, data, **kwargs)",
+            "src\\marshmallow\\fields.py:1324: :param kwargs: The same keyword arguments that :class:`Field` receives.",
+            "src\\marshmallow\\fields.py:1347: :param kwargs: The same keyword arguments that :class:`Field` receives.",
+            "src\\marshmallow\\fields.py:1379: :param kwargs: The same keyword arguments that :class:`Field` receives."
+          ],
+          "truncated": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "start_line": 90,
+          "end_line": 210,
+          "path": "src/marshmallow/fields.py"
+        },
+        "result": {
+          "content": "        during deserialization. Validator takes a field's input value as\n        its only parameter and returns a boolean.\n        If it returns `False`, an :exc:`ValidationError` is raised.\n    :param required: Raise a :exc:`ValidationError` if the field value\n        is not supplied during deserialization.\n    :param allow_none: Set this to `True` if `None` should be considered a valid value during\n        validation/deserialization. If ``missing=None`` and ``allow_none`` is unset,\n        will default to ``True``. Otherwise, the default is ``False``.\n    :param load_only: If `True` skip this field during serialization, otherwise\n        its value will be present in the serialized data.\n    :param dump_only: If `True` skip this field during deserialization, otherwise\n        its value will be present in the deserialized object. In the context of an\n        HTTP API, this effectively marks the field as \"read-only\".\n    :param dict error_messages: Overrides for `Field.default_error_messages`.\n    :param metadata: Extra arguments to be stored as metadata.\n\n    .. versionchanged:: 2.0.0\n        Removed `error` parameter. Use ``error_messages`` instead.\n\n    .. versionchanged:: 2.0.0\n        Added `allow_none` parameter, which makes validation/deserialization of `None`\n        consistent across fields.\n\n    .. versionchanged:: 2.0.0\n        Added `load_only` and `dump_only` parameters, which allow field skipping\n        during the (de)serialization process.\n\n    .. versionchanged:: 2.0.0\n        Added `missing` parameter, which indicates the value for a field if the field\n        is not found during deserialization.\n\n    .. versionchanged:: 2.0.0\n        ``default`` value is only used if explicitly set. Otherwise, missing values\n        inputs are excluded from serialized output.\n\n    .. versionchanged:: 3.0.0b8\n        Add ``data_key`` parameter for the specifying the key in the input and\n        output data. This parameter replaced both ``load_from`` and ``dump_to``.\n    \"\"\"\n\n    # Some fields, such as Method fields and Function fields, are not expected\n    #  to exist as attributes on the objects to serialize. Set this to False\n    #  for those fields\n    _CHECK_ATTRIBUTE = True\n    _creation_index = 0  # Used for sorting\n\n    #: Default error messages for various kinds of errors. The keys in this dictionary\n    #: are passed to `Field.make_error`. The values are error messages passed to\n    #: :exc:`marshmallow.exceptions.ValidationError`.\n    default_error_messages = {\n        \"required\": \"Missing data for required field.\",\n        \"null\": \"Field may not be null.\",\n        \"validator_failed\": \"Invalid value.\",\n    }\n\n    def __init__(\n        self,\n        *,\n        default: typing.Any = missing_,\n        missing: typing.Any = missing_,\n        data_key: typing.Optional[str] = None,\n        attribute: typing.Optional[str] = None,\n        validate: typing.Optional[\n            typing.Union[\n                typing.Callable[[typing.Any], typing.Any],\n                typing.Iterable[typing.Callable[[typing.Any], typing.Any]],\n            ]\n        ] = None,\n        required: bool = False,\n        allow_none: typing.Optional[bool] = None,\n        load_only: bool = False,\n        dump_only: bool = False,\n        error_messages: typing.Optional[typing.Dict[str, str]] = None,\n        **metadata\n    ) -> None:\n        self.default = default\n        self.attribute = attribute\n        self.data_key = data_key\n        self.validate = validate\n        if validate is None:\n            self.validators = []\n        elif callable(validate):\n            self.validators = [validate]\n        elif utils.is_iterable_but_not_string(validate):\n            self.validators = list(validate)\n        else:\n            raise ValueError(\n                \"The 'validate' parameter must be a callable \"\n                \"or a collection of callables.\"\n            )\n\n        # If allow_none is None and missing is None\n        # None should be considered valid by default\n        self.allow_none = missing is None if allow_none is None else allow_none\n        self.load_only = load_only\n        self.dump_only = dump_only\n        if required is True and missing is not missing_:\n            raise ValueError(\"'missing' must not be set for required fields.\")\n        self.required = required\n        self.missing = missing\n        self.metadata = metadata\n        self._creation_index = Field._creation_index\n        Field._creation_index += 1\n\n        # Collect default error message from self and parent classes\n        messages = {}  # type: typing.Dict[str, str]\n        for cls in reversed(self.__class__.__mro__):\n            messages.update(getattr(cls, \"default_error_messages\", {}))\n        messages.update(error_messages or {})\n        self.error_messages = messages\n\n    def __repr__(self) -> str:\n        return (\n            \"<fields.{ClassName}(default={self.default!r}, \"\n            \"attribute={self.attribute!r}, \"\n            \"validate={self.validate}, required={self.required}, \"\n            \"load_only={self.load_only}, dump_only={self.dump_only}, \"\n            \"missing={self.missing}, allow_none={self.allow_none}, \"\n            \"error_messages={self.error_messages})>\".format(\n                ClassName=self.__class__.__name__, self=self\n            )",
+          "total_lines": 1881,
+          "shown_lines": "90-210"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "tests",
+          "pattern": "metadata="
+        },
+        "result": {
+          "matches": []
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "test_extra_metadata_may_be_added_to_field",
+          "path": "tests"
+        },
+        "result": {
+          "matches": [
+            "tests\\test_fields.py:193: def test_extra_metadata_may_be_added_to_field(self, FieldClass):  # noqa"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "end_line": 215,
+          "start_line": 185,
+          "path": "tests/test_fields.py"
+        },
+        "result": {
+          "content": "        for field_name in (\"foo\", \"baz\"):\n            assert schema.fields[field_name].inner.format == \"iso8601\"\n        for field_name in (\"bar\", \"qux\"):\n            assert schema.fields[field_name].tuple_fields[0].format == \"iso8601\"\n\n\nclass TestMetadata:\n    @pytest.mark.parametrize(\"FieldClass\", ALL_FIELDS)\n    def test_extra_metadata_may_be_added_to_field(self, FieldClass):  # noqa\n        field = FieldClass(description=\"Just a normal field.\")\n        assert field.metadata[\"description\"] == \"Just a normal field.\"\n        field = FieldClass(\n            required=True,\n            default=None,\n            validate=lambda v: True,\n            description=\"foo\",\n            widget=\"select\",\n        )\n        assert field.metadata == {\"description\": \"foo\", \"widget\": \"select\"}\n\n\nclass TestErrorMessages:\n    class MyField(fields.Field):\n        default_error_messages = {\"custom\": \"Custom error message.\"}\n\n    error_messages = [\n        (\"required\", \"Missing data for required field.\"),\n        (\"null\", \"Field may not be null.\"),\n        (\"custom\", \"Custom error message.\"),\n        (\"validator_failed\", \"Invalid value.\"),\n    ]",
+          "total_lines": 567,
+          "shown_lines": "185-215"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "write_test",
+        "args": {
+          "content": "import pytest\nfrom marshmallow import fields\n\ndef test_metadata_argument():\n    field = fields.Field(metadata={\"description\": \"foo\", \"widget\": \"select\"})\n    assert field.metadata == {\"description\": \"foo\", \"widget\": \"select\"}\n\ndef test_metadata_and_kwargs():\n    with pytest.raises(ValueError):\n        fields.Field(metadata={\"description\": \"foo\"}, description=\"bar\")\n"
+        },
+        "result": {
+          "ok": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "run_written_test",
+        "args": {},
+        "result": {
+          "outcome": "failed",
+          "message": "tests\\test_agent_generated.py:6: in test_metadata_argument\n    assert field.metadata == {\"description\": \"foo\", \"widget\": \"select\"}\nE   AssertionError: assert {'metadata': ...t': 'select'}} == {'description...et': 'select'}\nE     \nE     Left contains 1 more item:\nE     {'metadata': {'description': 'foo', 'widget': 'select'}}\nE     Right contains 2 more items:\nE     {'description': 'foo', 'widget': 'select'}\nE     Use -v to get more diff",
+          "note": "2 test functions found, reporting the first failing one"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "write_test",
+        "args": {
+          "content": "import pytest\nfrom marshmallow import fields\n\ndef test_metadata_parameter():\n    field = fields.Field(metadata={\"description\": \"foo\", \"widget\": \"select\"})\n    assert field.metadata == {\"description\": \"foo\", \"widget\": \"select\"}\n    assert \"description\" not in field.__dict__\n    assert \"widget\" not in field.__dict__\n"
+        },
+        "result": {
+          "ok": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "run_written_test",
+        "args": {},
+        "result": {
+          "outcome": "failed",
+          "message": "tests\\test_agent_generated.py:6: in test_metadata_parameter\n    assert field.metadata == {\"description\": \"foo\", \"widget\": \"select\"}\nE   AssertionError: assert {'metadata': ...t': 'select'}} == {'description...et': 'select'}\nE     \nE     Left contains 1 more item:\nE     {'metadata': {'description': 'foo', 'widget': 'select'}}\nE     Right contains 2 more items:\nE     {'description': 'foo', 'widget': 'select'}\nE     Use -v to get more diff"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "write_test",
+        "args": {
+          "content": "import pytest\nfrom marshmallow import fields\n\ndef test_metadata_parameter():\n    field = fields.Field(metadata={\"description\": \"foo\"})\n    assert field.metadata == {\"description\": \"foo\"}\n"
+        },
+        "result": {
+          "ok": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "run_written_test",
+        "args": {},
+        "result": {
+          "outcome": "failed",
+          "message": "tests\\test_agent_generated.py:6: in test_metadata_parameter\n    assert field.metadata == {\"description\": \"foo\"}\nE   AssertionError: assert {'metadata': ...tion': 'foo'}} == {'description': 'foo'}\nE     \nE     Left contains 1 more item:\nE     {'metadata': {'description': 'foo'}}\nE     Right contains 1 more item:\nE     {'description': 'foo'}\nE     Use -v to get more diff"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src",
+          "pattern": "class Field"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\base.py:13: class FieldABC:",
+            "src\\marshmallow\\exceptions.py:67: class FieldInstanceResolutionError(MarshmallowError, TypeError):",
+            "src\\marshmallow\\fields.py:70: class Field(FieldABC):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src",
+          "pattern": "def __init__"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\error_store.py:13: def __init__(self):",
+            "src\\marshmallow\\exceptions.py:26: def __init__(",
+            "src\\marshmallow\\fields.py:145: def __init__(",
+            "src\\marshmallow\\fields.py:476: def __init__(",
+            "src\\marshmallow\\fields.py:629: def __init__(",
+            "src\\marshmallow\\fields.py:682: def __init__(self, cls_or_instance: typing.Union[Field, type], **kwargs):",
+            "src\\marshmallow\\fields.py:751: def __init__(self, tuple_fields, *args, **kwargs):",
+            "src\\marshmallow\\fields.py:877: def __init__(self, *, as_string: bool = False, **kwargs):",
+            "src\\marshmallow\\fields.py:928: def __init__(self, *, strict: bool = False, **kwargs):",
+            "src\\marshmallow\\fields.py:959: def __init__(self, *, allow_nan: bool = False, as_string: bool = False, **kwargs):",
+            "src\\marshmallow\\fields.py:1015: def __init__(",
+            "src\\marshmallow\\fields.py:1110: def __init__(",
+            "src\\marshmallow\\fields.py:1192: def __init__(self, format: typing.Optional[str] = None, **kwargs):",
+            "src\\marshmallow\\fields.py:1257: def __init__(",
+            "src\\marshmallow\\fields.py:1294: def __init__(",
+            "src\\marshmallow\\fields.py:1400: def __init__(self, precision: str = SECONDS, **kwargs):",
+            "src\\marshmallow\\fields.py:1460: def __init__(",
+            "src\\marshmallow\\fields.py:1605: def __init__(",
+            "src\\marshmallow\\fields.py:1638: def __init__(self, *args, **kwargs):",
+            "src\\marshmallow\\fields.py:1658: def __init__(self, *args, exploded=False, **kwargs):",
+            "src\\marshmallow\\fields.py:1727: def __init__(",
+            "src\\marshmallow\\fields.py:1783: def __init__(",
+            "src\\marshmallow\\fields.py:1836: def __init__(self, constant: typing.Any, **kwargs):",
+            "src\\marshmallow\\fields.py:1858: def __init__(self):",
+            "src\\marshmallow\\orderedset.py:27: def __init__(self, iterable=None):",
+            "src\\marshmallow\\schema.py:150: def __init__(cls, name, bases, attrs):",
+            "src\\marshmallow\\schema.py:199: def __init__(self, meta, ordered: bool = False):",
+            "src\\marshmallow\\schema.py:367: def __init__(",
+            "src\\marshmallow\\validate.py:48: def __init__(self):",
+            "src\\marshmallow\\validate.py:91: def __init__(",
+            "src\\marshmallow\\validate.py:157: def __init__(self, *, error: typing.Optional[str] = None):",
+            "src\\marshmallow\\validate.py:216: def __init__(",
+            "src\\marshmallow\\validate.py:287: def __init__(",
+            "src\\marshmallow\\validate.py:344: def __init__(self, comparable, *, error: typing.Optional[str] = None):",
+            "src\\marshmallow\\validate.py:377: def __init__(",
+            "src\\marshmallow\\validate.py:416: def __init__(self, method: str, *, error: typing.Optional[str] = None, **kwargs):",
+            "src\\marshmallow\\validate.py:446: def __init__(",
+            "src\\marshmallow\\validate.py:480: def __init__("
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "test_extra_metadata",
+          "path": "tests"
+        },
+        "result": {
+          "matches": [
+            "tests\\test_fields.py:193: def test_extra_metadata_may_be_added_to_field(self, FieldClass):  # noqa"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "path": "tests/test_fields.py",
+          "end_line": 205,
+          "start_line": 190
+        },
+        "result": {
+          "content": "\nclass TestMetadata:\n    @pytest.mark.parametrize(\"FieldClass\", ALL_FIELDS)\n    def test_extra_metadata_may_be_added_to_field(self, FieldClass):  # noqa\n        field = FieldClass(description=\"Just a normal field.\")\n        assert field.metadata[\"description\"] == \"Just a normal field.\"\n        field = FieldClass(\n            required=True,\n            default=None,\n            validate=lambda v: True,\n            description=\"foo\",\n            widget=\"select\",\n        )\n        assert field.metadata == {\"description\": \"foo\", \"widget\": \"select\"}\n\n",
+          "total_lines": 567,
+          "shown_lines": "190-205"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "write_test",
+        "args": {
+          "content": "import pytest\nfrom marshmallow import fields\n\ndef test_metadata_kwarg_behavior():\n    field = fields.Field(description=\"foo\")\n    assert field.metadata == {\"description\": \"foo\"}\n    # The issue discusses changing the way we store metadata:\n    # 1. Use `metadata=`.\n    # 2. Specify a whitelist of allowed metadata arguments.\n    # Let's see what happens if we test using `metadata={...}` instead of kwargs, or if we want metadata passed via `metadata=` parameter.\n"
+        },
+        "result": {
+          "ok": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "run_written_test",
+        "args": {},
+        "result": {
+          "outcome": "passed",
+          "message": "test passed against the current code -- it does not reproduce the bug"
+        },
+        "blocked_duplicate": false
+      }
+    ],
+    "tool_call_count": 20,
+    "total_tokens": 129832,
+    "hit_cap": true,
+    "valid_reproduction": false,
+    "gold_check_result": {
+      "outcome": "failed",
+      "message": "tests\\test_agent_generated.py:9: in test_metadata_and_kwargs\n    with pytest.raises(ValueError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE ValueError",
+      "note": "2 test functions found, reporting the first failing one"
+    },
+    "reproduce_attempts": 2
+  },
+  "coder_rounds": []
+}

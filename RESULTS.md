@@ -491,6 +491,63 @@ but this model hits a capability ceiling on category B specifically, which more 
 alone don't fix — motivating Phase 4's different kind of intervention (decomposition
 before coding) rather than more retries of the same kind.
 
+## Phase 3 — correction: an 8th bug found during Phase 4 work invalidates the 6/25 headline
+
+**The section above was written against a corrupted run and is left unmodified above for
+the record, but its headline number and one specific causal claim are wrong.** Found
+during Phase 4 smoke-test debugging, days later: `verify_against_gold()` (the
+gold-patch quality gate for the Tester's own test, added in Phase 3) borrows a
+disposable scratch worktree to check the test against the real fix, then tears that
+worktree down — but never re-pointed the shared venv's editable marshmallow install
+back at the caller's own worktree afterward. Every suite check for the rest of that
+ticket (later Tester rounds, the baseline snapshot, every Coder retry round) then hit
+`ModuleNotFoundError` and was misreported as `internal_verdict="suite_broken"`, telling
+the Coder "you broke the entire test suite" regardless of what it actually did.
+
+Checked directly against the data: **19 of the 25 committed tickets show this exact
+signature.** The frozen grader (`eval/run_eval.py`'s `evaluate()`) always re-installs
+into its own independent fresh worktree, so the **6 resolved tickets were still
+genuinely resolved** — but the Coder's retry loop was fed corrupted feedback on 76%
+of tickets, meaning the other 19 never got an honest shot.
+
+A second, unrelated bug (8th) surfaced during the corrected rerun: `genai.Client()` had
+no request timeout, so a stalled connection could hang the whole pipeline indefinitely
+instead of triggering the existing retry/backoff logic — observed directly as a process
+sitting at ~0.05s total CPU time for 40+ minutes on one call. Fixed with a 180s
+per-request timeout (`http_options=types.HttpOptions(timeout=180_000)`), which plugs
+into the existing `create_with_retry` path since a timeout raises `httpx.TimeoutException`
+→ `APIConnectionError`, already handled there.
+
+**Corrected result, full clean 25-ticket rerun with both bugs fixed: 9/25 resolved.**
+
+| Status | Count | Tickets |
+|---|---|---|
+| Resolved | 9 | `2821, 2868, 2870, 2249, 1369, 2270, 1808, 1506, 1378` |
+| `no_reproducing_test` | 4 | `2985, 2936, 2118, 1350` |
+| `suite_broken` (genuine — Coder's own edit broke `NameError: EXCLUDE`) | 1 | `1721` |
+| Attempted, not resolved | 11 | everything else |
+
+All 6 originally-resolved tickets held; 3 new recoveries (`1369`, `2270`, `1506`) that
+the corrupted feedback loop had been suppressing. One correction to the original
+write-up above: **`marshmallow-2270`'s "flip," attributed there to reproduce-gate
+variance, was wrong** — checking the buggy run's data, `2270` was itself one of the 19
+`suite_broken` tickets. It didn't flip due to stochastic non-reproduction; it flipped
+because the harness was broken. The variance explanation should be retracted.
+
+**What survives the correction, unchanged:** the falsification clause's core finding.
+0 of the 4 named category-B tickets (`1357`, `1424`, `2900`, `2936`) resolved even in
+the corrected run — this was not an artifact of the bug, and now stands on solid
+footing rather than partially-confounded ground. The headline count (9/25) also lands
+much closer to the pre-registered ~10/25 prediction than 6/25 did, even though it's
+still the *wrong* 9 relative to the named hypothesis.
+
+**Known impact on Phase 4, flagged rather than silently fixed:** Phase 4's
+pre-registered design (below) lists `marshmallow-1369` under "refactors/renames across
+many call sites" as a ticket the Planner might help recover. That table is left
+untouched below, per this project's own rule that a pre-registered design isn't edited
+after the fact — but `1369` is now already resolved by Phase 3 alone, so it is no
+longer a valid target for Phase 4 to claim credit for recovering.
+
 ## Phase 4 — Planner: pre-registered experimental design
 
 Written before any Phase 4 code exists, on paper only, per the same discipline as
