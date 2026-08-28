@@ -208,6 +208,18 @@ def create_with_retry(client, **kwargs):
     for attempt in range(MAX_RETRY_ATTEMPTS):
         try:
             return client.interactions.create(**kwargs)
+        except compat_errors.BadRequestError as e:
+            # "malformed_tool_call" is the model itself emitting invalid JSON for a
+            # function call -- Gemini's own error text says "Please retry the request",
+            # i.e. this is a one-off generation glitch, not a bug in our request. Seen
+            # twice now (marshmallow-1357, marshmallow-2868) recorded as a permanent
+            # per-ticket "error" result because this exception wasn't retried at all --
+            # same poisoned-resumability failure mode as DailyQuotaExhausted/NetworkError
+            # before those were fixed. Any OTHER BadRequestError (a real malformed
+            # request from our own code) should still fail immediately, not retry-and-hide.
+            if "malformed_tool_call" not in str(e) or attempt >= MAX_RETRY_ATTEMPTS - 1:
+                raise
+            time.sleep(min(30, 5 * (2**attempt)))
         except compat_errors.APIConnectionError as e:
             # A DNS/network blip is usually transient -- worth a few retries before
             # giving up, unlike a real bug in the model's tool call. If it's still
@@ -333,7 +345,7 @@ def run_agent_loop(
                 }
             )
 
-        if transcript["hit_cap"] or not results:
+        if not results:
             break
 
         continue_kwargs = {
@@ -345,6 +357,31 @@ def run_agent_loop(
         if generation_config:
             continue_kwargs["generation_config"] = generation_config
         interaction = create_with_retry(client, **continue_kwargs)
+        transcript["total_tokens"] += interaction.usage.total_tokens or 0
+
+        if transcript["hit_cap"]:
+            break
+
+    if transcript["hit_cap"] and interaction.status == "requires_action":
+        # The model still wanted to call more tools when its budget ran out. Previously
+        # the loop just broke here, discarding whatever results WERE already sent back
+        # above and leaving final_message empty -- catastrophic for the Planner, whose
+        # entire output IS this field: confirmed via transcripts that 10/10 Phase 4
+        # validation tickets hit this exact path and every one produced an empty plan,
+        # meaning the Planner never once actually influenced a Coder prompt. One explicit
+        # final turn, with no tools offered, forces a real answer from what it already
+        # has instead of silently returning nothing.
+        nudge_kwargs = {
+            "model": model,
+            "input": (
+                "You have used up your tool-call budget and cannot call any more tools. "
+                "Give your final answer now, based on everything you've learned so far."
+            ),
+            "previous_interaction_id": interaction.id,
+        }
+        if generation_config:
+            nudge_kwargs["generation_config"] = generation_config
+        interaction = create_with_retry(client, **nudge_kwargs)
         transcript["total_tokens"] += interaction.usage.total_tokens or 0
 
     transcript["final_message"] = interaction.output_text or ""
