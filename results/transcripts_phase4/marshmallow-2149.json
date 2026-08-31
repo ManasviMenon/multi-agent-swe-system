@@ -1,0 +1,668 @@
+{
+  "ticket_id": "marshmallow-2149",
+  "planner": {
+    "steps": [
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "class Nested",
+          "path": "src/marshmallow"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:489: class Nested(Field):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "start_line": 630,
+          "path": "src/marshmallow/fields.py",
+          "end_line": 720
+        },
+        "result": {
+          "content": "        return self._schema\n\n    def _nested_normalized_option(self, option_name: str) -> list[str]:\n        nested_field = \"%s.\" % self.name\n        return [\n            field.split(nested_field, 1)[1]\n            for field in getattr(self.root, option_name, set())\n            if field.startswith(nested_field)\n        ]\n\n    def _serialize(self, nested_obj, attr, obj, **kwargs):\n        # Load up the schema first. This allows a RegistryError to be raised\n        # if an invalid schema name was passed\n        schema = self.schema\n        if nested_obj is None:\n            return None\n        many = schema.many or self.many\n        return schema.dump(nested_obj, many=many)\n\n    def _test_collection(self, value):\n        many = self.schema.many or self.many\n        if many and not utils.is_collection(value):\n            raise self.make_error(\"type\", input=value, type=value.__class__.__name__)\n\n    def _load(self, value, data, partial=None):\n        try:\n            valid_data = self.schema.load(value, unknown=self.unknown, partial=partial)\n        except ValidationError as error:\n            raise ValidationError(\n                error.messages, valid_data=error.valid_data\n            ) from error\n        return valid_data\n\n    def _deserialize(self, value, attr, data, partial=None, **kwargs):\n        \"\"\"Same as :meth:`Field._deserialize` with additional ``partial`` argument.\n\n        :param bool|tuple partial: For nested schemas, the ``partial``\n            parameter passed to `Schema.load`.\n\n        .. versionchanged:: 3.0.0\n            Add ``partial`` parameter.\n        \"\"\"\n        self._test_collection(value)\n        return self._load(value, data, partial=partial)\n\n\nclass Pluck(Nested):\n    \"\"\"Allows you to replace nested data with one of the data's fields.\n\n    Example: ::\n\n        from marshmallow import Schema, fields\n\n        class ArtistSchema(Schema):\n            id = fields.Int()\n            name = fields.Str()\n\n        class AlbumSchema(Schema):\n            artist = fields.Pluck(ArtistSchema, 'id')\n\n\n        in_data = {'artist': 42}\n        loaded = AlbumSchema().load(in_data) # => {'artist': {'id': 42}}\n        dumped = AlbumSchema().dump(loaded)  # => {'artist': 42}\n\n    :param Schema nested: The Schema class or class name (string)\n        to nest, or ``\"self\"`` to nest the :class:`Schema` within itself.\n    :param str field_name: The key to pluck a value from.\n    :param kwargs: The same keyword arguments that :class:`Nested` receives.\n    \"\"\"\n\n    def __init__(\n        self,\n        nested: SchemaABC | type | str | typing.Callable[[], SchemaABC],\n        field_name: str,\n        **kwargs,\n    ):\n        super().__init__(nested, only=(field_name,), **kwargs)\n        self.field_name = field_name\n\n    @property\n    def _field_data_key(self):\n        only_field = self.schema.fields[self.field_name]\n        return only_field.data_key or self.field_name\n\n    def _serialize(self, nested_obj, attr, obj, **kwargs):\n        ret = super()._serialize(nested_obj, attr, obj, **kwargs)\n        if ret is None:\n            return None\n        if self.many:\n            return utils.pluck(ret, key=self._field_data_key)",
+          "total_lines": 2114,
+          "shown_lines": "630-720"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "partial",
+          "path": "src/marshmallow"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\base.py:50: def load(self, data, *, many: bool | None = None, partial=None, unknown=None):",
+            "src\\marshmallow\\base.py:59: partial=None,",
+            "src\\marshmallow\\decorators.py:11: ``partial``. If you don't need these arguments, add ``**kwargs`` to your method",
+            "src\\marshmallow\\decorators.py:108: ``partial`` and ``many`` are always passed as keyword arguments to",
+            "src\\marshmallow\\decorators.py:167: ``partial`` and ``many`` are always passed as keyword arguments to",
+            "src\\marshmallow\\decorators.py:189: ``partial`` and ``many`` are always passed as keyword arguments to",
+            "src\\marshmallow\\decorators.py:210: return functools.partial(set_hook, key=key, **kwargs)",
+            "src\\marshmallow\\fields.py:654: def _load(self, value, data, partial=None):",
+            "src\\marshmallow\\fields.py:656: valid_data = self.schema.load(value, unknown=self.unknown, partial=partial)",
+            "src\\marshmallow\\fields.py:663: def _deserialize(self, value, attr, data, partial=None, **kwargs):",
+            "src\\marshmallow\\fields.py:664: \"\"\"Same as :meth:`Field._deserialize` with additional ``partial`` argument.",
+            "src\\marshmallow\\fields.py:666: :param bool|tuple partial: For nested schemas, the ``partial``",
+            "src\\marshmallow\\fields.py:670: Add ``partial`` parameter.",
+            "src\\marshmallow\\fields.py:673: return self._load(value, data, partial=partial)",
+            "src\\marshmallow\\fields.py:723: def _deserialize(self, value, attr, data, partial=None, **kwargs):",
+            "src\\marshmallow\\fields.py:729: return self._load(value, data, partial=partial)",
+            "src\\marshmallow\\schema.py:278: :param partial: Whether to ignore missing fields and not require",
+            "src\\marshmallow\\schema.py:377: partial: bool | types.StrSequenceOrSet = False,",
+            "src\\marshmallow\\schema.py:393: self.partial = partial",
+            "src\\marshmallow\\schema.py:468: :param partial: Value of ``partial`` on load.",
+            "src\\marshmallow\\schema.py:473: Receives `many` and `partial` (on deserialization) as keyword arguments.",
+            "src\\marshmallow\\schema.py:593: partial=False,",
+            "src\\marshmallow\\schema.py:602: :param bool|tuple partial: Whether to ignore missing fields and not require",
+            "src\\marshmallow\\schema.py:626: partial=partial,",
+            "src\\marshmallow\\schema.py:639: partial_is_collection = is_collection(partial)",
+            "src\\marshmallow\\schema.py:647: if partial is True or (",
+            "src\\marshmallow\\schema.py:648: partial_is_collection and attr_name in partial",
+            "src\\marshmallow\\schema.py:652: # Allow partial loading of nested schemas.",
+            "src\\marshmallow\\schema.py:653: if partial_is_collection:",
+            "src\\marshmallow\\schema.py:656: sub_partial = [",
+            "src\\marshmallow\\schema.py:657: f[len_prefix:] for f in partial if f.startswith(prefix)",
+            "src\\marshmallow\\schema.py:659: d_kwargs[\"partial\"] = sub_partial",
+            "src\\marshmallow\\schema.py:661: d_kwargs[\"partial\"] = partial",
+            "src\\marshmallow\\schema.py:708: partial: bool | types.StrSequenceOrSet | None = None,",
+            "src\\marshmallow\\schema.py:716: :param partial: Whether to ignore missing fields and not require",
+            "src\\marshmallow\\schema.py:732: data, many=many, partial=partial, unknown=unknown, postprocess=True",
+            "src\\marshmallow\\schema.py:740: partial: bool | types.StrSequenceOrSet | None = None,",
+            "src\\marshmallow\\schema.py:749: :param partial: Whether to ignore missing fields and not require",
+            "src\\marshmallow\\schema.py:765: return self.load(data, many=many, partial=partial, unknown=unknown)",
+            "src\\marshmallow\\schema.py:775: partial,",
+            "src\\marshmallow\\schema.py:781: validator_func(output, original_data, partial=partial, many=many)",
+            "src\\marshmallow\\schema.py:783: validator_func(output, partial=partial, many=many)",
+            "src\\marshmallow\\schema.py:795: partial: bool | types.StrSequenceOrSet | None = None,",
+            "src\\marshmallow\\schema.py:803: :param partial: Whether to ignore missing fields and not require",
+            "src\\marshmallow\\schema.py:812: self._do_load(data, many=many, partial=partial, postprocess=False)",
+            "src\\marshmallow\\schema.py:827: partial: bool | types.StrSequenceOrSet | None = None,",
+            "src\\marshmallow\\schema.py:837: :param partial: Whether to validate required fields. If its",
+            "src\\marshmallow\\schema.py:840: If `None`, the value for `self.partial` is used.",
+            "src\\marshmallow\\schema.py:855: if partial is None:",
+            "src\\marshmallow\\schema.py:856: partial = self.partial",
+            "src\\marshmallow\\schema.py:861: PRE_LOAD, data, many=many, original_data=data, partial=partial",
+            "src\\marshmallow\\schema.py:874: partial=partial,",
+            "src\\marshmallow\\schema.py:890: partial=partial,",
+            "src\\marshmallow\\schema.py:899: partial=partial,",
+            "src\\marshmallow\\schema.py:911: partial=partial,",
+            "src\\marshmallow\\schema.py:917: self.handle_error(exc, data, many=many, partial=partial)",
+            "src\\marshmallow\\schema.py:1092: partial: bool | types.StrSequenceOrSet,",
+            "src\\marshmallow\\schema.py:1102: partial=partial,",
+            "src\\marshmallow\\schema.py:1110: partial=partial,",
+            "src\\marshmallow\\schema.py:1169: partial: bool | types.StrSequenceOrSet,",
+            "src\\marshmallow\\schema.py:1189: partial=partial,",
+            "src\\marshmallow\\schema.py:1201: partial=partial,",
+            "src\\marshmallow\\utils.py:337: `functools.partial` objects and class-based callables.",
+            "src\\marshmallow\\utils.py:344: if isinstance(func, functools.partial):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "end_line": 670,
+          "start_line": 580,
+          "path": "src/marshmallow/schema.py"
+        },
+        "result": {
+          "content": "        \"\"\"\n        serialized = self.dump(obj, many=many)\n        return self.opts.render_module.dumps(serialized, *args, **kwargs)\n\n    def _deserialize(\n        self,\n        data: (\n            typing.Mapping[str, typing.Any]\n            | typing.Iterable[typing.Mapping[str, typing.Any]]\n        ),\n        *,\n        error_store: ErrorStore,\n        many: bool = False,\n        partial=False,\n        unknown=RAISE,\n        index=None,\n    ) -> _T | list[_T]:\n        \"\"\"Deserialize ``data``.\n\n        :param dict data: The data to deserialize.\n        :param ErrorStore error_store: Structure to store errors.\n        :param bool many: `True` if ``data`` should be deserialized as a collection.\n        :param bool|tuple partial: Whether to ignore missing fields and not require\n            any fields declared. Propagates down to ``Nested`` fields as well. If\n            its value is an iterable, only missing fields listed in that iterable\n            will be ignored. Use dot delimiters to specify nested fields.\n        :param unknown: Whether to exclude, include, or raise an error for unknown\n            fields in the data. Use `EXCLUDE`, `INCLUDE` or `RAISE`.\n        :param int index: Index of the item being serialized (for storing errors) if\n            serializing a collection, otherwise `None`.\n        :return: A dictionary of the deserialized data.\n        \"\"\"\n        index_errors = self.opts.index_errors\n        index = index if index_errors else None\n        if many:\n            if not is_collection(data):\n                error_store.store_error([self.error_messages[\"type\"]], index=index)\n                ret_l = []  # type: typing.List[_T]\n            else:\n                ret_l = [\n                    typing.cast(\n                        _T,\n                        self._deserialize(\n                            typing.cast(typing.Mapping[str, typing.Any], d),\n                            error_store=error_store,\n                            many=False,\n                            partial=partial,\n                            unknown=unknown,\n                            index=idx,\n                        ),\n                    )\n                    for idx, d in enumerate(data)\n                ]\n            return ret_l\n        ret_d = self.dict_class()\n        # Check data is a dict\n        if not isinstance(data, Mapping):\n            error_store.store_error([self.error_messages[\"type\"]], index=index)\n        else:\n            partial_is_collection = is_collection(partial)\n            for attr_name, field_obj in self.load_fields.items():\n                field_name = (\n                    field_obj.data_key if field_obj.data_key is not None else attr_name\n                )\n                raw_value = data.get(field_name, missing)\n                if raw_value is missing:\n                    # Ignore missing field if we're allowed to.\n                    if partial is True or (\n                        partial_is_collection and attr_name in partial\n                    ):\n                        continue\n                d_kwargs = {}\n                # Allow partial loading of nested schemas.\n                if partial_is_collection:\n                    prefix = field_name + \".\"\n                    len_prefix = len(prefix)\n                    sub_partial = [\n                        f[len_prefix:] for f in partial if f.startswith(prefix)\n                    ]\n                    d_kwargs[\"partial\"] = sub_partial\n                else:\n                    d_kwargs[\"partial\"] = partial\n\n                def getter(\n                    val, field_obj=field_obj, field_name=field_name, d_kwargs=d_kwargs\n                ):\n                    return field_obj.deserialize(\n                        val,\n                        field_name,\n                        data,\n                        **d_kwargs,",
+          "total_lines": 1238,
+          "shown_lines": "580-670"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "path": "src/marshmallow/schema.py",
+          "end_line": 900,
+          "start_line": 820
+        },
+        "result": {
+          "content": "        self,\n        data: (\n            typing.Mapping[str, typing.Any]\n            | typing.Iterable[typing.Mapping[str, typing.Any]]\n        ),\n        *,\n        many: bool | None = None,\n        partial: bool | types.StrSequenceOrSet | None = None,\n        unknown: str | None = None,\n        postprocess: bool = True,\n    ):\n        \"\"\"Deserialize `data`, returning the deserialized result.\n        This method is private API.\n\n        :param data: The data to deserialize.\n        :param many: Whether to deserialize `data` as a collection. If `None`, the\n            value for `self.many` is used.\n        :param partial: Whether to validate required fields. If its\n            value is an iterable, only fields listed in that iterable will be\n            ignored will be allowed missing. If `True`, all fields will be allowed missing.\n            If `None`, the value for `self.partial` is used.\n        :param unknown: Whether to exclude, include, or raise an error for unknown\n            fields in the data. Use `EXCLUDE`, `INCLUDE` or `RAISE`.\n            If `None`, the value for `self.unknown` is used.\n        :param postprocess: Whether to run post_load methods..\n        :return: Deserialized data\n        \"\"\"\n        error_store = ErrorStore()\n        errors = {}  # type: dict[str, list[str]]\n        many = self.many if many is None else bool(many)\n        unknown = (\n            self.unknown\n            if unknown is None\n            else validate_unknown_parameter_value(unknown)\n        )\n        if partial is None:\n            partial = self.partial\n        # Run preprocessors\n        if self._has_processors(PRE_LOAD):\n            try:\n                processed_data = self._invoke_load_processors(\n                    PRE_LOAD, data, many=many, original_data=data, partial=partial\n                )\n            except ValidationError as err:\n                errors = err.normalized_messages()\n                result = None  # type: list | dict | None\n        else:\n            processed_data = data\n        if not errors:\n            # Deserialize data\n            result = self._deserialize(\n                processed_data,\n                error_store=error_store,\n                many=many,\n                partial=partial,\n                unknown=unknown,\n            )\n            # Run field-level validation\n            self._invoke_field_validators(\n                error_store=error_store, data=result, many=many\n            )\n            # Run schema-level validation\n            if self._has_processors(VALIDATES_SCHEMA):\n                field_errors = bool(error_store.errors)\n                self._invoke_schema_validators(\n                    error_store=error_store,\n                    pass_many=True,\n                    data=result,\n                    original_data=data,\n                    many=many,\n                    partial=partial,\n                    field_errors=field_errors,\n                )\n                self._invoke_schema_validators(\n                    error_store=error_store,\n                    pass_many=False,\n                    data=result,\n                    original_data=data,\n                    many=many,\n                    partial=partial,\n                    field_errors=field_errors,",
+          "total_lines": 1238,
+          "shown_lines": "820-900"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "tests",
+          "pattern": "partial"
+        },
+        "result": {
+          "matches": [
+            "tests\\base.py:57: functools.partial(fields.Enum, GenderEnum),",
+            "tests\\base.py:58: functools.partial(fields.Enum, HairColorEnum, by_value=fields.String),",
+            "tests\\base.py:59: functools.partial(fields.Enum, GenderEnum, by_value=fields.Integer),",
+            "tests\\test_decorators.py:19: @pytest.mark.parametrize(\"partial_val\", (True, False))",
+            "tests\\test_decorators.py:20: def test_decorated_processors(partial_val):",
+            "tests\\test_decorators.py:50: def remove_envelope(self, data, many, partial, **kwargs):",
+            "tests\\test_decorators.py:51: assert partial is partial_val",
+            "tests\\test_decorators.py:61: def remove_tag(self, item, partial, **kwargs):",
+            "tests\\test_decorators.py:62: assert partial is partial_val",
+            "tests\\test_decorators.py:69: def decrement_value(self, item, partial, **kwargs):",
+            "tests\\test_decorators.py:70: assert partial is partial_val",
+            "tests\\test_decorators.py:75: schema = ExampleSchema(partial=partial_val)",
+            "tests\\test_decorators.py:586: def validate_original(self, data, original_data, partial, **kwargs):",
+            "tests\\test_deserialization.py:1860: @pytest.mark.parametrize(\"partial_schema\", [True, False])",
+            "tests\\test_deserialization.py:1861: def test_partial_deserialization(self, partial_schema):",
+            "tests\\test_deserialization.py:1868: if partial_schema:",
+            "tests\\test_deserialization.py:1869: schema_args[\"partial\"] = True",
+            "tests\\test_deserialization.py:1871: load_args[\"partial\"] = True",
+            "tests\\test_deserialization.py:1877: def test_partial_fields_deserialization(self):",
+            "tests\\test_deserialization.py:1884: MySchema().load({\"foo\": 3}, partial=tuple())",
+            "tests\\test_deserialization.py:1890: data = MySchema().load({\"foo\": 3}, partial=(\"bar\", \"baz\"))",
+            "tests\\test_deserialization.py:1895: data = MySchema(partial=True).load({\"foo\": 3}, partial=(\"bar\", \"baz\"))",
+            "tests\\test_deserialization.py:1900: def test_partial_fields_validation(self):",
+            "tests\\test_deserialization.py:1906: errors = MySchema().validate({\"foo\": 3}, partial=tuple())",
+            "tests\\test_deserialization.py:1910: errors = MySchema().validate({\"foo\": 3}, partial=(\"bar\", \"baz\"))",
+            "tests\\test_deserialization.py:1913: errors = MySchema(partial=True).validate({\"foo\": 3}, partial=(\"bar\", \"baz\"))",
+            "tests\\test_deserialization.py:2179: def test_nested_partial_load(self):",
+            "tests\\test_deserialization.py:2189: result = SchemaB().load(b_dict, partial=True)",
+            "tests\\test_deserialization.py:2191: # Non partial loading should complain about missing values.",
+            "tests\\test_deserialization.py:2199: def test_deeply_nested_partial_load(self):",
+            "tests\\test_deserialization.py:2212: result = SchemaA().load(a_dict, partial=True)",
+            "tests\\test_deserialization.py:2214: # Non partial loading should complain about missing values.",
+            "tests\\test_deserialization.py:2223: def test_nested_partial_tuple(self):",
+            "tests\\test_deserialization.py:2233: result = SchemaB().load(b_dict, partial=(\"z.x\",))",
+            "tests\\test_deserialization.py:2237: SchemaB().load(b_dict, partial=(\"z.y\",))",
+            "tests\\test_fields.py:526: def test_list_nested_partial_propagated_to_nested(self):",
+            "tests\\test_fields.py:537: result = Family(partial=val).load(payload)",
+            "tests\\test_fields.py:539: result = Family().load(payload, partial=val)",
+            "tests\\test_fields.py:544: result = Family(partial=val).load(payload)",
+            "tests\\test_fields.py:549: result = Family().load(payload, partial=val)",
+            "tests\\test_fields.py:575: def test_tuple_nested_partial_propagated_to_nested(self):",
+            "tests\\test_fields.py:586: result = Family(partial=val).load(payload)",
+            "tests\\test_fields.py:588: result = Family().load(payload, partial=val)",
+            "tests\\test_fields.py:593: result = Family(partial=val).load(payload)",
+            "tests\\test_fields.py:598: result = Family().load(payload, partial=val)",
+            "tests\\test_fields.py:637: def test_dict_nested_partial_propagated_to_nested(self):",
+            "tests\\test_fields.py:648: result = Family(partial=val).load(payload)",
+            "tests\\test_fields.py:650: result = Family().load(payload, partial=val)",
+            "tests\\test_fields.py:655: result = Family(partial=val).load(payload)",
+            "tests\\test_fields.py:662: result = Family().load(payload, partial=val)",
+            "tests\\test_schema.py:829: sch.load(data, partial=True)",
+            "tests\\test_schema.py:1808: def test_load_with_custom_error_handler_and_partially_valid_data(self):",
+            "tests\\test_utils.py:3: from functools import partial",
+            "tests\\test_utils.py:260: f2 = partial(f1, \"baz\")"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "path": "tests/test_deserialization.py",
+          "end_line": 2245,
+          "start_line": 2175
+        },
+        "result": {
+          "content": "        assert errors[\"lamb\"] == [\"Invalid value.\"]\n        assert \"equal\" in errors\n        assert errors[\"equal\"] == [\"Must be equal to False.\"]\n\n    def test_nested_partial_load(self):\n        class SchemaA(Schema):\n            x = fields.Integer(required=True)\n            y = fields.Integer()\n\n        class SchemaB(Schema):\n            z = fields.Nested(SchemaA)\n\n        b_dict = {\"z\": {\"y\": 42}}\n        # Partial loading shouldn't generate any errors.\n        result = SchemaB().load(b_dict, partial=True)\n        assert result[\"z\"][\"y\"] == 42\n        # Non partial loading should complain about missing values.\n        with pytest.raises(ValidationError) as excinfo:\n            SchemaB().load(b_dict)\n        data, errors = excinfo.value.valid_data, excinfo.value.messages\n        assert data[\"z\"][\"y\"] == 42\n        assert \"z\" in errors\n        assert \"x\" in errors[\"z\"]\n\n    def test_deeply_nested_partial_load(self):\n        class SchemaC(Schema):\n            x = fields.Integer(required=True)\n            y = fields.Integer()\n\n        class SchemaB(Schema):\n            c = fields.Nested(SchemaC)\n\n        class SchemaA(Schema):\n            b = fields.Nested(SchemaB)\n\n        a_dict = {\"b\": {\"c\": {\"y\": 42}}}\n        # Partial loading shouldn't generate any errors.\n        result = SchemaA().load(a_dict, partial=True)\n        assert result[\"b\"][\"c\"][\"y\"] == 42\n        # Non partial loading should complain about missing values.\n        with pytest.raises(ValidationError) as excinfo:\n            SchemaA().load(a_dict)\n        data, errors = excinfo.value.valid_data, excinfo.value.messages\n        assert data[\"b\"][\"c\"][\"y\"] == 42\n        assert \"b\" in errors\n        assert \"c\" in errors[\"b\"]\n        assert \"x\" in errors[\"b\"][\"c\"]\n\n    def test_nested_partial_tuple(self):\n        class SchemaA(Schema):\n            x = fields.Integer(required=True)\n            y = fields.Integer(required=True)\n\n        class SchemaB(Schema):\n            z = fields.Nested(SchemaA)\n\n        b_dict = {\"z\": {\"y\": 42}}\n        # If we ignore the missing z.x, z.y should still load.\n        result = SchemaB().load(b_dict, partial=(\"z.x\",))\n        assert result[\"z\"][\"y\"] == 42\n        # If we ignore a missing z.y we should get a validation error.\n        with pytest.raises(ValidationError):\n            SchemaB().load(b_dict, partial=(\"z.y\",))\n\n\n@pytest.mark.parametrize(\"FieldClass\", ALL_FIELDS)\ndef test_required_field_failure(FieldClass):  # noqa\n    class RequireSchema(Schema):\n        age = FieldClass(required=True)\n\n    user_data = {\"name\": \"Phil\"}",
+          "total_lines": 2282,
+          "shown_lines": "2175-2245"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "end_line": 670,
+          "path": "src/marshmallow/schema.py",
+          "start_line": 620
+        },
+        "result": {
+          "content": "                    typing.cast(\n                        _T,\n                        self._deserialize(\n                            typing.cast(typing.Mapping[str, typing.Any], d),\n                            error_store=error_store,\n                            many=False,\n                            partial=partial,\n                            unknown=unknown,\n                            index=idx,\n                        ),\n                    )\n                    for idx, d in enumerate(data)\n                ]\n            return ret_l\n        ret_d = self.dict_class()\n        # Check data is a dict\n        if not isinstance(data, Mapping):\n            error_store.store_error([self.error_messages[\"type\"]], index=index)\n        else:\n            partial_is_collection = is_collection(partial)\n            for attr_name, field_obj in self.load_fields.items():\n                field_name = (\n                    field_obj.data_key if field_obj.data_key is not None else attr_name\n                )\n                raw_value = data.get(field_name, missing)\n                if raw_value is missing:\n                    # Ignore missing field if we're allowed to.\n                    if partial is True or (\n                        partial_is_collection and attr_name in partial\n                    ):\n                        continue\n                d_kwargs = {}\n                # Allow partial loading of nested schemas.\n                if partial_is_collection:\n                    prefix = field_name + \".\"\n                    len_prefix = len(prefix)\n                    sub_partial = [\n                        f[len_prefix:] for f in partial if f.startswith(prefix)\n                    ]\n                    d_kwargs[\"partial\"] = sub_partial\n                else:\n                    d_kwargs[\"partial\"] = partial\n\n                def getter(\n                    val, field_obj=field_obj, field_name=field_name, d_kwargs=d_kwargs\n                ):\n                    return field_obj.deserialize(\n                        val,\n                        field_name,\n                        data,\n                        **d_kwargs,",
+          "total_lines": 1238,
+          "shown_lines": "620-670"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "path": "src/marshmallow/fields.py",
+          "start_line": 645,
+          "end_line": 685
+        },
+        "result": {
+          "content": "            return None\n        many = schema.many or self.many\n        return schema.dump(nested_obj, many=many)\n\n    def _test_collection(self, value):\n        many = self.schema.many or self.many\n        if many and not utils.is_collection(value):\n            raise self.make_error(\"type\", input=value, type=value.__class__.__name__)\n\n    def _load(self, value, data, partial=None):\n        try:\n            valid_data = self.schema.load(value, unknown=self.unknown, partial=partial)\n        except ValidationError as error:\n            raise ValidationError(\n                error.messages, valid_data=error.valid_data\n            ) from error\n        return valid_data\n\n    def _deserialize(self, value, attr, data, partial=None, **kwargs):\n        \"\"\"Same as :meth:`Field._deserialize` with additional ``partial`` argument.\n\n        :param bool|tuple partial: For nested schemas, the ``partial``\n            parameter passed to `Schema.load`.\n\n        .. versionchanged:: 3.0.0\n            Add ``partial`` parameter.\n        \"\"\"\n        self._test_collection(value)\n        return self._load(value, data, partial=partial)\n\n\nclass Pluck(Nested):\n    \"\"\"Allows you to replace nested data with one of the data's fields.\n\n    Example: ::\n\n        from marshmallow import Schema, fields\n\n        class ArtistSchema(Schema):\n            id = fields.Int()\n            name = fields.Str()",
+          "total_lines": 2114,
+          "shown_lines": "645-685"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "path": "src/marshmallow/schema.py",
+          "end_line": 865,
+          "start_line": 840
+        },
+        "result": {
+          "content": "            If `None`, the value for `self.partial` is used.\n        :param unknown: Whether to exclude, include, or raise an error for unknown\n            fields in the data. Use `EXCLUDE`, `INCLUDE` or `RAISE`.\n            If `None`, the value for `self.unknown` is used.\n        :param postprocess: Whether to run post_load methods..\n        :return: Deserialized data\n        \"\"\"\n        error_store = ErrorStore()\n        errors = {}  # type: dict[str, list[str]]\n        many = self.many if many is None else bool(many)\n        unknown = (\n            self.unknown\n            if unknown is None\n            else validate_unknown_parameter_value(unknown)\n        )\n        if partial is None:\n            partial = self.partial\n        # Run preprocessors\n        if self._has_processors(PRE_LOAD):\n            try:\n                processed_data = self._invoke_load_processors(\n                    PRE_LOAD, data, many=many, original_data=data, partial=partial\n                )\n            except ValidationError as err:\n                errors = err.normalized_messages()\n                result = None  # type: list | dict | None",
+          "total_lines": 1238,
+          "shown_lines": "840-865"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "end_line": 665,
+          "path": "src/marshmallow/schema.py",
+          "start_line": 640
+        },
+        "result": {
+          "content": "            for attr_name, field_obj in self.load_fields.items():\n                field_name = (\n                    field_obj.data_key if field_obj.data_key is not None else attr_name\n                )\n                raw_value = data.get(field_name, missing)\n                if raw_value is missing:\n                    # Ignore missing field if we're allowed to.\n                    if partial is True or (\n                        partial_is_collection and attr_name in partial\n                    ):\n                        continue\n                d_kwargs = {}\n                # Allow partial loading of nested schemas.\n                if partial_is_collection:\n                    prefix = field_name + \".\"\n                    len_prefix = len(prefix)\n                    sub_partial = [\n                        f[len_prefix:] for f in partial if f.startswith(prefix)\n                    ]\n                    d_kwargs[\"partial\"] = sub_partial\n                else:\n                    d_kwargs[\"partial\"] = partial\n\n                def getter(\n                    val, field_obj=field_obj, field_name=field_name, d_kwargs=d_kwargs\n                ):",
+          "total_lines": 1238,
+          "shown_lines": "640-665"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src/marshmallow",
+          "pattern": "def _load"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:654: def _load(self, value, data, partial=None):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "path": "src/marshmallow/fields.py",
+          "start_line": 650,
+          "end_line": 665
+        },
+        "result": {
+          "content": "        many = self.schema.many or self.many\n        if many and not utils.is_collection(value):\n            raise self.make_error(\"type\", input=value, type=value.__class__.__name__)\n\n    def _load(self, value, data, partial=None):\n        try:\n            valid_data = self.schema.load(value, unknown=self.unknown, partial=partial)\n        except ValidationError as error:\n            raise ValidationError(\n                error.messages, valid_data=error.valid_data\n            ) from error\n        return valid_data\n\n    def _deserialize(self, value, attr, data, partial=None, **kwargs):\n        \"\"\"Same as :meth:`Field._deserialize` with additional ``partial`` argument.\n",
+          "total_lines": 2114,
+          "shown_lines": "650-665"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "def load",
+          "path": "src/marshmallow"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\base.py:50: def load(self, data, *, many: bool | None = None, partial=None, unknown=None):",
+            "src\\marshmallow\\base.py:54: def loads(",
+            "src\\marshmallow\\schema.py:700: def load(",
+            "src\\marshmallow\\schema.py:735: def loads("
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "path": "src/marshmallow/schema.py",
+          "start_line": 700,
+          "end_line": 725
+        },
+        "result": {
+          "content": "    def load(\n        self,\n        data: (\n            typing.Mapping[str, typing.Any]\n            | typing.Iterable[typing.Mapping[str, typing.Any]]\n        ),\n        *,\n        many: bool | None = None,\n        partial: bool | types.StrSequenceOrSet | None = None,\n        unknown: str | None = None,\n    ):\n        \"\"\"Deserialize a data structure to an object defined by this Schema's fields.\n\n        :param data: The data to deserialize.\n        :param many: Whether to deserialize `data` as a collection. If `None`, the\n            value for `self.many` is used.\n        :param partial: Whether to ignore missing fields and not require\n            any fields declared. Propagates down to ``Nested`` fields as well. If\n            its value is an iterable, only missing fields listed in that iterable\n            will be ignored. Use dot delimiters to specify nested fields.\n        :param unknown: Whether to exclude, include, or raise an error for unknown\n            fields in the data. Use `EXCLUDE`, `INCLUDE` or `RAISE`.\n            If `None`, the value for `self.unknown` is used.\n        :return: Deserialized data\n\n        .. versionadded:: 1.0.0",
+          "total_lines": 1238,
+          "shown_lines": "700-725"
+        },
+        "blocked_duplicate": false
+      }
+    ],
+    "tool_call_count": 15,
+    "hit_cap": true,
+    "total_tokens": 126110,
+    "final_message": "### Root Cause\n\nThe issue occurs because of how `partial` handling works between parent schemas, nested fields, and nested schema instances:\n\n1. When you instantiate `IbanWhitelistSchema(partial=[...])`, the nested schema instance retains its own `self.partial` setting (which is the list of fields to ignore).\n2. When you define a `fields.Nested(IbanWhitelistSchema(...))` inside a parent schema (`IbanWhitelistCreateSchema`), the parent schema deserializes its fields via `Schema._deserialize`.\n3. In `Schema._deserialize`, when processing fields, if `partial` is not explicitly passed to `Schema.load()` on the parent (i.e. `schema.load(data)` is called without `partial`), `partial` defaults to `False` (or whatever the parent schema's `partial` value is).\n4. `Schema._deserialize` passes `d_kwargs[\"partial\"] = partial` (which is `False`) down to `field_obj.deserialize(...)`, overriding or ignoring the nested schema instance's default `partial` configuration. Because the parent's `partial` is `False`, `False` is passed to `Nested._deserialize` -> `Nested._load` -> `schema.load(..., partial=False)`, which overrides the nested schema's configured `partial` list and causes required field validation errors.\n\n### Solution\n\nWhen instantiating a `Nested` field with a pre-configured schema instance (e.g. `fields.Nested(IbanWhitelistSchema(partial=[...]))`), or when a nested schema has its own `partial` configuration, the nested schema's default `partial` should be respected if no overriding `partial` argument is explicitly provided by the parent schema's deserialization context. \n\nSpecifically, in `Nested._load` (or when determining `partial` in `Nested._deserialize`), if the `partial` parameter passed down from the parent is `None` (or `False` when the parent didn't specify partial loading, though distinguishing whether the parent explicitly passed `False` vs defaulting to `False` is key), it should fall back to `self.schema.partial`. \n\nAlternatively, if `partial` is not passed or is falsy/none from the parent call, `Nested` should defer to `self.schema.partial` if it is set/truthy, allowing pre-configured nested schemas to maintain their partial validation rules independently when loaded via a parent schema.",
+    "last_interaction_id": "v1_ChdCSXFUYXFxUEJZX0dnOFVQcV9HOWlBYxIXVUlxVGF2X3lLdV9nNC1FUHFMZmY4QVk"
+  },
+  "tester": {
+    "steps": [
+      {
+        "tool": "list_directory",
+        "args": {
+          "path": "tests"
+        },
+        "result": {
+          "entries": [
+            "__init__.py",
+            "base.py",
+            "conftest.py",
+            "foo_serializer.py",
+            "mypy_test_cases/",
+            "test_decorators.py",
+            "test_deserialization.py",
+            "test_error_store.py",
+            "test_exceptions.py",
+            "test_fields.py",
+            "test_options.py",
+            "test_registry.py",
+            "test_schema.py",
+            "test_serialization.py",
+            "test_utils.py",
+            "test_validate.py"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src/marshmallow",
+          "pattern": "partial"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\base.py:50: def load(self, data, *, many: bool | None = None, partial=None, unknown=None):",
+            "src\\marshmallow\\base.py:59: partial=None,",
+            "src\\marshmallow\\decorators.py:11: ``partial``. If you don't need these arguments, add ``**kwargs`` to your method",
+            "src\\marshmallow\\decorators.py:108: ``partial`` and ``many`` are always passed as keyword arguments to",
+            "src\\marshmallow\\decorators.py:167: ``partial`` and ``many`` are always passed as keyword arguments to",
+            "src\\marshmallow\\decorators.py:189: ``partial`` and ``many`` are always passed as keyword arguments to",
+            "src\\marshmallow\\decorators.py:210: return functools.partial(set_hook, key=key, **kwargs)",
+            "src\\marshmallow\\fields.py:654: def _load(self, value, data, partial=None):",
+            "src\\marshmallow\\fields.py:656: valid_data = self.schema.load(value, unknown=self.unknown, partial=partial)",
+            "src\\marshmallow\\fields.py:663: def _deserialize(self, value, attr, data, partial=None, **kwargs):",
+            "src\\marshmallow\\fields.py:664: \"\"\"Same as :meth:`Field._deserialize` with additional ``partial`` argument.",
+            "src\\marshmallow\\fields.py:666: :param bool|tuple partial: For nested schemas, the ``partial``",
+            "src\\marshmallow\\fields.py:670: Add ``partial`` parameter.",
+            "src\\marshmallow\\fields.py:673: return self._load(value, data, partial=partial)",
+            "src\\marshmallow\\fields.py:723: def _deserialize(self, value, attr, data, partial=None, **kwargs):",
+            "src\\marshmallow\\fields.py:729: return self._load(value, data, partial=partial)",
+            "src\\marshmallow\\schema.py:278: :param partial: Whether to ignore missing fields and not require",
+            "src\\marshmallow\\schema.py:377: partial: bool | types.StrSequenceOrSet = False,",
+            "src\\marshmallow\\schema.py:393: self.partial = partial",
+            "src\\marshmallow\\schema.py:468: :param partial: Value of ``partial`` on load.",
+            "src\\marshmallow\\schema.py:473: Receives `many` and `partial` (on deserialization) as keyword arguments.",
+            "src\\marshmallow\\schema.py:593: partial=False,",
+            "src\\marshmallow\\schema.py:602: :param bool|tuple partial: Whether to ignore missing fields and not require",
+            "src\\marshmallow\\schema.py:626: partial=partial,",
+            "src\\marshmallow\\schema.py:639: partial_is_collection = is_collection(partial)",
+            "src\\marshmallow\\schema.py:647: if partial is True or (",
+            "src\\marshmallow\\schema.py:648: partial_is_collection and attr_name in partial",
+            "src\\marshmallow\\schema.py:652: # Allow partial loading of nested schemas.",
+            "src\\marshmallow\\schema.py:653: if partial_is_collection:",
+            "src\\marshmallow\\schema.py:656: sub_partial = [",
+            "src\\marshmallow\\schema.py:657: f[len_prefix:] for f in partial if f.startswith(prefix)",
+            "src\\marshmallow\\schema.py:659: d_kwargs[\"partial\"] = sub_partial",
+            "src\\marshmallow\\schema.py:661: d_kwargs[\"partial\"] = partial",
+            "src\\marshmallow\\schema.py:708: partial: bool | types.StrSequenceOrSet | None = None,",
+            "src\\marshmallow\\schema.py:716: :param partial: Whether to ignore missing fields and not require",
+            "src\\marshmallow\\schema.py:732: data, many=many, partial=partial, unknown=unknown, postprocess=True",
+            "src\\marshmallow\\schema.py:740: partial: bool | types.StrSequenceOrSet | None = None,",
+            "src\\marshmallow\\schema.py:749: :param partial: Whether to ignore missing fields and not require",
+            "src\\marshmallow\\schema.py:765: return self.load(data, many=many, partial=partial, unknown=unknown)",
+            "src\\marshmallow\\schema.py:775: partial,",
+            "src\\marshmallow\\schema.py:781: validator_func(output, original_data, partial=partial, many=many)",
+            "src\\marshmallow\\schema.py:783: validator_func(output, partial=partial, many=many)",
+            "src\\marshmallow\\schema.py:795: partial: bool | types.StrSequenceOrSet | None = None,",
+            "src\\marshmallow\\schema.py:803: :param partial: Whether to ignore missing fields and not require",
+            "src\\marshmallow\\schema.py:812: self._do_load(data, many=many, partial=partial, postprocess=False)",
+            "src\\marshmallow\\schema.py:827: partial: bool | types.StrSequenceOrSet | None = None,",
+            "src\\marshmallow\\schema.py:837: :param partial: Whether to validate required fields. If its",
+            "src\\marshmallow\\schema.py:840: If `None`, the value for `self.partial` is used.",
+            "src\\marshmallow\\schema.py:855: if partial is None:",
+            "src\\marshmallow\\schema.py:856: partial = self.partial",
+            "src\\marshmallow\\schema.py:861: PRE_LOAD, data, many=many, original_data=data, partial=partial",
+            "src\\marshmallow\\schema.py:874: partial=partial,",
+            "src\\marshmallow\\schema.py:890: partial=partial,",
+            "src\\marshmallow\\schema.py:899: partial=partial,",
+            "src\\marshmallow\\schema.py:911: partial=partial,",
+            "src\\marshmallow\\schema.py:917: self.handle_error(exc, data, many=many, partial=partial)",
+            "src\\marshmallow\\schema.py:1092: partial: bool | types.StrSequenceOrSet,",
+            "src\\marshmallow\\schema.py:1102: partial=partial,",
+            "src\\marshmallow\\schema.py:1110: partial=partial,",
+            "src\\marshmallow\\schema.py:1169: partial: bool | types.StrSequenceOrSet,",
+            "src\\marshmallow\\schema.py:1189: partial=partial,",
+            "src\\marshmallow\\schema.py:1201: partial=partial,",
+            "src\\marshmallow\\utils.py:337: `functools.partial` objects and class-based callables.",
+            "src\\marshmallow\\utils.py:344: if isinstance(func, functools.partial):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "path": "src/marshmallow/fields.py",
+          "end_line": 700,
+          "start_line": 640
+        },
+        "result": {
+          "content": "    def _serialize(self, nested_obj, attr, obj, **kwargs):\n        # Load up the schema first. This allows a RegistryError to be raised\n        # if an invalid schema name was passed\n        schema = self.schema\n        if nested_obj is None:\n            return None\n        many = schema.many or self.many\n        return schema.dump(nested_obj, many=many)\n\n    def _test_collection(self, value):\n        many = self.schema.many or self.many\n        if many and not utils.is_collection(value):\n            raise self.make_error(\"type\", input=value, type=value.__class__.__name__)\n\n    def _load(self, value, data, partial=None):\n        try:\n            valid_data = self.schema.load(value, unknown=self.unknown, partial=partial)\n        except ValidationError as error:\n            raise ValidationError(\n                error.messages, valid_data=error.valid_data\n            ) from error\n        return valid_data\n\n    def _deserialize(self, value, attr, data, partial=None, **kwargs):\n        \"\"\"Same as :meth:`Field._deserialize` with additional ``partial`` argument.\n\n        :param bool|tuple partial: For nested schemas, the ``partial``\n            parameter passed to `Schema.load`.\n\n        .. versionchanged:: 3.0.0\n            Add ``partial`` parameter.\n        \"\"\"\n        self._test_collection(value)\n        return self._load(value, data, partial=partial)\n\n\nclass Pluck(Nested):\n    \"\"\"Allows you to replace nested data with one of the data's fields.\n\n    Example: ::\n\n        from marshmallow import Schema, fields\n\n        class ArtistSchema(Schema):\n            id = fields.Int()\n            name = fields.Str()\n\n        class AlbumSchema(Schema):\n            artist = fields.Pluck(ArtistSchema, 'id')\n\n\n        in_data = {'artist': 42}\n        loaded = AlbumSchema().load(in_data) # => {'artist': {'id': 42}}\n        dumped = AlbumSchema().dump(loaded)  # => {'artist': 42}\n\n    :param Schema nested: The Schema class or class name (string)\n        to nest, or ``\"self\"`` to nest the :class:`Schema` within itself.\n    :param str field_name: The key to pluck a value from.\n    :param kwargs: The same keyword arguments that :class:`Nested` receives.\n    \"\"\"\n",
+          "total_lines": 2114,
+          "shown_lines": "640-700"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "start_line": 820,
+          "path": "src/marshmallow/schema.py",
+          "end_line": 900
+        },
+        "result": {
+          "content": "        self,\n        data: (\n            typing.Mapping[str, typing.Any]\n            | typing.Iterable[typing.Mapping[str, typing.Any]]\n        ),\n        *,\n        many: bool | None = None,\n        partial: bool | types.StrSequenceOrSet | None = None,\n        unknown: str | None = None,\n        postprocess: bool = True,\n    ):\n        \"\"\"Deserialize `data`, returning the deserialized result.\n        This method is private API.\n\n        :param data: The data to deserialize.\n        :param many: Whether to deserialize `data` as a collection. If `None`, the\n            value for `self.many` is used.\n        :param partial: Whether to validate required fields. If its\n            value is an iterable, only fields listed in that iterable will be\n            ignored will be allowed missing. If `True`, all fields will be allowed missing.\n            If `None`, the value for `self.partial` is used.\n        :param unknown: Whether to exclude, include, or raise an error for unknown\n            fields in the data. Use `EXCLUDE`, `INCLUDE` or `RAISE`.\n            If `None`, the value for `self.unknown` is used.\n        :param postprocess: Whether to run post_load methods..\n        :return: Deserialized data\n        \"\"\"\n        error_store = ErrorStore()\n        errors = {}  # type: dict[str, list[str]]\n        many = self.many if many is None else bool(many)\n        unknown = (\n            self.unknown\n            if unknown is None\n            else validate_unknown_parameter_value(unknown)\n        )\n        if partial is None:\n            partial = self.partial\n        # Run preprocessors\n        if self._has_processors(PRE_LOAD):\n            try:\n                processed_data = self._invoke_load_processors(\n                    PRE_LOAD, data, many=many, original_data=data, partial=partial\n                )\n            except ValidationError as err:\n                errors = err.normalized_messages()\n                result = None  # type: list | dict | None\n        else:\n            processed_data = data\n        if not errors:\n            # Deserialize data\n            result = self._deserialize(\n                processed_data,\n                error_store=error_store,\n                many=many,\n                partial=partial,\n                unknown=unknown,\n            )\n            # Run field-level validation\n            self._invoke_field_validators(\n                error_store=error_store, data=result, many=many\n            )\n            # Run schema-level validation\n            if self._has_processors(VALIDATES_SCHEMA):\n                field_errors = bool(error_store.errors)\n                self._invoke_schema_validators(\n                    error_store=error_store,\n                    pass_many=True,\n                    data=result,\n                    original_data=data,\n                    many=many,\n                    partial=partial,\n                    field_errors=field_errors,\n                )\n                self._invoke_schema_validators(\n                    error_store=error_store,\n                    pass_many=False,\n                    data=result,\n                    original_data=data,\n                    many=many,\n                    partial=partial,\n                    field_errors=field_errors,",
+          "total_lines": 1238,
+          "shown_lines": "820-900"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "_deserialize",
+          "path": "src/marshmallow"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\base.py:34: def _deserialize(self, value, attr, data, **kwargs):",
+            "src\\marshmallow\\fields.py:370: output = self._deserialize(value, attr, data, **kwargs)",
+            "src\\marshmallow\\fields.py:411: def _deserialize(",
+            "src\\marshmallow\\fields.py:663: def _deserialize(self, value, attr, data, partial=None, **kwargs):",
+            "src\\marshmallow\\fields.py:664: \"\"\"Same as :meth:`Field._deserialize` with additional ``partial`` argument.",
+            "src\\marshmallow\\fields.py:723: def _deserialize(self, value, attr, data, partial=None, **kwargs):",
+            "src\\marshmallow\\fields.py:780: def _deserialize(self, value, attr, data, **kwargs) -> list[typing.Any]:",
+            "src\\marshmallow\\fields.py:860: def _deserialize(self, value, attr, data, **kwargs) -> tuple:",
+            "src\\marshmallow\\fields.py:899: def _deserialize(self, value, attr, data, **kwargs) -> typing.Any:",
+            "src\\marshmallow\\fields.py:927: def _deserialize(self, value, attr, data, **kwargs) -> uuid.UUID | None:",
+            "src\\marshmallow\\fields.py:978: def _deserialize(self, value, attr, data, **kwargs) -> _T | None:",
+            "src\\marshmallow\\fields.py:1201: def _deserialize(self, value, attr, data, **kwargs):",
+            "src\\marshmallow\\fields.py:1264: # or ``_deserialize`` methods. This allows a Schema to dynamically set the",
+            "src\\marshmallow\\fields.py:1285: def _deserialize(self, value, attr, data, **kwargs) -> dt.datetime:",
+            "src\\marshmallow\\fields.py:1329: def _deserialize(self, value, attr, data, **kwargs) -> dt.datetime:",
+            "src\\marshmallow\\fields.py:1330: ret = super()._deserialize(value, attr, data, **kwargs)",
+            "src\\marshmallow\\fields.py:1366: def _deserialize(self, value, attr, data, **kwargs) -> dt.datetime:",
+            "src\\marshmallow\\fields.py:1367: ret = super()._deserialize(value, attr, data, **kwargs)",
+            "src\\marshmallow\\fields.py:1523: def _deserialize(self, value, attr, data, **kwargs):",
+            "src\\marshmallow\\fields.py:1627: def _deserialize(self, value, attr, data, **kwargs):",
+            "src\\marshmallow\\fields.py:1766: def _deserialize(",
+            "src\\marshmallow\\fields.py:1830: def _deserialize(",
+            "src\\marshmallow\\fields.py:1919: def _deserialize(self, value, attr, data, **kwargs):",
+            "src\\marshmallow\\fields.py:1920: val = self.field._deserialize(value, attr, data, **kwargs)",
+            "src\\marshmallow\\fields.py:1968: self._deserialize_method = None",
+            "src\\marshmallow\\fields.py:1977: self._deserialize_method = utils.callable_or_raise(",
+            "src\\marshmallow\\fields.py:1988: def _deserialize(self, value, attr, data, **kwargs):",
+            "src\\marshmallow\\fields.py:1989: if self._deserialize_method is not None:",
+            "src\\marshmallow\\fields.py:1990: return self._deserialize_method(value)",
+            "src\\marshmallow\\fields.py:2043: def _deserialize(self, value, attr, data, **kwargs):",
+            "src\\marshmallow\\fields.py:2078: def _deserialize(self, value, *args, **kwargs):",
+            "src\\marshmallow\\schema.py:584: def _deserialize(",
+            "src\\marshmallow\\schema.py:622: self._deserialize(",
+            "src\\marshmallow\\schema.py:870: result = self._deserialize("
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "end_line": 670,
+          "start_line": 580,
+          "path": "src/marshmallow/schema.py"
+        },
+        "result": {
+          "content": "        \"\"\"\n        serialized = self.dump(obj, many=many)\n        return self.opts.render_module.dumps(serialized, *args, **kwargs)\n\n    def _deserialize(\n        self,\n        data: (\n            typing.Mapping[str, typing.Any]\n            | typing.Iterable[typing.Mapping[str, typing.Any]]\n        ),\n        *,\n        error_store: ErrorStore,\n        many: bool = False,\n        partial=False,\n        unknown=RAISE,\n        index=None,\n    ) -> _T | list[_T]:\n        \"\"\"Deserialize ``data``.\n\n        :param dict data: The data to deserialize.\n        :param ErrorStore error_store: Structure to store errors.\n        :param bool many: `True` if ``data`` should be deserialized as a collection.\n        :param bool|tuple partial: Whether to ignore missing fields and not require\n            any fields declared. Propagates down to ``Nested`` fields as well. If\n            its value is an iterable, only missing fields listed in that iterable\n            will be ignored. Use dot delimiters to specify nested fields.\n        :param unknown: Whether to exclude, include, or raise an error for unknown\n            fields in the data. Use `EXCLUDE`, `INCLUDE` or `RAISE`.\n        :param int index: Index of the item being serialized (for storing errors) if\n            serializing a collection, otherwise `None`.\n        :return: A dictionary of the deserialized data.\n        \"\"\"\n        index_errors = self.opts.index_errors\n        index = index if index_errors else None\n        if many:\n            if not is_collection(data):\n                error_store.store_error([self.error_messages[\"type\"]], index=index)\n                ret_l = []  # type: typing.List[_T]\n            else:\n                ret_l = [\n                    typing.cast(\n                        _T,\n                        self._deserialize(\n                            typing.cast(typing.Mapping[str, typing.Any], d),\n                            error_store=error_store,\n                            many=False,\n                            partial=partial,\n                            unknown=unknown,\n                            index=idx,\n                        ),\n                    )\n                    for idx, d in enumerate(data)\n                ]\n            return ret_l\n        ret_d = self.dict_class()\n        # Check data is a dict\n        if not isinstance(data, Mapping):\n            error_store.store_error([self.error_messages[\"type\"]], index=index)\n        else:\n            partial_is_collection = is_collection(partial)\n            for attr_name, field_obj in self.load_fields.items():\n                field_name = (\n                    field_obj.data_key if field_obj.data_key is not None else attr_name\n                )\n                raw_value = data.get(field_name, missing)\n                if raw_value is missing:\n                    # Ignore missing field if we're allowed to.\n                    if partial is True or (\n                        partial_is_collection and attr_name in partial\n                    ):\n                        continue\n                d_kwargs = {}\n                # Allow partial loading of nested schemas.\n                if partial_is_collection:\n                    prefix = field_name + \".\"\n                    len_prefix = len(prefix)\n                    sub_partial = [\n                        f[len_prefix:] for f in partial if f.startswith(prefix)\n                    ]\n                    d_kwargs[\"partial\"] = sub_partial\n                else:\n                    d_kwargs[\"partial\"] = partial\n\n                def getter(\n                    val, field_obj=field_obj, field_name=field_name, d_kwargs=d_kwargs\n                ):\n                    return field_obj.deserialize(\n                        val,\n                        field_name,\n                        data,\n                        **d_kwargs,",
+          "total_lines": 1238,
+          "shown_lines": "580-670"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "end_line": 410,
+          "start_line": 360,
+          "path": "src/marshmallow/schema.py"
+        },
+        "result": {
+          "content": "        - ``unknown``: Whether to exclude, include, or raise an error for unknown\n            fields in the data. Use `EXCLUDE`, `INCLUDE` or `RAISE`.\n        - ``register``: Whether to register the `Schema` with marshmallow's internal\n            class registry. Must be `True` if you intend to refer to this `Schema`\n            by class name in `Nested` fields. Only set this to `False` when memory\n            usage is critical. Defaults to `True`.\n        \"\"\"\n\n    def __init__(\n        self,\n        *,\n        only: types.StrSequenceOrSet | None = None,\n        exclude: types.StrSequenceOrSet = (),\n        many: bool = False,\n        context: dict | None = None,\n        load_only: types.StrSequenceOrSet = (),\n        dump_only: types.StrSequenceOrSet = (),\n        partial: bool | types.StrSequenceOrSet = False,\n        unknown: str | None = None,\n    ):\n        # Raise error if only or exclude is passed as string, not list of strings\n        if only is not None and not is_collection(only):\n            raise StringNotCollectionError('\"only\" should be a list of strings')\n        if not is_collection(exclude):\n            raise StringNotCollectionError('\"exclude\" should be a list of strings')\n        # copy declared fields from metaclass\n        self.declared_fields = copy.deepcopy(self._declared_fields)\n        self.many = many\n        self.only = only\n        self.exclude = set(self.opts.exclude) | set(exclude)\n        self.ordered = self.opts.ordered\n        self.load_only = set(load_only) or set(self.opts.load_only)\n        self.dump_only = set(dump_only) or set(self.opts.dump_only)\n        self.partial = partial\n        self.unknown = (\n            self.opts.unknown\n            if unknown is None\n            else validate_unknown_parameter_value(unknown)\n        )\n        self.context = context or {}\n        self._normalize_nested_options()\n        #: Dictionary mapping field_names -> :class:`Field` objects\n        self.fields = {}  # type: typing.Dict[str, ma_fields.Field]\n        self.load_fields = {}  # type: typing.Dict[str, ma_fields.Field]\n        self.dump_fields = {}  # type: typing.Dict[str, ma_fields.Field]\n        self._init_fields()\n        messages = {}\n        messages.update(self._default_error_messages)\n        for cls in reversed(self.__class__.__mro__):\n            messages.update(getattr(cls, \"error_messages\", {}))\n        messages.update(self.error_messages or {})",
+          "total_lines": 1238,
+          "shown_lines": "360-410"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "partial",
+          "path": "tests"
+        },
+        "result": {
+          "matches": [
+            "tests\\base.py:57: functools.partial(fields.Enum, GenderEnum),",
+            "tests\\base.py:58: functools.partial(fields.Enum, HairColorEnum, by_value=fields.String),",
+            "tests\\base.py:59: functools.partial(fields.Enum, GenderEnum, by_value=fields.Integer),",
+            "tests\\test_decorators.py:19: @pytest.mark.parametrize(\"partial_val\", (True, False))",
+            "tests\\test_decorators.py:20: def test_decorated_processors(partial_val):",
+            "tests\\test_decorators.py:50: def remove_envelope(self, data, many, partial, **kwargs):",
+            "tests\\test_decorators.py:51: assert partial is partial_val",
+            "tests\\test_decorators.py:61: def remove_tag(self, item, partial, **kwargs):",
+            "tests\\test_decorators.py:62: assert partial is partial_val",
+            "tests\\test_decorators.py:69: def decrement_value(self, item, partial, **kwargs):",
+            "tests\\test_decorators.py:70: assert partial is partial_val",
+            "tests\\test_decorators.py:75: schema = ExampleSchema(partial=partial_val)",
+            "tests\\test_decorators.py:586: def validate_original(self, data, original_data, partial, **kwargs):",
+            "tests\\test_deserialization.py:1860: @pytest.mark.parametrize(\"partial_schema\", [True, False])",
+            "tests\\test_deserialization.py:1861: def test_partial_deserialization(self, partial_schema):",
+            "tests\\test_deserialization.py:1868: if partial_schema:",
+            "tests\\test_deserialization.py:1869: schema_args[\"partial\"] = True",
+            "tests\\test_deserialization.py:1871: load_args[\"partial\"] = True",
+            "tests\\test_deserialization.py:1877: def test_partial_fields_deserialization(self):",
+            "tests\\test_deserialization.py:1884: MySchema().load({\"foo\": 3}, partial=tuple())",
+            "tests\\test_deserialization.py:1890: data = MySchema().load({\"foo\": 3}, partial=(\"bar\", \"baz\"))",
+            "tests\\test_deserialization.py:1895: data = MySchema(partial=True).load({\"foo\": 3}, partial=(\"bar\", \"baz\"))",
+            "tests\\test_deserialization.py:1900: def test_partial_fields_validation(self):",
+            "tests\\test_deserialization.py:1906: errors = MySchema().validate({\"foo\": 3}, partial=tuple())",
+            "tests\\test_deserialization.py:1910: errors = MySchema().validate({\"foo\": 3}, partial=(\"bar\", \"baz\"))",
+            "tests\\test_deserialization.py:1913: errors = MySchema(partial=True).validate({\"foo\": 3}, partial=(\"bar\", \"baz\"))",
+            "tests\\test_deserialization.py:2179: def test_nested_partial_load(self):",
+            "tests\\test_deserialization.py:2189: result = SchemaB().load(b_dict, partial=True)",
+            "tests\\test_deserialization.py:2191: # Non partial loading should complain about missing values.",
+            "tests\\test_deserialization.py:2199: def test_deeply_nested_partial_load(self):",
+            "tests\\test_deserialization.py:2212: result = SchemaA().load(a_dict, partial=True)",
+            "tests\\test_deserialization.py:2214: # Non partial loading should complain about missing values.",
+            "tests\\test_deserialization.py:2223: def test_nested_partial_tuple(self):",
+            "tests\\test_deserialization.py:2233: result = SchemaB().load(b_dict, partial=(\"z.x\",))",
+            "tests\\test_deserialization.py:2237: SchemaB().load(b_dict, partial=(\"z.y\",))",
+            "tests\\test_fields.py:526: def test_list_nested_partial_propagated_to_nested(self):",
+            "tests\\test_fields.py:537: result = Family(partial=val).load(payload)",
+            "tests\\test_fields.py:539: result = Family().load(payload, partial=val)",
+            "tests\\test_fields.py:544: result = Family(partial=val).load(payload)",
+            "tests\\test_fields.py:549: result = Family().load(payload, partial=val)",
+            "tests\\test_fields.py:575: def test_tuple_nested_partial_propagated_to_nested(self):",
+            "tests\\test_fields.py:586: result = Family(partial=val).load(payload)",
+            "tests\\test_fields.py:588: result = Family().load(payload, partial=val)",
+            "tests\\test_fields.py:593: result = Family(partial=val).load(payload)",
+            "tests\\test_fields.py:598: result = Family().load(payload, partial=val)",
+            "tests\\test_fields.py:637: def test_dict_nested_partial_propagated_to_nested(self):",
+            "tests\\test_fields.py:648: result = Family(partial=val).load(payload)",
+            "tests\\test_fields.py:650: result = Family().load(payload, partial=val)",
+            "tests\\test_fields.py:655: result = Family(partial=val).load(payload)",
+            "tests\\test_fields.py:662: result = Family().load(payload, partial=val)",
+            "tests\\test_schema.py:829: sch.load(data, partial=True)",
+            "tests\\test_schema.py:1808: def test_load_with_custom_error_handler_and_partially_valid_data(self):",
+            "tests\\test_utils.py:3: from functools import partial",
+            "tests\\test_utils.py:260: f2 = partial(f1, \"baz\")"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "end_line": 2240,
+          "path": "tests/test_deserialization.py",
+          "start_line": 2170
+        },
+        "result": {
+          "content": "\n        errors = Sch().validate({\"lamb\": False, \"equal\": False})\n        assert not errors\n        errors = Sch().validate({\"lamb\": True, \"equal\": True})\n        assert \"lamb\" in errors\n        assert errors[\"lamb\"] == [\"Invalid value.\"]\n        assert \"equal\" in errors\n        assert errors[\"equal\"] == [\"Must be equal to False.\"]\n\n    def test_nested_partial_load(self):\n        class SchemaA(Schema):\n            x = fields.Integer(required=True)\n            y = fields.Integer()\n\n        class SchemaB(Schema):\n            z = fields.Nested(SchemaA)\n\n        b_dict = {\"z\": {\"y\": 42}}\n        # Partial loading shouldn't generate any errors.\n        result = SchemaB().load(b_dict, partial=True)\n        assert result[\"z\"][\"y\"] == 42\n        # Non partial loading should complain about missing values.\n        with pytest.raises(ValidationError) as excinfo:\n            SchemaB().load(b_dict)\n        data, errors = excinfo.value.valid_data, excinfo.value.messages\n        assert data[\"z\"][\"y\"] == 42\n        assert \"z\" in errors\n        assert \"x\" in errors[\"z\"]\n\n    def test_deeply_nested_partial_load(self):\n        class SchemaC(Schema):\n            x = fields.Integer(required=True)\n            y = fields.Integer()\n\n        class SchemaB(Schema):\n            c = fields.Nested(SchemaC)\n\n        class SchemaA(Schema):\n            b = fields.Nested(SchemaB)\n\n        a_dict = {\"b\": {\"c\": {\"y\": 42}}}\n        # Partial loading shouldn't generate any errors.\n        result = SchemaA().load(a_dict, partial=True)\n        assert result[\"b\"][\"c\"][\"y\"] == 42\n        # Non partial loading should complain about missing values.\n        with pytest.raises(ValidationError) as excinfo:\n            SchemaA().load(a_dict)\n        data, errors = excinfo.value.valid_data, excinfo.value.messages\n        assert data[\"b\"][\"c\"][\"y\"] == 42\n        assert \"b\" in errors\n        assert \"c\" in errors[\"b\"]\n        assert \"x\" in errors[\"b\"][\"c\"]\n\n    def test_nested_partial_tuple(self):\n        class SchemaA(Schema):\n            x = fields.Integer(required=True)\n            y = fields.Integer(required=True)\n\n        class SchemaB(Schema):\n            z = fields.Nested(SchemaA)\n\n        b_dict = {\"z\": {\"y\": 42}}\n        # If we ignore the missing z.x, z.y should still load.\n        result = SchemaB().load(b_dict, partial=(\"z.x\",))\n        assert result[\"z\"][\"y\"] == 42\n        # If we ignore a missing z.y we should get a validation error.\n        with pytest.raises(ValidationError):\n            SchemaB().load(b_dict, partial=(\"z.y\",))\n\n\n@pytest.mark.parametrize(\"FieldClass\", ALL_FIELDS)",
+          "total_lines": 2282,
+          "shown_lines": "2170-2240"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "end_line": 670,
+          "start_line": 620,
+          "path": "src/marshmallow/fields.py"
+        },
+        "result": {
+          "content": "                else:\n                    schema_class = class_registry.get_class(nested)\n                self._schema = schema_class(\n                    many=self.many,\n                    only=self.only,\n                    exclude=self.exclude,\n                    context=context,\n                    load_only=self._nested_normalized_option(\"load_only\"),\n                    dump_only=self._nested_normalized_option(\"dump_only\"),\n                )\n        return self._schema\n\n    def _nested_normalized_option(self, option_name: str) -> list[str]:\n        nested_field = \"%s.\" % self.name\n        return [\n            field.split(nested_field, 1)[1]\n            for field in getattr(self.root, option_name, set())\n            if field.startswith(nested_field)\n        ]\n\n    def _serialize(self, nested_obj, attr, obj, **kwargs):\n        # Load up the schema first. This allows a RegistryError to be raised\n        # if an invalid schema name was passed\n        schema = self.schema\n        if nested_obj is None:\n            return None\n        many = schema.many or self.many\n        return schema.dump(nested_obj, many=many)\n\n    def _test_collection(self, value):\n        many = self.schema.many or self.many\n        if many and not utils.is_collection(value):\n            raise self.make_error(\"type\", input=value, type=value.__class__.__name__)\n\n    def _load(self, value, data, partial=None):\n        try:\n            valid_data = self.schema.load(value, unknown=self.unknown, partial=partial)\n        except ValidationError as error:\n            raise ValidationError(\n                error.messages, valid_data=error.valid_data\n            ) from error\n        return valid_data\n\n    def _deserialize(self, value, attr, data, partial=None, **kwargs):\n        \"\"\"Same as :meth:`Field._deserialize` with additional ``partial`` argument.\n\n        :param bool|tuple partial: For nested schemas, the ``partial``\n            parameter passed to `Schema.load`.\n\n        .. versionchanged:: 3.0.0\n            Add ``partial`` parameter.",
+          "total_lines": 2114,
+          "shown_lines": "620-670"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "write_test",
+        "args": {
+          "content": "import pytest\nfrom marshmallow import Schema, fields, validate, ValidationError\n\ndef test_nested_schema_with_preset_partial():\n    class IbanWhitelistSchema(Schema):\n        id = fields.Int(required=True)\n        user_id = fields.Int(required=True)\n        auto_withdrawal_bank_account_id = fields.Int(required=True, allow_none=True)\n        deposit_bank_account_id = fields.Int(required=True, allow_none=True)\n        external_id = fields.Str(allow_none=True)\n\n    class IbanWhitelistCreateSchema(Schema):\n        iban_data = fields.Nested(\n            IbanWhitelistSchema(\n                partial=[\n                    'auto_withdrawal_bank_account_id',\n                    'deposit_bank_account_id',\n                ],\n            ),\n            required=True,\n        )\n        changed_by_id = fields.Int(required=True)\n\n    schema = IbanWhitelistCreateSchema()\n    iban_data = {\n        'user_id': 4186806,\n        'external_id': 'wp5rJy31NMfyEJNDvoqXhbwLlRaEGyCrwWWdy',\n    }\n    data = {\n        'iban_data': iban_data,\n        'changed_by_id': 4186806,\n    }\n\n    # Should not raise ValidationError about missing auto_withdrawal_bank_account_id or deposit_bank_account_id\n    result = schema.load(data)\n    assert result['changed_by_id'] == 4186806\n"
+        },
+        "result": {
+          "ok": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "run_written_test",
+        "args": {},
+        "result": {
+          "outcome": "failed",
+          "message": "tests\\test_agent_generated.py:35: in test_nested_schema_with_preset_partial\n    result = schema.load(data)\n             ^^^^^^^^^^^^^^^^^\nsrc\\marshmallow\\schema.py:731: in load\n    return self._do_load(\nsrc\\marshmallow\\schema.py:918: in _do_load\n    raise exc\nE   marshmallow.exceptions.ValidationError: {'iban_data': {'auto_withdrawal_bank_account_id': ['Missing data for required field.'], 'id': ['Missing data for required field.'], 'deposit_bank_account_id': ['Missing data for required field.']}}"
+        },
+        "blocked_duplicate": false
+      }
+    ],
+    "tool_call_count": 12,
+    "total_tokens": 112275,
+    "hit_cap": true,
+    "valid_reproduction": false,
+    "gold_check_result": {
+      "outcome": "failed",
+      "message": "tests\\test_agent_generated.py:35: in test_nested_schema_with_preset_partial\n    result = schema.load(data)\n             ^^^^^^^^^^^^^^^^^\nsrc\\marshmallow\\schema.py:731: in load\n    return self._do_load(\nsrc\\marshmallow\\schema.py:918: in _do_load\n    raise exc\nE   marshmallow.exceptions.ValidationError: {'iban_data': {'id': ['Missing data for required field.']}}"
+    },
+    "reproduce_attempts": 2
+  },
+  "coder_rounds": []
+}

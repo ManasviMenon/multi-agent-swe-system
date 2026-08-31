@@ -628,3 +628,108 @@ validation-before-full-run discipline affordable.
   plan error it would otherwise have caught through its own reading -- worth watching
   for in the transcripts (does the Coder's own tool-call count drop sharply once a
   Planner is added, and does that correlate with worse outcomes on any ticket).
+
+## Phase 4 — two more harness bugs found (7th and 8th), one Planner-specific
+
+**7th (already covered above, restated for continuity):** `verify_against_gold()`'s
+stale editable-install pointer, found during Phase 4 smoke-testing but retroactively
+invalidating 19/25 of the original Phase 3 tickets. See the correction section above.
+
+**8th, Planner-specific: `run_agent_loop()` silently discarded the model's final
+answer whenever it hit its tool-call cap.** The loop broke out the instant
+`tool_call_count` reached `max_tool_calls`, without sending back results already
+collected in that final batch and without giving the model a chance to conclude --
+`final_message` fell back to the previous interaction's `output_text`, which is always
+empty for a pure function-call turn. Harmless for the Tester/Coder, which only read
+`transcript["steps"]` (already populated correctly) and never touch `final_message`.
+**Catastrophic for the Planner**, whose entire output IS `final_message`.
+
+Found by actually reading the transcripts rather than trusting the summary numbers:
+the first Phase 4 validation-10 run showed 3 of 9 previously-resolved tickets
+regressing, which looked like "the Planner is actively harmful." Checking the
+Planner's own transcripts showed why: **all 10/10 validation tickets hit exactly
+15/15 tool calls with `hit_cap=True` and an empty plan.** The Planner had never once
+produced a plan -- Phase 4 as validated up to that point was silently just re-running
+Phase 3's pipeline with 15 wasted calls tacked on front, and the "3 regressions" were
+ordinary Coder/Tester non-determinism, not the Planner's effect (it had no effect).
+
+Fixed by sending back whatever results were already collected before the cap was hit
+(previously discarded even when non-empty), then -- if the model still wants more
+tools after seeing them -- giving one explicit final turn with no tools offered to
+force a real answer. Verified in isolation before spending validation quota on it: a
+single fresh Planner run on `marshmallow-946` produced a genuine 1547-character plan
+with concrete root-cause analysis, still within its original 15-call budget. The
+entire validation-10 run was archived (`phase4_run.v1-planner-cap-blackout.jsonl`) and
+redone from scratch with the fix in place.
+
+## Phase 4 — final result: full 25-ticket run
+
+**8/25 resolved — one fewer than Phase 3's corrected 9/25.** Full clean pass, all 25
+tickets, one run, current code (both the 7th and 8th bugs fixed):
+
+| Status | Count | Tickets |
+|---|---|---|
+| Resolved | 8 | `1369, 1378, 1506, 1808, 2249, 2270, 2868, 2870` |
+| `no_reproducing_test` | 8 | `1350, 1404, 1424, 2118, 2149, 2924, 2936, 2985` |
+| Attempted, not resolved | 9 | everything else |
+
+Direct comparison against Phase 3's corrected 9/25:
+
+| | Count | Tickets |
+|---|---|---|
+| Lost (P3 resolved, P4 did not) | 1 | `2821` |
+| Gained (P4 resolved, P3 did not) | 0 | — |
+| Held (resolved in both) | 8 | `1369, 1378, 1506, 1808, 2249, 2270, 2868, 2870` |
+
+**The risk named in advance in section 4 of the design ("does adding a Planner
+regress any ticket Phase 3 already resolved without one?") is the headline finding.**
+`marshmallow-2821` regressed. Checked directly, per the same design's own instruction
+to watch for it: the Planner's plan for `2821` was factually correct (it correctly
+named `RegexMemoizer._regex_generator` in `marshmallow.validate.URL` and the right
+general fix -- Unicode support in the hostname regex for IDN URLs), and the Coder's
+resulting attempt caused **zero PASS_TO_PASS regressions** -- it simply didn't fully
+solve a genuinely hard Unicode/IDN regex problem in 3 rounds. That reads as ordinary
+Coder-level difficulty on a hard ticket (the Coder is not run at temperature 0; a
+Phase-3-only replay on a different day could plausibly fail here too) rather than the
+plan actively misleading the Coder. One regression out of 9 watched tickets, with no
+evidence of the specific "too-confident-wrong" failure mode the design worried about,
+is a mild result rather than an alarming one -- but it is a real cost, not zero.
+
+**The named, falsifiable prediction failed outright.** The design predicted 3/9
+category-D tickets would resolve (`946`, `1384`, `2227` specifically), concentrated in
+the diffuse-bug subgroup. Actual outcome for all 9 named tickets:
+
+| Ticket | Subgroup | Predicted | Actual |
+|---|---|---|---|
+| `946` | diffuse | resolve | attempted, not resolved |
+| `1384` | diffuse | resolve | attempted, not resolved (no source changes) |
+| `1404` | diffuse | resolve | no_reproducing_test |
+| `1369` | refactor | not predicted | resolved -- **but already resolved by Phase 3 alone**, moot for Phase 4 credit |
+| `2924` | refactor | not predicted | no_reproducing_test |
+| `2227` | refactor | **resolve** | attempted, not resolved |
+| `1312` | new-feature | not predicted | attempted, not resolved |
+| `1768` | new-feature | not predicted | attempted, not resolved |
+| `1378` | new-feature | not predicted | resolved -- **but already resolved by Phase 3 alone**, moot for Phase 4 credit |
+
+Of the 7 tickets where Phase 4 could actually earn credit (excluding `1369`/`1378`,
+both already resolved before Phase 4 ran), **zero resolved.** Not "a different 3
+resolved than predicted" (which the falsification clause explicitly said would still
+be an interesting, salvageable finding) -- genuinely zero. The decomposition-helps
+theory, as implemented and prompted here, does not hold on this ticket set.
+
+**Cost, reported as promised:** the Planner adds ~14.4 calls and ~92K tokens per
+ticket on average (2.31M tokens across all 25, 27.6% of the full pipeline's 8.37M
+total tokens) on top of Tester+Coder. For zero net-new recoveries and one regression,
+Phase 4 did not earn its added cost on this ticket set.
+
+**Honest conclusion:** the Planner mechanism itself works correctly (verified: it
+produces substantive, factually-grounded plans that correctly locate the relevant
+code, not generic filler -- confirmed by inspecting `2821`'s and `946`'s plans
+directly). The failure is not mechanical, it's that a correct plan didn't translate
+into a successful fix for tickets this Coder+model combination couldn't already solve
+unaided. This is a real negative result, not a broken experiment -- the two harness
+bugs that could have manufactured a false negative (stale install pointer, silently
+empty plans) were both found and fixed before this number was reported, and the
+regression was individually inspected rather than assumed. Per the same discipline as
+Phase 3: this stands as reported rather than being quietly re-run in search of a
+better number.

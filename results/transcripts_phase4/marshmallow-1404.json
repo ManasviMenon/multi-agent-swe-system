@@ -1,0 +1,772 @@
+{
+  "ticket_id": "marshmallow-1404",
+  "planner": {
+    "steps": [
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "context",
+          "path": "src"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:96: its value will be present in the deserialized object. In the context of an",
+            "src\\marshmallow\\fields.py:414: def context(self):",
+            "src\\marshmallow\\fields.py:415: \"\"\"The context dictionary for the parent :class:`Schema`.\"\"\"",
+            "src\\marshmallow\\fields.py:416: return self.parent.context",
+            "src\\marshmallow\\fields.py:506: # Inherit context from parent.",
+            "src\\marshmallow\\fields.py:507: context = getattr(self.parent, \"context\", {})",
+            "src\\marshmallow\\fields.py:510: self._schema.context.update(context)",
+            "src\\marshmallow\\fields.py:542: context=context,",
+            "src\\marshmallow\\fields.py:987: the current thread's context.",
+            "src\\marshmallow\\fields.py:1628: Removed optional ``context`` parameter on methods. Use ``self.context`` instead.",
+            "src\\marshmallow\\fields.py:1671: to be serialized. It can also optionally take a ``context`` argument,",
+            "src\\marshmallow\\fields.py:1672: which is a dictionary of context variables passed to the serializer.",
+            "src\\marshmallow\\fields.py:1677: to be deserialized. It can also optionally take a ``context`` argument,",
+            "src\\marshmallow\\fields.py:1678: which is a dictionary of context variables passed to the deserializer.",
+            "src\\marshmallow\\fields.py:1720: if self.parent.context is None:",
+            "src\\marshmallow\\fields.py:1721: msg = \"No context available for Function field {!r}\".format(attr)",
+            "src\\marshmallow\\fields.py:1723: return func(value, self.parent.context)",
+            "src\\marshmallow\\schema.py:263: :param dict context: Optional context passed to :class:`fields.Method` and",
+            "src\\marshmallow\\schema.py:357: context=None,",
+            "src\\marshmallow\\schema.py:378: self.context = context or {}",
+            "src\\marshmallow\\validate.py:383: evaluates to True in a Boolean context. Any additional keyword"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src",
+          "pattern": "copy"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:4: import copy",
+            "src\\marshmallow\\fields.py:220: def __deepcopy__(self, memo):",
+            "src\\marshmallow\\fields.py:221: return copy.copy(self)",
+            "src\\marshmallow\\fields.py:509: self._schema = copy.deepcopy(self.nested)",
+            "src\\marshmallow\\fields.py:684: self.inner = copy.deepcopy(self.inner)",
+            "src\\marshmallow\\fields.py:767: field = copy.deepcopy(field)",
+            "src\\marshmallow\\fields.py:1463: self.value_field = copy.deepcopy(self.value_field)",
+            "src\\marshmallow\\fields.py:1469: self.key_field = copy.deepcopy(self.key_field)",
+            "src\\marshmallow\\orderedset.py:5: # obtaining a copy of this software and associated documentation files",
+            "src\\marshmallow\\orderedset.py:7: # including without limitation the rights to use, copy, modify, merge,",
+            "src\\marshmallow\\orderedset.py:12: #     The above copyright notice and this permission notice shall be",
+            "src\\marshmallow\\schema.py:8: import copy",
+            "src\\marshmallow\\schema.py:368: # copy declared fields from metaclass",
+            "src\\marshmallow\\schema.py:369: self.declared_fields = copy.deepcopy(self._declared_fields)",
+            "src\\marshmallow\\schema.py:430: attrs = fields.copy()",
+            "src\\marshmallow\\utils.py:25: def __copy__(self):",
+            "src\\marshmallow\\utils.py:28: def __deepcopy__(self, _):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "start_line": 490,
+          "end_line": 530,
+          "path": "src/marshmallow/fields.py"
+        },
+        "result": {
+          "content": "        self.nested = nested\n        self.only = only\n        self.exclude = exclude\n        self.many = many\n        self.unknown = unknown\n        self._schema = None  # Cached Schema instance\n        super().__init__(default=default, **kwargs)\n\n    @property\n    def schema(self):\n        \"\"\"The nested Schema object.\n\n        .. versionchanged:: 1.0.0\n            Renamed from `serializer` to `schema`.\n        \"\"\"\n        if not self._schema:\n            # Inherit context from parent.\n            context = getattr(self.parent, \"context\", {})\n            if isinstance(self.nested, SchemaABC):\n                self._schema = copy.deepcopy(self.nested)\n                self._schema.context.update(context)\n                # Respect only and exclude passed from parent and re-initialize fields\n                set_class = self._schema.set_class\n                if self.only is not None:\n                    if self._schema.only is not None:\n                        original = self._schema.only\n                    else:  # only=None -> all fields\n                        original = self._schema.fields.keys()\n                    self._schema.only = set_class(self.only).intersection(original)\n                if self.exclude:\n                    original = self._schema.exclude\n                    self._schema.exclude = set_class(self.exclude).union(original)\n                self._schema._init_fields()\n            else:\n                if isinstance(self.nested, type) and issubclass(self.nested, SchemaABC):\n                    schema_class = self.nested\n                elif not isinstance(self.nested, (str, bytes)):\n                    raise ValueError(\n                        \"Nested fields must be passed a \"\n                        \"Schema, not {}.\".format(self.nested.__class__)\n                    )",
+          "total_lines": 1785,
+          "shown_lines": "490-530"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "tests",
+          "pattern": "nested"
+        },
+        "result": {
+          "matches": [
+            "tests\\test_decorators.py:400: def test_validator_nested_many_invalid_data(self):",
+            "tests\\test_decorators.py:405: nested = fields.Nested(NestedSchema, required=True, many=True)",
+            "tests\\test_decorators.py:408: errors = schema.validate({\"nested\": [1]})",
+            "tests\\test_decorators.py:410: assert \"nested\" in errors",
+            "tests\\test_decorators.py:411: assert 0 in errors[\"nested\"]",
+            "tests\\test_decorators.py:412: assert errors[\"nested\"][0] == {\"_schema\": [\"Invalid input type.\"]}",
+            "tests\\test_decorators.py:414: def test_validator_nested_many_schema_error(self):",
+            "tests\\test_decorators.py:423: nested = fields.Nested(NestedSchema, required=True, many=True)",
+            "tests\\test_decorators.py:426: errors = schema.validate({\"nested\": [{\"foo\": 1}]})",
+            "tests\\test_decorators.py:428: assert \"nested\" in errors",
+            "tests\\test_decorators.py:429: assert 0 in errors[\"nested\"]",
+            "tests\\test_decorators.py:430: assert errors[\"nested\"][0] == {\"_schema\": [\"This will never work.\"]}",
+            "tests\\test_decorators.py:432: def test_validator_nested_many_field_error(self):",
+            "tests\\test_decorators.py:441: nested = fields.Nested(NestedSchema, required=True, many=True)",
+            "tests\\test_decorators.py:444: errors = schema.validate({\"nested\": [{\"foo\": 1}]})",
+            "tests\\test_decorators.py:446: assert \"nested\" in errors",
+            "tests\\test_decorators.py:447: assert 0 in errors[\"nested\"]",
+            "tests\\test_decorators.py:448: assert errors[\"nested\"][0] == {\"foo\": [\"This will never work.\"]}",
+            "tests\\test_decorators.py:458: def test_validator_nested_many_pass_original_and_pass_many(",
+            "tests\\test_decorators.py:472: nested = fields.Nested(",
+            "tests\\test_decorators.py:477: errors = schema.validate({\"nested\": data})",
+            "tests\\test_decorators.py:478: error = errors[\"nested\"] if pass_many else errors[\"nested\"][0]",
+            "tests\\test_decorators.py:556: nested = fields.Nested(NestedSchema)",
+            "tests\\test_decorators.py:559: def validate_nested_foo(self, data, **kwargs):",
+            "tests\\test_decorators.py:560: raise ValidationError({\"nested\": {\"foo\": [\"Invalid foo\"]}})",
+            "tests\\test_decorators.py:563: def validate_nested_bar_1(self, data, **kwargs):",
+            "tests\\test_decorators.py:564: raise ValidationError({\"nested\": {\"bar\": [\"Invalid bar 1\"]}})",
+            "tests\\test_decorators.py:567: def validate_nested_bar_2(self, data, **kwargs):",
+            "tests\\test_decorators.py:568: raise ValidationError({\"nested\": {\"bar\": [\"Invalid bar 2\"]}})",
+            "tests\\test_decorators.py:571: MySchema().load({\"nested\": {\"foo\": 1, \"bar\": 2}})",
+            "tests\\test_decorators.py:574: \"nested\": {",
+            "tests\\test_decorators.py:795: raise ValidationError({\"foo\": \"error\"}, \"nested_field\")",
+            "tests\\test_decorators.py:800: assert exc.value.messages == {\"nested_field\": {\"foo\": \"error\"}}",
+            "tests\\test_decorators.py:824: def __init__(self, nested):",
+            "tests\\test_decorators.py:825: self.nested = nested",
+            "tests\\test_decorators.py:828: example = Example(nested=[Nested(x) for x in range(1)])",
+            "tests\\test_decorators.py:833: ([example, {\"foo\": 0}, example.nested[0]],),",
+            "tests\\test_decorators.py:835: def test_decorator_post_dump_with_nested_original_and_pass_many(",
+            "tests\\test_decorators.py:859: nested = fields.Nested(NestedSchema, required=True, many=True)",
+            "tests\\test_decorators.py:862: assert schema.dump(data) == {\"nested\": [{\"foo\": 0}]}",
+            "tests\\test_decorators.py:867: ([{\"nested\": [{\"foo\": 0}]}, {\"foo\": 0}, {\"foo\": 0}],),",
+            "tests\\test_decorators.py:869: def test_decorator_post_load_with_nested_original_and_pass_many(",
+            "tests\\test_decorators.py:893: nested = fields.Nested(NestedSchema, required=True, many=True)",
+            "tests\\test_deserialization.py:1122: def test_nested_single_deserialization_to_dict(self):",
+            "tests\\test_deserialization.py:1137: def test_nested_list_deserialization_to_dict(self):",
+            "tests\\test_deserialization.py:1155: def test_nested_single_none_not_allowed(self):",
+            "tests\\test_deserialization.py:1167: def test_nested_many_non_not_allowed(self):",
+            "tests\\test_deserialization.py:1179: def test_nested_single_required_missing(self):",
+            "tests\\test_deserialization.py:1191: def test_nested_many_required_missing(self):",
+            "tests\\test_deserialization.py:1203: def test_nested_only_basestring(self):",
+            "tests\\test_deserialization.py:1215: def test_nested_only_basestring_with_list_data(self):",
+            "tests\\test_deserialization.py:1228: def test_nested_none_deserialization(self):",
+            "tests\\test_deserialization.py:1716: def test_nested_data_is_stored_when_validation_fails(self):",
+            "tests\\test_deserialization.py:1753: def test_nested_partial_load(self):",
+            "tests\\test_deserialization.py:1773: def test_deeply_nested_partial_load(self):",
+            "tests\\test_deserialization.py:1797: def test_nested_partial_tuple(self):",
+            "tests\\test_fields.py:254: def test_nested_only_and_exclude_as_string(self, param):",
+            "tests\\test_fields.py:260: def test_nested_unknown_override(self, schema_unknown, field_unknown):",
+            "tests\\test_fields.py:266: nested = fields.Nested(NestedSchema, unknown=field_unknown)",
+            "tests\\test_fields.py:271: assert MySchema().load({\"nested\": {\"x\": 1}}) == {\"nested\": {}}",
+            "tests\\test_fields.py:275: assert MySchema().load({\"nested\": {\"x\": 1}}) == {\"nested\": {\"x\": 1}}",
+            "tests\\test_fields.py:278: MySchema().load({\"nested\": {\"x\": 1}})",
+            "tests\\test_fields.py:283: def test_list_nested_only_exclude_dump_only_load_only_propagated_to_nested(",
+            "tests\\test_fields.py:303: def test_list_nested_class_only_and_exclude_merged_with_nested(",
+            "tests\\test_fields.py:320: def test_list_nested_class_multiple_dumps(self):",
+            "tests\\test_fields.py:344: def test_list_nested_instance_only_and_exclude_merged_with_nested(",
+            "tests\\test_fields.py:363: def test_list_nested_instance_multiple_dumps(self):",
+            "tests\\test_fields.py:380: def test_list_nested_partial_propagated_to_nested(self):",
+            "tests\\test_fields.py:411: def test_tuple_nested_only_exclude_dump_only_load_only_propagated_to_nested(",
+            "tests\\test_fields.py:429: def test_tuple_nested_partial_propagated_to_nested(self):",
+            "tests\\test_fields.py:460: def test_dict_nested_only_exclude_dump_only_load_only_propagated_to_nested(",
+            "tests\\test_fields.py:477: def test_dict_nested_only_and_exclude_merged_with_nested(self, param, expected):",
+            "tests\\test_fields.py:491: def test_dict_nested_partial_propagated_to_nested(self):",
+            "tests\\test_options.py:137: def test_nested_field_order_with_only_arg_is_maintained_on_dump(self, user):",
+            "tests\\test_options.py:152: def test_nested_field_order_with_only_arg_is_maintained_on_load(self):",
+            "tests\\test_options.py:179: def test_nested_field_order_with_exclude_arg_is_maintained(self, user):",
+            "tests\\test_registry.py:163: def test_invalid_class_name_in_nested_field_raises_error(user):",
+            "tests\\test_registry.py:184: # Using a nested field with the class name fails because there are",
+            "tests\\test_schema.py:263: def test_load_many_in_nested_invalid_input_type(val):",
+            "tests\\test_schema.py:281: def test_load_many_in_nested_empty_collection(val):",
+            "tests\\test_schema.py:349: def test_nested_on_bind_field_hook():",
+            "tests\\test_schema.py:801: def test_nested_custom_set_in_exclude_reusing_schema():",
+            "tests\\test_schema.py:829: def test_nested_only():",
+            "tests\\test_schema.py:852: def test_nested_only_inheritance():",
+            "tests\\test_schema.py:875: def test_nested_only_empty_inheritance():",
+            "tests\\test_schema.py:898: def test_nested_exclude():",
+            "tests\\test_schema.py:921: def test_nested_exclude_inheritance():",
+            "tests\\test_schema.py:944: def test_nested_only_and_exclude():",
+            "tests\\test_schema.py:967: def test_nested_only_then_exclude_inheritance():",
+            "tests\\test_schema.py:990: def test_nested_exclude_then_only_inheritance():",
+            "tests\\test_schema.py:1013: def test_nested_exclude_and_only_inheritance():",
+            "tests\\test_schema.py:1045: def test_nested_instance_many():",
+            "tests\\test_schema.py:1065: def test_nested_instance_only():",
+            "tests\\test_schema.py:1082: def test_nested_instance_exclude():",
+            "tests\\test_schema.py:1099: def test_meta_nested_exclude():",
+            "tests\\test_schema.py:1138: def test_nested_custom_set_not_implementing_getitem():",
+            "tests\\test_schema.py:1194: def test_deeply_nested_only_and_exclude():",
+            "tests\\test_schema.py:1394: def test_nested_constructor_only_and_exclude():",
+            "tests\\test_schema.py:1542: def test_nested_with_sets():",
+            "tests\\test_schema.py:1903: def test_nested_many_with_missing_attribute(self, user):"
+          ],
+          "truncated": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "tests",
+          "pattern": "context"
+        },
+        "result": {
+          "matches": [
+            "tests\\test_deserialization.py:798: def test_function_field_deserialization_with_context(self):",
+            "tests\\test_deserialization.py:804: deserialize=lambda val, context: val.upper() + context[\"key\"],",
+            "tests\\test_deserialization.py:806: field.parent = Parent(context={\"key\": \"BAR\"})",
+            "tests\\test_schema.py:355: field_obj.metadata[\"fname\"] = self.context[\"fname\"]",
+            "tests\\test_schema.py:359: schema1 = MySchema(context={\"fname\": \"foobar\"})",
+            "tests\\test_schema.py:360: schema2 = MySchema(context={\"fname\": \"quxquux\"})",
+            "tests\\test_schema.py:2306: return self.context[\"blog\"].user.name == user.name",
+            "tests\\test_schema.py:2310: def test_context_method(self):",
+            "tests\\test_schema.py:2313: context = {\"blog\": blog}",
+            "tests\\test_schema.py:2315: serializer.context = context",
+            "tests\\test_schema.py:2322: def test_context_method_function(self):",
+            "tests\\test_schema.py:2327: context = {\"blog\": blog}",
+            "tests\\test_schema.py:2329: serializer.context = context",
+            "tests\\test_schema.py:2336: def test_function_field_raises_error_when_context_not_available(self):",
+            "tests\\test_schema.py:2343: # no context",
+            "tests\\test_schema.py:2344: serializer.context = None",
+            "tests\\test_schema.py:2345: msg = \"No context available for Function field {!r}\".format(\"is_collab\")",
+            "tests\\test_schema.py:2362: # no context",
+            "tests\\test_schema.py:2363: serializer.context = None",
+            "tests\\test_schema.py:2367: def test_fields_context(self):",
+            "tests\\test_schema.py:2372: ser.context[\"foo\"] = 42",
+            "tests\\test_schema.py:2374: assert ser.fields[\"name\"].context == {\"foo\": 42}",
+            "tests\\test_schema.py:2376: def test_nested_fields_inherit_context(self):",
+            "tests\\test_schema.py:2384: ser.context[\"info\"] = \"i like bikes\"",
+            "tests\\test_schema.py:2390: def test_nested_list_fields_inherit_context(self):",
+            "tests\\test_schema.py:2396: if \"foo_context\" not in self.context:",
+            "tests\\test_schema.py:2397: raise ValidationError(\"Missing context\")",
+            "tests\\test_schema.py:2403: inner.context[\"foo_context\"] = \"foo\"",
+            "tests\\test_schema.py:2407: outer.context[\"foo_context\"] = \"foo\"",
+            "tests\\test_schema.py:2411: def test_nested_dict_fields_inherit_context(self):",
+            "tests\\test_schema.py:2417: if \"foo_context\" not in self.context:",
+            "tests\\test_schema.py:2418: raise ValidationError(\"Missing context\")",
+            "tests\\test_schema.py:2424: inner.context[\"foo_context\"] = \"foo\"",
+            "tests\\test_schema.py:2428: outer.context[\"foo_context\"] = \"foo\"",
+            "tests\\test_serialization.py:84: def test_function_field_passed_serialize_with_context(self, user, monkeypatch):",
+            "tests\\test_serialization.py:89: serialize=lambda obj, context: obj.name.upper() + context[\"key\"]",
+            "tests\\test_serialization.py:91: field.parent = Parent(context={\"key\": \"BAR\"})"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "path": "tests/test_schema.py",
+          "start_line": 2365,
+          "end_line": 2435
+        },
+        "result": {
+          "content": "        assert data[\"is_collab\"] == \"value\"\n\n    def test_fields_context(self):\n        class CSchema(Schema):\n            name = fields.String()\n\n        ser = CSchema()\n        ser.context[\"foo\"] = 42\n\n        assert ser.fields[\"name\"].context == {\"foo\": 42}\n\n    def test_nested_fields_inherit_context(self):\n        class InnerSchema(Schema):\n            likes_bikes = fields.Function(lambda obj, ctx: \"bikes\" in ctx[\"info\"])\n\n        class CSchema(Schema):\n            inner = fields.Nested(InnerSchema)\n\n        ser = CSchema()\n        ser.context[\"info\"] = \"i like bikes\"\n        obj = {\"inner\": {}}\n        result = ser.dump(obj)\n        assert result[\"inner\"][\"likes_bikes\"] is True\n\n    # Regression test for https://github.com/marshmallow-code/marshmallow/issues/820\n    def test_nested_list_fields_inherit_context(self):\n        class InnerSchema(Schema):\n            foo = fields.Field()\n\n            @validates(\"foo\")\n            def validate_foo(self, value):\n                if \"foo_context\" not in self.context:\n                    raise ValidationError(\"Missing context\")\n\n        class OuterSchema(Schema):\n            bars = fields.List(fields.Nested(InnerSchema()))\n\n        inner = InnerSchema()\n        inner.context[\"foo_context\"] = \"foo\"\n        assert inner.load({\"foo\": 42})\n\n        outer = OuterSchema()\n        outer.context[\"foo_context\"] = \"foo\"\n        assert outer.load({\"bars\": [{\"foo\": 42}]})\n\n    # Regression test for https://github.com/marshmallow-code/marshmallow/issues/820\n    def test_nested_dict_fields_inherit_context(self):\n        class InnerSchema(Schema):\n            foo = fields.Field()\n\n            @validates(\"foo\")\n            def validate_foo(self, value):\n                if \"foo_context\" not in self.context:\n                    raise ValidationError(\"Missing context\")\n\n        class OuterSchema(Schema):\n            bars = fields.Dict(values=fields.Nested(InnerSchema()))\n\n        inner = InnerSchema()\n        inner.context[\"foo_context\"] = \"foo\"\n        assert inner.load({\"foo\": 42})\n\n        outer = OuterSchema()\n        outer.context[\"foo_context\"] = \"foo\"\n        assert outer.load({\"bars\": {\"test\": {\"foo\": 42}}})\n\n\ndef test_serializer_can_specify_nested_object_as_attribute(blog):\n    class BlogUsernameSchema(Schema):\n        author_name = fields.String(attribute=\"user.name\")\n",
+          "total_lines": 2752,
+          "shown_lines": "2365-2435"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "end_line": 535,
+          "start_line": 500,
+          "path": "src/marshmallow/fields.py"
+        },
+        "result": {
+          "content": "        \"\"\"The nested Schema object.\n\n        .. versionchanged:: 1.0.0\n            Renamed from `serializer` to `schema`.\n        \"\"\"\n        if not self._schema:\n            # Inherit context from parent.\n            context = getattr(self.parent, \"context\", {})\n            if isinstance(self.nested, SchemaABC):\n                self._schema = copy.deepcopy(self.nested)\n                self._schema.context.update(context)\n                # Respect only and exclude passed from parent and re-initialize fields\n                set_class = self._schema.set_class\n                if self.only is not None:\n                    if self._schema.only is not None:\n                        original = self._schema.only\n                    else:  # only=None -> all fields\n                        original = self._schema.fields.keys()\n                    self._schema.only = set_class(self.only).intersection(original)\n                if self.exclude:\n                    original = self._schema.exclude\n                    self._schema.exclude = set_class(self.exclude).union(original)\n                self._schema._init_fields()\n            else:\n                if isinstance(self.nested, type) and issubclass(self.nested, SchemaABC):\n                    schema_class = self.nested\n                elif not isinstance(self.nested, (str, bytes)):\n                    raise ValueError(\n                        \"Nested fields must be passed a \"\n                        \"Schema, not {}.\".format(self.nested.__class__)\n                    )\n                elif self.nested == \"self\":\n                    ret = self\n                    while not isinstance(ret, SchemaABC):\n                        ret = ret.parent\n                    schema_class = ret.__class__",
+          "total_lines": 1785,
+          "shown_lines": "500-535"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src",
+          "pattern": "def schema"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:499: def schema(self):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src",
+          "pattern": "_schema"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\decorators.py:7: and `validates_schema <marshmallow.decorators.validates_schema>` receive",
+            "src\\marshmallow\\decorators.py:10: and `validates_schema <marshmallow.decorators.validates_schema>` receive",
+            "src\\marshmallow\\decorators.py:18: Schema, pre_load, pre_dump, post_load, validates_schema,",
+            "src\\marshmallow\\decorators.py:42: @validates_schema",
+            "src\\marshmallow\\decorators.py:69: VALIDATES_SCHEMA = \"validates_schema\"",
+            "src\\marshmallow\\decorators.py:80: def validates_schema(",
+            "src\\marshmallow\\error_store.py:19: # schema error -> if string or list, store/merge under _schema key",
+            "src\\marshmallow\\exceptions.py:6: SCHEMA = \"_schema\"",
+            "src\\marshmallow\\fields.py:357: def _bind_to_schema(self, field_name, schema):",
+            "src\\marshmallow\\fields.py:495: self._schema = None  # Cached Schema instance",
+            "src\\marshmallow\\fields.py:505: if not self._schema:",
+            "src\\marshmallow\\fields.py:509: self._schema = copy.deepcopy(self.nested)",
+            "src\\marshmallow\\fields.py:510: self._schema.context.update(context)",
+            "src\\marshmallow\\fields.py:512: set_class = self._schema.set_class",
+            "src\\marshmallow\\fields.py:514: if self._schema.only is not None:",
+            "src\\marshmallow\\fields.py:515: original = self._schema.only",
+            "src\\marshmallow\\fields.py:517: original = self._schema.fields.keys()",
+            "src\\marshmallow\\fields.py:518: self._schema.only = set_class(self.only).intersection(original)",
+            "src\\marshmallow\\fields.py:520: original = self._schema.exclude",
+            "src\\marshmallow\\fields.py:521: self._schema.exclude = set_class(self.exclude).union(original)",
+            "src\\marshmallow\\fields.py:522: self._schema._init_fields()",
+            "src\\marshmallow\\fields.py:538: self._schema = schema_class(",
+            "src\\marshmallow\\fields.py:546: return self._schema",
+            "src\\marshmallow\\fields.py:682: def _bind_to_schema(self, field_name, schema):",
+            "src\\marshmallow\\fields.py:683: super()._bind_to_schema(field_name, schema)",
+            "src\\marshmallow\\fields.py:685: self.inner._bind_to_schema(field_name, self)",
+            "src\\marshmallow\\fields.py:763: def _bind_to_schema(self, field_name, schema):",
+            "src\\marshmallow\\fields.py:764: super()._bind_to_schema(field_name, schema)",
+            "src\\marshmallow\\fields.py:768: field._bind_to_schema(field_name, self)",
+            "src\\marshmallow\\fields.py:1177: def _bind_to_schema(self, field_name, schema):",
+            "src\\marshmallow\\fields.py:1178: super()._bind_to_schema(field_name, schema)",
+            "src\\marshmallow\\fields.py:1460: def _bind_to_schema(self, field_name, schema):",
+            "src\\marshmallow\\fields.py:1461: super()._bind_to_schema(field_name, schema)",
+            "src\\marshmallow\\fields.py:1464: self.value_field._bind_to_schema(field_name, self)",
+            "src\\marshmallow\\fields.py:1470: self.key_field._bind_to_schema(field_name, self)",
+            "src\\marshmallow\\fields.py:1776: field._bind_to_schema(self.name, self.parent)",
+            "src\\marshmallow\\schema.py:279: `marshmallow.decorators.validates_schema`,",
+            "src\\marshmallow\\schema.py:806: self._invoke_schema_validators(",
+            "src\\marshmallow\\schema.py:815: self._invoke_schema_validators(",
+            "src\\marshmallow\\schema.py:977: field_obj._bind_to_schema(field_name, self)",
+            "src\\marshmallow\\schema.py:1076: def _invoke_schema_validators(",
+            "src\\marshmallow\\__init__.py:10: validates_schema,",
+            "src\\marshmallow\\__init__.py:26: \"validates_schema\","
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "end_line": 560,
+          "path": "src/marshmallow/fields.py",
+          "start_line": 530
+        },
+        "result": {
+          "content": "                    )\n                elif self.nested == \"self\":\n                    ret = self\n                    while not isinstance(ret, SchemaABC):\n                        ret = ret.parent\n                    schema_class = ret.__class__\n                else:\n                    schema_class = class_registry.get_class(self.nested)\n                self._schema = schema_class(\n                    many=self.many,\n                    only=self.only,\n                    exclude=self.exclude,\n                    context=context,\n                    load_only=self._nested_normalized_option(\"load_only\"),\n                    dump_only=self._nested_normalized_option(\"dump_only\"),\n                )\n        return self._schema\n\n    def _nested_normalized_option(self, option_name: str) -> typing.List[str]:\n        nested_field = \"%s.\" % self.name\n        return [\n            field.split(nested_field, 1)[1]\n            for field in getattr(self.root, option_name, set())\n            if field.startswith(nested_field)\n        ]\n\n    def _serialize(self, nested_obj, attr, obj, many=False, **kwargs):\n        # Load up the schema first. This allows a RegistryError to be raised\n        # if an invalid schema name was passed\n        schema = self.schema\n        if nested_obj is None:",
+          "total_lines": 1785,
+          "shown_lines": "530-560"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "path": "src/marshmallow/fields.py",
+          "start_line": 500,
+          "end_line": 525
+        },
+        "result": {
+          "content": "        \"\"\"The nested Schema object.\n\n        .. versionchanged:: 1.0.0\n            Renamed from `serializer` to `schema`.\n        \"\"\"\n        if not self._schema:\n            # Inherit context from parent.\n            context = getattr(self.parent, \"context\", {})\n            if isinstance(self.nested, SchemaABC):\n                self._schema = copy.deepcopy(self.nested)\n                self._schema.context.update(context)\n                # Respect only and exclude passed from parent and re-initialize fields\n                set_class = self._schema.set_class\n                if self.only is not None:\n                    if self._schema.only is not None:\n                        original = self._schema.only\n                    else:  # only=None -> all fields\n                        original = self._schema.fields.keys()\n                    self._schema.only = set_class(self.only).intersection(original)\n                if self.exclude:\n                    original = self._schema.exclude\n                    self._schema.exclude = set_class(self.exclude).union(original)\n                self._schema._init_fields()\n            else:\n                if isinstance(self.nested, type) and issubclass(self.nested, SchemaABC):\n                    schema_class = self.nested",
+          "total_lines": 1785,
+          "shown_lines": "500-525"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src",
+          "pattern": "def __deepcopy__"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:220: def __deepcopy__(self, memo):",
+            "src\\marshmallow\\utils.py:28: def __deepcopy__(self, _):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "start_line": 210,
+          "end_line": 230,
+          "path": "src/marshmallow/fields.py"
+        },
+        "result": {
+          "content": "            \"<fields.{ClassName}(default={self.default!r}, \"\n            \"attribute={self.attribute!r}, \"\n            \"validate={self.validate}, required={self.required}, \"\n            \"load_only={self.load_only}, dump_only={self.dump_only}, \"\n            \"missing={self.missing}, allow_none={self.allow_none}, \"\n            \"error_messages={self.error_messages})>\".format(\n                ClassName=self.__class__.__name__, self=self\n            )\n        )\n\n    def __deepcopy__(self, memo):\n        return copy.copy(self)\n\n    def get_value(self, obj, attr, accessor=None, default=missing_):\n        \"\"\"Return the value for a given key from an object.\n\n        :param object obj: The object to get the value from.\n        :param str attr: The attribute/key in `obj` to get the value from.\n        :param callable accessor: A callable used to retrieve the value of `attr` from\n            the object `obj`. Defaults to `marshmallow.utils.get_value`.\n        \"\"\"",
+          "total_lines": 1785,
+          "shown_lines": "210-230"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src",
+          "pattern": "SchemaABC"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\base.py:32: class SchemaABC:",
+            "src\\marshmallow\\fields.py:15: from marshmallow.base import FieldABC, SchemaABC",
+            "src\\marshmallow\\fields.py:427: return ret if isinstance(ret, SchemaABC) else None",
+            "src\\marshmallow\\fields.py:474: nested: typing.Union[SchemaABC, typing.Type[SchemaABC], str],",
+            "src\\marshmallow\\fields.py:508: if isinstance(self.nested, SchemaABC):",
+            "src\\marshmallow\\fields.py:524: if isinstance(self.nested, type) and issubclass(self.nested, SchemaABC):",
+            "src\\marshmallow\\fields.py:533: while not isinstance(ret, SchemaABC):",
+            "src\\marshmallow\\schema.py:225: class BaseSchema(base.SchemaABC):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src",
+          "pattern": "def __deepcopy__"
+        },
+        "result": {
+          "error": "You already called this exact tool with these exact arguments earlier in this session and got the same result -- repeating it wastes your limited tool-call budget. Use what you already learned from that earlier call instead."
+        },
+        "blocked_duplicate": true
+      }
+    ],
+    "tool_call_count": 15,
+    "hit_cap": true,
+    "total_tokens": 114037,
+    "final_message": "### Cause of the Bug\n\nWhen a `fields.Nested` field is instantiated with an **existing schema instance** (rather than a schema class or string name), marshmallow attempts to reuse or copy that schema instance for serialization/deserialization. \n\nSpecifically, inside `fields.Nested.schema`:\n```python\nif isinstance(self.nested, SchemaABC):\n    self._schema = copy.deepcopy(self.nested)\n    self._schema.context.update(context)\n```\nWhen `copy.deepcopy(self.nested)` is called on the schema instance, it recursively performs a deep copy on all attributes belonging to that schema, including anything stored inside its `context` dictionary (e.g., non-pickling objects like `Crypto.Cipher.AES` instances, database connections, or other un-deepcopyable objects). This causes `copy.deepcopy` to raise a `TypeError` (or similar pickling/copying error).\n\n---\n\n### Solution / Workaround\n\nDepending on how you are using nested schemas with context, here are the standard ways to avoid this issue:\n\n1. **Pass a Schema Class instead of an Instance:**\n   Pass the `Schema` class name or type instead of a pre-initialized schema instance to `fields.Nested`. When passing a class, marshmallow instantiates a new schema dynamically and passes the parent's context directly to the constructor without deep-copying an existing context dictionary:\n   ```python\n   class OuterSchema(Schema):\n       inner = fields.Nested(InnerSchema) # Pass class, not InnerSchema()\n   ```\n\n2. **Store Unpickleable Objects Outside the Schema Context:**\n   If you must use a pre-initialized schema instance and your context contains un-deepcopyable objects, avoid placing them directly into `schema.context`. Instead, access them via thread-local storage, global application state, or pass them as parameters during `dump()` / `load()` if applicable, or wrap the unpickleable object if custom `__deepcopy__` or `__getstate__`/`__setstate__` methods can be defined on a wrapper object.",
+    "last_interaction_id": "v1_ChdsWHVWYXR6M01ONjlxZmtQazVxRDJBcxIXNFh1VmFvbUhJb090anVNUGpPeThpUVk"
+  },
+  "tester": {
+    "steps": [
+      {
+        "tool": "list_directory",
+        "args": {
+          "path": "tests"
+        },
+        "result": {
+          "entries": [
+            "__init__.py",
+            "base.py",
+            "conftest.py",
+            "foo_serializer.py",
+            "test_decorators.py",
+            "test_deserialization.py",
+            "test_error_store.py",
+            "test_exceptions.py",
+            "test_fields.py",
+            "test_options.py",
+            "test_registry.py",
+            "test_schema.py",
+            "test_serialization.py",
+            "test_utils.py",
+            "test_validate.py"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "copy",
+          "path": "src"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:4: import copy",
+            "src\\marshmallow\\fields.py:220: def __deepcopy__(self, memo):",
+            "src\\marshmallow\\fields.py:221: return copy.copy(self)",
+            "src\\marshmallow\\fields.py:509: self._schema = copy.deepcopy(self.nested)",
+            "src\\marshmallow\\fields.py:684: self.inner = copy.deepcopy(self.inner)",
+            "src\\marshmallow\\fields.py:767: field = copy.deepcopy(field)",
+            "src\\marshmallow\\fields.py:1463: self.value_field = copy.deepcopy(self.value_field)",
+            "src\\marshmallow\\fields.py:1469: self.key_field = copy.deepcopy(self.key_field)",
+            "src\\marshmallow\\orderedset.py:5: # obtaining a copy of this software and associated documentation files",
+            "src\\marshmallow\\orderedset.py:7: # including without limitation the rights to use, copy, modify, merge,",
+            "src\\marshmallow\\orderedset.py:12: #     The above copyright notice and this permission notice shall be",
+            "src\\marshmallow\\schema.py:8: import copy",
+            "src\\marshmallow\\schema.py:368: # copy declared fields from metaclass",
+            "src\\marshmallow\\schema.py:369: self.declared_fields = copy.deepcopy(self._declared_fields)",
+            "src\\marshmallow\\schema.py:430: attrs = fields.copy()",
+            "src\\marshmallow\\utils.py:25: def __copy__(self):",
+            "src\\marshmallow\\utils.py:28: def __deepcopy__(self, _):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "deepcopy",
+          "path": "src"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:220: def __deepcopy__(self, memo):",
+            "src\\marshmallow\\fields.py:509: self._schema = copy.deepcopy(self.nested)",
+            "src\\marshmallow\\fields.py:684: self.inner = copy.deepcopy(self.inner)",
+            "src\\marshmallow\\fields.py:767: field = copy.deepcopy(field)",
+            "src\\marshmallow\\fields.py:1463: self.value_field = copy.deepcopy(self.value_field)",
+            "src\\marshmallow\\fields.py:1469: self.key_field = copy.deepcopy(self.key_field)",
+            "src\\marshmallow\\schema.py:369: self.declared_fields = copy.deepcopy(self._declared_fields)",
+            "src\\marshmallow\\utils.py:28: def __deepcopy__(self, _):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "end_line": 525,
+          "start_line": 500,
+          "path": "src/marshmallow/fields.py"
+        },
+        "result": {
+          "content": "        \"\"\"The nested Schema object.\n\n        .. versionchanged:: 1.0.0\n            Renamed from `serializer` to `schema`.\n        \"\"\"\n        if not self._schema:\n            # Inherit context from parent.\n            context = getattr(self.parent, \"context\", {})\n            if isinstance(self.nested, SchemaABC):\n                self._schema = copy.deepcopy(self.nested)\n                self._schema.context.update(context)\n                # Respect only and exclude passed from parent and re-initialize fields\n                set_class = self._schema.set_class\n                if self.only is not None:\n                    if self._schema.only is not None:\n                        original = self._schema.only\n                    else:  # only=None -> all fields\n                        original = self._schema.fields.keys()\n                    self._schema.only = set_class(self.only).intersection(original)\n                if self.exclude:\n                    original = self._schema.exclude\n                    self._schema.exclude = set_class(self.exclude).union(original)\n                self._schema._init_fields()\n            else:\n                if isinstance(self.nested, type) and issubclass(self.nested, SchemaABC):\n                    schema_class = self.nested",
+          "total_lines": 1785,
+          "shown_lines": "500-525"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "SchemaABC",
+          "path": "src"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\base.py:32: class SchemaABC:",
+            "src\\marshmallow\\fields.py:15: from marshmallow.base import FieldABC, SchemaABC",
+            "src\\marshmallow\\fields.py:427: return ret if isinstance(ret, SchemaABC) else None",
+            "src\\marshmallow\\fields.py:474: nested: typing.Union[SchemaABC, typing.Type[SchemaABC], str],",
+            "src\\marshmallow\\fields.py:508: if isinstance(self.nested, SchemaABC):",
+            "src\\marshmallow\\fields.py:524: if isinstance(self.nested, type) and issubclass(self.nested, SchemaABC):",
+            "src\\marshmallow\\fields.py:533: while not isinstance(ret, SchemaABC):",
+            "src\\marshmallow\\schema.py:225: class BaseSchema(base.SchemaABC):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "path": "src",
+          "pattern": "__deepcopy__"
+        },
+        "result": {
+          "matches": [
+            "src\\marshmallow\\fields.py:220: def __deepcopy__(self, memo):",
+            "src\\marshmallow\\utils.py:28: def __deepcopy__(self, _):"
+          ]
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "read_file",
+        "args": {
+          "start_line": 15,
+          "path": "src/marshmallow/utils.py",
+          "end_line": 45
+        },
+        "result": {
+          "content": "\nEXCLUDE = \"exclude\"\nINCLUDE = \"include\"\nRAISE = \"raise\"\n\n\nclass _Missing:\n    def __bool__(self):\n        return False\n\n    def __copy__(self):\n        return self\n\n    def __deepcopy__(self, _):\n        return self\n\n    def __repr__(self):\n        return \"<marshmallow.missing>\"\n\n\n# Singleton value that indicates that a field's value is missing from input\n# dict passed to :meth:`Schema.load`. If the field's value is not required,\n# it's ``default`` value is used.\nmissing = _Missing()\n\n\ndef is_generator(obj) -> bool:\n    \"\"\"Return True if ``obj`` is a generator\n    \"\"\"\n    return inspect.isgeneratorfunction(obj) or inspect.isgenerator(obj)\n",
+          "total_lines": 314,
+          "shown_lines": "15-45"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_fields",
+        "args": {
+          "path": "tests",
+          "pattern": "Nested"
+        },
+        "result": {
+          "error": "unknown tool: search_fields"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "search_files",
+        "args": {
+          "pattern": "Nested",
+          "path": "tests"
+        },
+        "result": {
+          "matches": [
+            "tests\\base.py:277: user = fields.Nested(UserSchema)",
+            "tests\\base.py:278: collaborators = fields.Nested(UserSchema, many=True)",
+            "tests\\base.py:284: user = fields.Nested(UserMetaSchema())",
+            "tests\\base.py:285: collaborators = fields.Nested(UserMetaSchema, many=True)",
+            "tests\\base.py:291: user = fields.Nested(UserSchema)",
+            "tests\\base.py:292: collaborators = fields.Nested(UserSchema, many=True)",
+            "tests\\base.py:300: user = fields.Nested(UserSchema)",
+            "tests\\base.py:301: collaborators = fields.Nested(UserSchema, only=(\"id\",), many=True)",
+            "tests\\base.py:305: user = fields.Nested(UserSchema, exclude=(\"uppername\", \"species\"))",
+            "tests\\base.py:309: user = fields.Nested(UserSchema, only=(\"name\",), exclude=(\"name\", \"species\"))",
+            "tests\\test_decorators.py:401: class NestedSchema(Schema):",
+            "tests\\test_decorators.py:405: nested = fields.Nested(NestedSchema, required=True, many=True)",
+            "tests\\test_decorators.py:415: class NestedSchema(Schema):",
+            "tests\\test_decorators.py:423: nested = fields.Nested(NestedSchema, required=True, many=True)",
+            "tests\\test_decorators.py:433: class NestedSchema(Schema):",
+            "tests\\test_decorators.py:441: nested = fields.Nested(NestedSchema, required=True, many=True)",
+            "tests\\test_decorators.py:461: class NestedSchema(Schema):",
+            "tests\\test_decorators.py:472: nested = fields.Nested(",
+            "tests\\test_decorators.py:473: NestedSchema, required=True, many=True, unknown=EXCLUDE",
+            "tests\\test_decorators.py:551: class NestedSchema(Schema):",
+            "tests\\test_decorators.py:556: nested = fields.Nested(NestedSchema)",
+            "tests\\test_decorators.py:616: class NestedSchema(Schema):",
+            "tests\\test_decorators.py:621: bar = fields.Nested(NestedSchema, required=True)",
+            "tests\\test_decorators.py:818: class Nested:",
+            "tests\\test_decorators.py:828: example = Example(nested=[Nested(x) for x in range(1)])",
+            "tests\\test_decorators.py:838: class NestedSchema(Schema):",
+            "tests\\test_decorators.py:859: nested = fields.Nested(NestedSchema, required=True, many=True)",
+            "tests\\test_decorators.py:872: class NestedSchema(Schema):",
+            "tests\\test_decorators.py:893: nested = fields.Nested(NestedSchema, required=True, many=True)",
+            "tests\\test_deserialization.py:1125: author = fields.Nested(SimpleUserSchema, unknown=EXCLUDE)",
+            "tests\\test_deserialization.py:1140: authors = fields.Nested(SimpleUserSchema, many=True)",
+            "tests\\test_deserialization.py:1160: pet = fields.Nested(PetSchema(), allow_none=False)",
+            "tests\\test_deserialization.py:1172: pets = fields.Nested(PetSchema(), allow_none=False, many=True)",
+            "tests\\test_deserialization.py:1184: pet = fields.Nested(PetSchema(), required=True)",
+            "tests\\test_deserialization.py:1196: pets = fields.Nested(PetSchema(), required=True, many=True)",
+            "tests\\test_deserialization.py:1204: class ANestedSchema(Schema):",
+            "tests\\test_deserialization.py:1209: child = fields.Pluck(ANestedSchema, \"pk\")",
+            "tests\\test_deserialization.py:1216: class ANestedSchema(Schema):",
+            "tests\\test_deserialization.py:1221: children = fields.Pluck(ANestedSchema, \"pk\", many=True)",
+            "tests\\test_deserialization.py:1231: author = fields.Nested(SimpleUserSchema, allow_none=True)",
+            "tests\\test_deserialization.py:1724: n = fields.Nested(SchemaA)",
+            "tests\\test_deserialization.py:1759: z = fields.Nested(SchemaA)",
+            "tests\\test_deserialization.py:1779: c = fields.Nested(SchemaC)",
+            "tests\\test_deserialization.py:1782: b = fields.Nested(SchemaB)",
+            "tests\\test_deserialization.py:1803: z = fields.Nested(SchemaA)",
+            "tests\\test_fields.py:118: inner_field = fields.Nested(self.MySchema())",
+            "tests\\test_fields.py:252: class TestNestedField:",
+            "tests\\test_fields.py:256: fields.Nested(Schema, **{param: \"foo\"})",
+            "tests\\test_fields.py:261: class NestedSchema(Schema):",
+            "tests\\test_fields.py:266: nested = fields.Nested(NestedSchema, unknown=field_unknown)",
+            "tests\\test_fields.py:281: class TestListNested:",
+            "tests\\test_fields.py:291: children = fields.List(fields.Nested(Child))",
+            "tests\\test_fields.py:312: children = fields.List(fields.Nested(Child, **{param: (\"name\", \"surname\")}))",
+            "tests\\test_fields.py:327: children = fields.List(fields.Nested(Child, only=(\"name\", \"age\")))",
+            "tests\\test_fields.py:353: children = fields.List(fields.Nested(Child(**{param: (\"name\", \"surname\")})))",
+            "tests\\test_fields.py:370: children = fields.List(fields.Nested(Child(only=(\"name\", \"age\"))))",
+            "tests\\test_fields.py:386: children = fields.List(fields.Nested(Child))",
+            "tests\\test_fields.py:409: class TestTupleNested:",
+            "tests\\test_fields.py:419: children = fields.Tuple((fields.Nested(Child), fields.Nested(Child)))",
+            "tests\\test_fields.py:435: children = fields.Tuple((fields.Nested(Child),))",
+            "tests\\test_fields.py:458: class TestDictNested:",
+            "tests\\test_fields.py:468: children = fields.Dict(values=fields.Nested(Child))",
+            "tests\\test_fields.py:485: values=fields.Nested(Child, **{param: (\"name\", \"surname\")})",
+            "tests\\test_fields.py:497: children = fields.Dict(values=fields.Nested(Child))",
+            "tests\\test_options.py:55: class OrderedNestedOnly(Schema):",
+            "tests\\test_options.py:59: user = fields.Nested(KeepOrder)",
+            "tests\\test_options.py:138: schema = OrderedNestedOnly()",
+            "tests\\test_options.py:153: schema = OrderedNestedOnly()",
+            "tests\\test_options.py:180: class HasNestedExclude(Schema):",
+            "tests\\test_options.py:184: user = fields.Nested(KeepOrder, exclude=(\"birthdate\",))",
+            "tests\\test_options.py:186: ser = HasNestedExclude()",
+            "tests\\test_registry.py:130: b = fields.Nested(\"BSchema\", exclude=(\"a\",))",
+            "tests\\test_registry.py:135: a = fields.Nested(\"ASchema\")",
+            "tests\\test_registry.py:140: bs = fields.Nested(\"BSchema\", many=True)",
+            "tests\\test_registry.py:165: nf = fields.Nested(\"notfound\")",
+            "tests\\test_registry.py:182: foo = fields.Nested(\"FooSerializer\")",
+            "tests\\test_registry.py:206: foo = fields.Nested(\"tests.foo_serializer.FooSerializer\")",
+            "tests\\test_registry.py:215: foo = fields.Nested(\"tests.test_registry.FooSerializer\")",
+            "tests\\test_schema.py:268: list1 = fields.List(fields.Nested(Inner))",
+            "tests\\test_schema.py:269: list2 = fields.Nested(Inner, many=True)",
+            "tests\\test_schema.py:286: list1 = fields.List(fields.Nested(Inner))",
+            "tests\\test_schema.py:287: list2 = fields.Nested(Inner, many=True)",
+            "tests\\test_schema.py:351: class NestedSchema(Schema):",
+            "tests\\test_schema.py:357: foo = fields.Nested(NestedSchema)",
+            "tests\\test_schema.py:820: child = fields.Nested(ChildSchema, many=True, exclude=(\"foo\",))",
+            "tests\\test_schema.py:838: blubb = fields.Nested(ChildSchema)",
+            "tests\\test_schema.py:861: blubb = fields.Nested(ChildSchema, only=(\"foo\", \"bar\"))",
+            "tests\\test_schema.py:884: blubb = fields.Nested(ChildSchema, only=(\"bar\",))",
+            "tests\\test_schema.py:907: blubb = fields.Nested(ChildSchema)",
+            "tests\\test_schema.py:930: blubb = fields.Nested(ChildSchema, exclude=(\"baz\",))",
+            "tests\\test_schema.py:953: blubb = fields.Nested(ChildSchema)",
+            "tests\\test_schema.py:976: blubb = fields.Nested(ChildSchema, only=(\"foo\", \"bar\"))",
+            "tests\\test_schema.py:999: blubb = fields.Nested(ChildSchema, exclude=(\"foo\",))",
+            "tests\\test_schema.py:1024: blubb = fields.Nested(",
+            "tests\\test_schema.py:1053: books = fields.Nested(BookSchema(many=True))",
+            "tests\\test_schema.py:1072: artist = fields.Nested(ArtistSchema(), only=(\"last\",))",
+            "tests\\test_schema.py:1089: artist = fields.Nested(ArtistSchema(), exclude=(\"first\",))",
+            "tests\\test_schema.py:1108: blubb = fields.Nested(ChildSchema)",
+            "tests\\test_schema.py:1183: children = fields.Nested(ChildSchema, many=True)",
+            "tests\\test_schema.py:1203: flubb = fields.Nested(GrandChildSchema)"
+          ],
+          "truncated": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "write_test",
+        "args": {
+          "content": "import pytest\nfrom marshmallow import Schema, fields\n\nclass Unpickleable:\n    def __deepcopy__(self, memo):\n        raise TypeError(\"cannot pickle 'Unpickleable' object\")\n\nclass InnerSchema(Schema):\n    x = fields.Int()\n\nclass OuterSchema(Schema):\n    inner = fields.Nested(InnerSchema)\n\ndef test_nested_schema_context_unpickleable():\n    schema = OuterSchema()\n    schema.context[\"crypto\"] = Unpickleable()\n    # Accessing schema.fields[\"inner\"].schema (or serializing/deserializing) triggers copy.deepcopy(self.nested)\n    # where self.nested is an instance of InnerSchema which has context inherited or shared/copied.\n    # Wait, let's see what happens when schema.fields[\"inner\"].schema is accessed or schema is deepcopied or nested schema is instantiated.\n    nested_schema = schema.fields[\"inner\"].schema\n    assert nested_schema is not None\n"
+        },
+        "result": {
+          "ok": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "write_test",
+        "args": {
+          "content": "import pytest\nfrom marshmallow import Schema, fields\n\nclass Unpickleable:\n    def __deepcopy__(self, memo):\n        raise TypeError(\"cannot pickle 'Unpickleable' object\")\n\nclass InnerSchema(Schema):\n    x = fields.Int()\n\nclass OuterSchema(Schema):\n    inner = fields.Nested(InnerSchema())\n\ndef test_nested_schema_context_unpickleable():\n    schema = OuterSchema()\n    schema.context[\"crypto\"] = Unpickleable()\n    # Triggering schema.fields[\"inner\"].schema calls copy.deepcopy(self.nested)\n    # where self.nested is InnerSchema() instance, which has schema.context (or dict containing unpickleable object).\n    # Wait, InnerSchema() has its own context. When OuterSchema context is updated or self.nested is deepcopied...\n    # Let's check where the deepcopy fails: InnerSchema() instance being deepcopied or context being copied.\n    _ = schema.fields[\"inner\"].schema\n"
+        },
+        "result": {
+          "ok": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "run_written_test",
+        "args": {},
+        "result": {
+          "outcome": "passed",
+          "message": "test passed against the current code -- it does not reproduce the bug"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "write_test",
+        "args": {
+          "content": "import pytest\nfrom marshmallow import Schema, fields\n\nclass Unpickleable:\n    def __deepcopy__(self, memo):\n        raise TypeError(\"cannot pickle 'Unpickleable' object\")\n\ndef test_nested_schema_instance_context_deepcopy():\n    inner = InnerSchema = Schema()\n    inner.context[\"crypto\"] = Unpickleable()\n\n    class OuterSchema(Schema):\n        inner = fields.Nested(inner)\n\n    schema = OuterSchema()\n    with pytest.raises(TypeError, match=\"cannot pickle\"):\n        _ = schema.fields[\"inner\"].schema\n"
+        },
+        "result": {
+          "ok": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "run_written_test",
+        "args": {},
+        "result": {
+          "outcome": "failed",
+          "message": "tests\\test_agent_generated.py:12: in test_nested_schema_instance_context_deepcopy\n    class OuterSchema(Schema):\ntests\\test_agent_generated.py:13: in OuterSchema\n    inner = fields.Nested(inner)\n                          ^^^^^\nE   NameError: name 'inner' is not defined"
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "write_test",
+        "args": {
+          "content": "import pytest\nfrom marshmallow import Schema, fields\n\nclass Unpickleable:\n    def __deepcopy__(self, memo):\n        raise TypeError(\"cannot pickle 'Unpickleable' object\")\n\ndef test_nested_schema_instance_context_deepcopy():\n    inner_schema = Schema()\n    inner_schema.context[\"crypto\"] = Unpickleable()\n\n    class OuterSchema(Schema):\n        inner = fields.Nested(inner_schema)\n\n    schema = OuterSchema()\n    with pytest.raises(TypeError, match=\"cannot pickle\"):\n        _ = schema.fields[\"inner\"].schema\n"
+        },
+        "result": {
+          "ok": true
+        },
+        "blocked_duplicate": false
+      },
+      {
+        "tool": "run_written_test",
+        "args": {},
+        "result": {
+          "outcome": "passed",
+          "message": "test passed against the current code -- it does not reproduce the bug"
+        },
+        "blocked_duplicate": false
+      }
+    ],
+    "tool_call_count": 16,
+    "total_tokens": 75223,
+    "hit_cap": true,
+    "valid_reproduction": false,
+    "gold_check_result": null,
+    "reproduce_attempts": 2
+  },
+  "coder_rounds": []
+}
