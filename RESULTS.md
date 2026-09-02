@@ -733,3 +733,81 @@ empty plans) were both found and fixed before this number was reported, and the
 regression was individually inspected rather than assumed. Per the same discipline as
 Phase 3: this stands as reported rather than being quietly re-run in search of a
 better number.
+
+## Phase 4 — deep dive: does a correct plan get the Coder closer, even when it doesn't resolve?
+
+The resolved/not-resolved count above hides a sharper question: on tickets that
+failed in *both* phases, did having a plan measurably change what the Coder produced,
+or was it wasted effort regardless? Answerable at zero extra cost -- both phases'
+full transcripts were already sitting on disk. Filtered to the 8 tickets where the
+Coder actually ran in both phases and neither resolved (excludes tickets where the
+Tester itself never reproduced the bug in one phase or the other, which isn't a
+Coder/Planner question):
+
+| Ticket | P3 verdict/calls | P4 verdict/calls | Read verdict |
+|---|---|---|---|
+| `1721` | `suite_broken`, 31 calls | `passed_clean`, 21 calls | Plan helped |
+| `2900` | `failed`, 38 calls | `passed_clean`, 13 calls | Plan helped |
+| `946` | `failed`, 96 regressions, 47 calls | `failed`, 0 regressions, 40 calls | Plan "helped" only via inaction |
+| `1768` | `passed_clean`, 15 calls | `suite_broken`, 1072 regressions, 38 calls | Plan looked harmful, wasn't really |
+| `1312` | `passed_clean`, 19 calls | `passed_clean`, 18 calls | No change |
+| `1357` | `passed_clean`, 19 calls | `passed_clean`, 13 calls | Same verdict, -32% calls |
+| `1384` | `failed`, 60 calls | `failed`, 26 calls | Same verdict, -57% calls |
+| `2227` | `failed`, 57 calls | `failed`, 25 calls | Same verdict, -56% calls |
+
+**Three case studies, read in full, not just the summary stats:**
+
+- **`946` (plan correct, Coder never edited anything):** the plan correctly named
+  `_normalize_nested_options`/`__apply_nested_option` in `schema.py` and the
+  `List`-vs-`Nested` propagation gap -- materially the same diagnosis a fresh Planner
+  run independently reproduced in a separate spot-check. But across all 3 Coder
+  rounds, the transcript shows the Coder re-deriving that *exact same* diagnosis from
+  scratch each time (re-reading the same methods, re-concluding the same root cause)
+  and never once calling `edit_file` -- two of the three rounds ended only because the
+  tool-call cap forced a final message (see the 8th bug above), not because the model
+  chose to stop and act. Zero regressions here isn't the plan paying off; it's the
+  Coder never attempting anything, which happens to be safer than Phase 3's Coder
+  (which did edit, and broke 96 tests) but isn't a case of the plan producing a better
+  edit -- there was no edit.
+- **`2900` (plan = a fix a human had already proposed in the issue thread; Coder
+  executed *and* verified independently):** the Coder implemented the plan's exact
+  suggested `Constant.__init__` change in round 1 after 5 exploration calls, then in
+  round 2 caught and fixed a real regression its own fix introduced
+  (`test_constant_none_allows_none_value`, an `allow_none` edge case the plan's
+  snippet didn't mention) entirely through its own investigation -- directly
+  contradicting the design's pre-registered worry that the Coder would "explore less
+  because it trusts the plan." It still didn't resolve, but because the Tester's own
+  self-written test didn't cover the full scope of the real hidden test -- a Tester
+  ceiling, not a Planner or Coder failure.
+- **`1768` (looks like the one clear harm case; isn't, on close reading):** the
+  Coder's first edit used `old_text="class Length(Validator):"` -- just the bare
+  declaration line -- as its insertion anchor for the new `And` validator class,
+  which silently deleted `Length`'s own body when replaced, corrupting the module at
+  class-definition time (`TypeError: Can't instantiate abstract class Length`) and
+  cascading into every test in the suite failing to even collect (the "1072
+  regressions" is really "the whole suite refused to load," not 1072 independent
+  findings). The Coder spent rounds 2-3 trying to repair its own corruption, mostly
+  failing (`"old_text not found"` twice), and round 3 ends with a **false claim of
+  success** ("I have corrected... without disrupting existing classes") while the
+  suite was still broken. Checked directly against Phase 3's attempt at the same
+  ticket: Phase 4's Coder did **just as much** upfront exploration before its first
+  edit (18 calls vs. Phase 3's 15) -- this was not a case of trusting the plan and
+  skipping verification. The actual difference is a single risky anchor-text choice
+  in one `edit_file` call, a general surgical-edit risk that exists with or without a
+  Planner. Phase 3 happened to pick a longer, safer anchor on this specific ticket.
+  Attributing this one to "the Planner made it worse" would be overclaiming what the
+  transcripts actually show.
+
+**The pattern that survives scrutiny: efficiency, not correctness.** On 3 of the 4
+tickets that landed on the identical verdict in both phases, Phase 4 reached that
+same conclusion using substantially fewer Coder tool calls -- `1384` 60→26 (-57%),
+`2227` 57→25 (-56%), `1357` 19→13 (-32%) -- while `1312` barely moved (19→18, -5%).
+The plan doesn't appear to change *what* the Coder concludes on tickets it can't
+solve, but it does appear to make reaching that conclusion cheaper, at least on
+harder, higher-call-count tickets where there's more redundant exploration to cut.
+That's a real, distinct, separately-useful finding from the headline resolution
+count, and -- combined with `946`'s pattern of the Coder re-deriving the plan's own
+conclusions instead of trusting them -- suggests the actual lever worth pulling next
+isn't a better Planner, it's a Coder prompt that explicitly tells it to treat a
+supplied plan as a starting point to verify quickly and act on, not re-investigate
+from zero.
