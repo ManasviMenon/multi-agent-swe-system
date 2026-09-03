@@ -47,6 +47,7 @@ from eval.run_eval import (  # noqa: E402
     remove_worktree,
 )
 from coder import run_coder_round  # noqa: E402
+from judge import run_judge  # noqa: E402
 from planner import run_planner  # noqa: E402
 from tester import (  # noqa: E402
     TEST_FILE_PATH,
@@ -113,6 +114,41 @@ def build_initial_coder_prompt(
     )
 
 
+def _check_coder_round(worktree: Path, baseline_pass_set: set) -> dict:
+    """Re-checks the Tester's own test plus the full suite against the pre-Coder
+    baseline, and classifies the result. Shared between the main retry loop and the
+    Judge's one guided round (Phase 5) so both use identical classification logic --
+    factored out rather than duplicated, so a future fix to this logic can't apply to
+    one call site and not the other."""
+    check_result = run_written_test_impl(worktree)
+    after_suite, suite_ok, suite_reason = run_full_suite_with_details(worktree)
+
+    if not suite_ok:
+        return {
+            "check_result": check_result,
+            "after_suite": after_suite,
+            "internal_verdict": "suite_broken",
+            "regressed_mid_loop": ["<entire test suite failed to collect>"],
+            "suite_broken_reason": suite_reason,
+        }
+
+    regressed_mid_loop = compute_regressions(baseline_pass_set, after_suite)
+    if check_result["outcome"] == "passed" and not regressed_mid_loop:
+        internal_verdict = "passed_clean"
+    elif check_result["outcome"] == "passed":
+        internal_verdict = "passed_with_regressions"
+    else:
+        internal_verdict = check_result["outcome"]
+
+    return {
+        "check_result": check_result,
+        "after_suite": after_suite,
+        "internal_verdict": internal_verdict,
+        "regressed_mid_loop": regressed_mid_loop,
+        "suite_broken_reason": None,
+    }
+
+
 def build_retry_coder_prompt(check_result: dict, regressions: list, after_results: dict) -> str:
     parts = []
     if check_result["outcome"] == "error":
@@ -167,11 +203,20 @@ def run_planner_for_ticket(ticket_id: str) -> dict:
         remove_worktree(worktree)
 
 
-def _run_ticket(ticket_id: str, plan_text: str | None = None, planner_stats: dict | None = None) -> dict:
+def _run_ticket(
+    ticket_id: str,
+    plan_text: str | None = None,
+    planner_stats: dict | None = None,
+    use_judge: bool = False,
+) -> dict:
     """Runs the Tester-gated Coder retry loop for one ticket, optionally seeded with a
-    Planner's plan (Phase 4) -- with plan_text=None this is exactly Phase 3's behavior,
-    unchanged. Returns a dict with: result -- the summary to log, tester_transcript --
-    for the transcripts dir, coder_rounds -- list of per-attempt Coder transcripts."""
+    Planner's plan (Phase 4) -- with plan_text=None and use_judge=False this is exactly
+    Phase 3's behavior, unchanged. With use_judge=True (Phase 5), any ticket the normal
+    3-attempt loop doesn't cleanly resolve gets reviewed by the Judge, which either gives
+    one more guided Coder round or marks the ticket escalated, per RESULTS.md's
+    pre-registered design. Returns a dict with: result -- the summary to log,
+    tester_transcript -- for the transcripts dir, coder_rounds -- list of per-attempt
+    Coder transcripts, judge_transcript -- None unless the Judge actually ran."""
     planner_stats = planner_stats or {"tool_calls": 0, "tokens": 0}
     ticket_dir = TICKETS_DIR / ticket_id
     base_commit = (ticket_dir / "base_commit.txt").read_text().strip()
@@ -202,9 +247,15 @@ def _run_ticket(ticket_id: str, plan_text: str | None = None, planner_stats: dic
                     "regressed_mid_loop": [],
                     "suite_broken_reason": None,
                     "calibration": None,
+                    "judge_ran": False,
+                    "judge_decision": "auto_escalate_no_repro" if use_judge else None,
+                    "judge_instruction": None,
+                    "guided_round_edit_calls": None,
+                    "escalated": True if use_judge else None,
                 },
                 "tester_transcript": tester_transcript,
                 "coder_rounds": [],
+                "judge_transcript": None,
             }
 
         run_results = [
@@ -238,39 +289,77 @@ def _run_ticket(ticket_id: str, plan_text: str | None = None, planner_stats: dic
             coder_rounds.append(round_transcript)
             previous_interaction_id = round_transcript["last_interaction_id"]
 
-            check_result = run_written_test_impl(worktree)
-            after_suite, suite_ok, suite_reason = run_full_suite_with_details(worktree)
+            check = _check_coder_round(worktree, baseline_pass_set)
+            check_result = check["check_result"]
+            after_suite = check["after_suite"]
+            internal_verdict = check["internal_verdict"]
+            regressed_mid_loop = check["regressed_mid_loop"]
+            suite_broken_reason = check["suite_broken_reason"]
 
-            if not suite_ok:
+            if internal_verdict == "suite_broken":
                 # Worse than any individual regression: the edit broke the suite's
                 # ability to even collect (e.g. an exception at import/class-definition
                 # time elsewhere). Never treat this as passing, regardless of what the
-                # Tester's own isolated test says. suite_reason is logged verbatim (not
-                # just the generic "suite_broken" label) so a repeat occurrence is
-                # diagnosable from the log alone, not another live investigation.
-                internal_verdict = "suite_broken"
-                suite_broken_reason = suite_reason
-                regressed_mid_loop = ["<entire test suite failed to collect>"]
+                # Tester's own isolated test says. suite_broken_reason is logged verbatim
+                # (not just the generic label) so a repeat occurrence is diagnosable from
+                # the log alone, not another live investigation.
                 prompt = (
                     "Your previous edit broke something so badly that the ENTIRE test "
                     "suite can no longer even be collected -- not just the target test. "
                     "This usually means an exception or error at import/class-definition "
-                    f"time somewhere in the codebase, triggered by your change: {suite_reason}\n\n"
+                    f"time somewhere in the codebase, triggered by your change: {suite_broken_reason}\n\n"
                     "Find and fix that, or reconsider your approach.\n\nTry again."
                 )
                 continue
 
-            regressed_mid_loop = compute_regressions(baseline_pass_set, after_suite)
-
-            if check_result["outcome"] == "passed" and not regressed_mid_loop:
-                internal_verdict = "passed_clean"
+            if internal_verdict == "passed_clean":
                 break
-            if check_result["outcome"] == "passed":
-                internal_verdict = "passed_with_regressions"
-            else:
-                internal_verdict = check_result["outcome"]
 
             prompt = build_retry_coder_prompt(check_result, regressed_mid_loop, after_suite)
+
+        judge_transcript = None
+        judge_ran = False
+        judge_decision = None
+        judge_instruction = None
+        guided_round_edit_calls = None
+        escalated = None
+
+        if use_judge and internal_verdict != "passed_clean":
+            # Per SCOPE.md's pre-existing definition ("max 3 Coder attempts... before
+            # mandatory escalation to a human review queue") and RESULTS.md's Phase 5
+            # design: the Judge reviews the exhausted retry loop's full history (not
+            # just the final state -- the same "still failing" outcome can hide a
+            # diagnosed-but-never-executed rut, a converging-but-short-on-rounds rut, or
+            # a genuine dead end, which only differ in the round-by-round detail) and
+            # either gives one guided round or escalates outright.
+            judge_ran = True
+            judge_transcript = run_judge(
+                issue_text=issue_text,
+                test_source=test_source,
+                coder_rounds=coder_rounds,
+                internal_verdict=internal_verdict,
+                regressed_mid_loop=regressed_mid_loop,
+                suite_broken_reason=suite_broken_reason,
+                worktree=worktree,
+            )
+            judge_decision = judge_transcript["action"]
+            judge_instruction = judge_transcript["message"]
+
+            if judge_decision == "retry":
+                round_transcript = run_coder_round(judge_instruction, worktree, previous_interaction_id)
+                coder_rounds.append(round_transcript)
+                previous_interaction_id = round_transcript["last_interaction_id"]
+                guided_round_edit_calls = sum(1 for s in round_transcript["steps"] if s["tool"] == "edit_file")
+
+                check = _check_coder_round(worktree, baseline_pass_set)
+                internal_verdict = check["internal_verdict"]
+                regressed_mid_loop = check["regressed_mid_loop"]
+                suite_broken_reason = check["suite_broken_reason"]
+
+            # "One guided retry, then escalate if that retry also fails" -- covers both
+            # a direct ESCALATE decision (internal_verdict is still whatever it was
+            # going into this block) and a RETRY that didn't reach a clean pass.
+            escalated = internal_verdict != "passed_clean"
 
         candidate_src_diff = get_source_only_diff(worktree)
     finally:
@@ -320,9 +409,15 @@ def _run_ticket(ticket_id: str, plan_text: str | None = None, planner_stats: dic
             "regressed_mid_loop": regressed_mid_loop,
             "suite_broken_reason": suite_broken_reason,
             "calibration": calibration,
+            "judge_ran": judge_ran,
+            "judge_decision": judge_decision,
+            "judge_instruction": judge_instruction,
+            "guided_round_edit_calls": guided_round_edit_calls,
+            "escalated": escalated,
         },
         "tester_transcript": tester_transcript,
         "coder_rounds": coder_rounds,
+        "judge_transcript": judge_transcript,
     }
 
 
@@ -346,6 +441,25 @@ def run_phase4_ticket(ticket_id: str) -> dict:
             "tool_calls": planner_transcript["tool_call_count"],
             "tokens": planner_transcript["total_tokens"],
         },
+    )
+    outcome["planner_transcript"] = planner_transcript
+    return outcome
+
+
+def run_phase5_ticket(ticket_id: str) -> dict:
+    """Phase 5: same pipeline as Phase 4 (Planner + Tester-gated Coder retry loop),
+    plus a Judge that reviews any ticket the retry loop doesn't cleanly resolve, per
+    RESULTS.md's pre-registered design. Returns the same shape as run_phase4_ticket."""
+    planner_transcript = run_planner_for_ticket(ticket_id)
+    plan_text = planner_transcript["final_message"]
+    outcome = _run_ticket(
+        ticket_id,
+        plan_text=plan_text,
+        planner_stats={
+            "tool_calls": planner_transcript["tool_call_count"],
+            "tokens": planner_transcript["total_tokens"],
+        },
+        use_judge=True,
     )
     outcome["planner_transcript"] = planner_transcript
     return outcome
