@@ -811,3 +811,128 @@ conclusions instead of trusting them -- suggests the actual lever worth pulling 
 isn't a better Planner, it's a Coder prompt that explicitly tells it to treat a
 supplied plan as a starting point to verify quickly and act on, not re-investigate
 from zero.
+
+## Phase 5 — Judge: pre-registered experimental design
+
+Written before any Phase 5 code exists, per the same discipline as Phases 3 and 4.
+Unlike those, this design is grounded directly in a full read of every Phase 4
+failure transcript (below) rather than a category-level guess from Phase 2 alone.
+
+### 0. What SCOPE.md already committed to, and why that changes the question
+
+`SCOPE.md` pre-dates this project's Phase 2 code and already defines the Judge's job:
+an **escalation-precision gate**, not a resolution-count booster. Its own stated
+metric is "≥70% of Judge escalations are tickets that a single-agent baseline
+(Phase 2) also failed," and the retry-cap rule is explicit: "max 3 Coder attempts per
+ticket before mandatory escalation to a human review queue." So the honest framing
+isn't "does adding a Judge resolve more tickets" -- it's "does the Judge correctly
+sort *already-failed* tickets into 'genuinely needs a human' vs. 'the automated
+pipeline could still close this with one more, better-informed shot'." The
+classification below is exactly that sort, and it motivates a concrete contract: the
+Judge reviews a ticket only after the existing Coder retry budget is exhausted, and
+for tickets it classifies as recoverable, it gets to spend **one additional Coder
+round with explicit, pointed guidance** (not a fourth blind retry) before deciding to
+escalate anyway. That makes "did the extra round resolve it" a legitimate, falsifiable
+proxy for escalation quality, without redefining the Judge's actual job.
+
+### 1. Am I solving the right problem? -- full read of all 9 Coder-stage Phase 4 failures
+
+17 of Phase 4's 25 tickets didn't resolve. 8 never reached the Coder at all
+(`no_reproducing_test` -- the Tester couldn't write a valid reproduction; out of
+scope for a Judge that reviews Coder output, since there's no code to review --
+these escalate automatically under the contract above). The other 9 did reach the
+Coder, and every one of their transcripts was read in full (not sampled):
+
+| Ticket | internal verdict | What actually happened | Classification |
+|---|---|---|---|
+| `946` | failed, 0 regressions | Plan and Coder's own final-message diagnosis both correctly name `_normalize_nested_options`/`List` vs `Nested` propagation -- but `edit_file` is never called once across 3 rounds. | **Rut: diagnosed, never executed** |
+| `1384` | failed | Same pattern -- correct diagnosis restated 3 times, one failed edit attempt (`old_text not found`), never retried. | **Rut: diagnosed, never executed** |
+| `2821` | failed, 0 regressions | Real edits every round, each catching one more ASCII-restricted fragment of the same URL regex (hostname -> TLD -> scheme) -- converging, not repeating, just short on rounds. | **Rut: converging, ran out of budget** |
+| `2227` | failed | Burned ~6 calls on a `pyproject.toml` edit blocked by the src-only restriction, then pivoted to `__init__.py` and landed on essentially the same `__getattr__` deprecation mechanism the real gold patch uses (checked directly against `gold_patch.diff`) -- still short somewhere. | **Rut: correct mechanism, incomplete** |
+| `1768` | suite_broken, 1072 "regressions" (whole suite failed to collect) | One risky `edit_file` anchor corrupted an unrelated class; 2 more rounds of blind repair attempts (never re-read the file) failed twice with "old_text not found," ending in a false "fixed it" claim the mechanical check correctly rejected. | **Rut: self-inflicted, failed self-repair** |
+| `2900` | passed_clean (tester_fooled) | Implemented the plan's suggested fix in round 1, then independently caught and fixed a real regression (`allow_none` edge case) its own fix introduced in round 2. Real hidden test still disagrees. | **Tester ceiling, not a Coder problem** |
+| `1721` | passed_clean (tester_fooled) | Found and fixed its own f-string syntax error mid-loop unprompted, converged clean. | **Tester ceiling, not a Coder problem** |
+| `1357` | passed_clean (tester_fooled) | Single round, clean implementation matching the plan. | **Tester ceiling, not a Coder problem** |
+| `1312` | passed_clean (tester_fooled) | Single round, clean implementation matching the plan (`Schema.from_dict`). | **Tester ceiling, not a Coder problem** |
+
+**Headline finding: zero of the 9 are "the Coder genuinely couldn't reason to the
+fix."** Every single one either diagnosed correctly and failed to execute or
+complete it (5/9), or diagnosed and executed correctly but the Tester's own
+self-written test wasn't a sufficient proxy for the real hidden test (4/9). This
+directly updates the working hypothesis from the Phase 4 deep-dive above -- capability
+does not look like the bottleneck on this ticket set's failures; execution follow-
+through and test coverage do.
+
+### 2. What is the Judge's contract?
+
+- **Runs:** once per ticket, only after the existing Coder retry loop (3 attempts)
+  is exhausted without a `passed_clean` verdict -- reviews the final diff, the final
+  test/suite result, and the Coder's own last `final_message`, not a fresh
+  investigation from scratch.
+- **Sees:** everything the Coder's last round saw, plus the full round-by-round
+  history (so it can tell "diagnosed but never edited" apart from "edited and
+  broke something" apart from "converging, ran out of rounds" -- the three rut
+  shapes found above look identical from the outside as "still failing" without
+  this history).
+- **Produces one of two outcomes:** (a) **one additional guided Coder round**, with
+  explicit, specific instruction derived from the failure shape (e.g. "you described
+  this fix in your last message but never called edit_file -- apply it now" for the
+  diagnosed-never-executed shape; "re-read the file before editing again, your last
+  edit corrupted `Length`" for the self-inflicted-damage shape), or (b) **escalate**
+  to the human review queue with a written reason, when nothing in the transcript
+  suggests more automated effort would help.
+- **Bound:** the one extra round uses the Coder's normal per-round tool-call budget,
+  nothing special -- the Judge's contribution is the targeted instruction, not extra
+  compute.
+
+### 3. How will success be measured, and what would prove this wrong?
+
+**Named, falsifiable prediction**, split by confidence per the classification above:
+
+- **Confident recovery (predicted: both resolve): `946`, `1384`.** The Coder's own
+  stated diagnosis is already correct in both cases -- the only failure is never
+  converting it into an edit. An explicit "you described a fix, now apply it"
+  instruction should reliably close this gap; if it doesn't, that specifically
+  falsifies "this was an execution gap" and points at something deeper (the model
+  can describe a plausible-sounding fix without actually being able to implement it
+  correctly, which is a capability gap wearing an execution-gap costume).
+- **Plausible but not confident (tracked, not counted in the headline number):
+  `2821`, `2227`, `1768`.** These need more than "apply what you said" -- `2821`
+  needs full multi-location coverage in one guided pass, `2227` needs to be told to
+  skip the dependency side-track, `1768` needs to be told to re-read the file before
+  its next edit. A pointed instruction plausibly closes these too, but it's a
+  softer bet than the two above.
+- **Predicted NOT to be recovered by this Judge design: `2900`, `1721`, `1357`,
+  `1312`.** The code is already fine by every signal the Judge has access to (the
+  diff, the suite result, the Coder's reasoning) -- there's nothing wrong for a
+  code-reviewing Judge to find or fix here. If any of these *do* resolve after
+  Judge intervention, that's a real, interesting falsification worth its own
+  write-up (it would mean the Judge caught something in the diff/issue-text gap
+  that this analysis missed).
+- **Escalation-precision metric, per SCOPE.md's original commitment:** of whatever
+  the Judge does escalate, ≥70% should be tickets that Phase 2's single-agent
+  baseline (`results/baseline_run.jsonl`) also failed -- checkable immediately once
+  Phase 5 runs, at zero extra cost, since Phase 2's results are already frozen.
+- **Total headline prediction:** 8/25 -> **10/25 confident**, plausibly up to 13/25
+  if all three "plausible" tickets also recover -- report both numbers, don't round
+  the soft prediction into the confident one.
+
+### 4. What could go wrong or contaminate the result?
+
+- **The "one guided round" could just be a 4th blind retry with extra words** --
+  worth explicitly checking whether the Judge's instruction is *specific to the
+  actual failure shape* (per ticket, per the table above) rather than a generic
+  "try harder" prompt, since a generic nudge would not distinguish this from simply
+  raising `MAX_CODER_ATTEMPTS` to 4, which is a much cheaper thing to try first if
+  that's all that's happening.
+- **Escalation precision could be gamed by escalating everything** -- a Judge that
+  escalates all 17 unresolved tickets trivially hits high "precision" (most of them
+  did also fail Phase 2) while providing zero value. The real test is whether it
+  *keeps* the 5 rut tickets in the automated loop rather than escalating them too --
+  track escalation *recall* on the rut set, not just precision on what it escalates.
+- **The tester-ceiling group is evidence for a different fix entirely** -- if Phase
+  5 shows the Judge can't move `2900`/`1721`/`1357`/`1312`, the honest conclusion
+  isn't "the Judge failed," it's "the next lever is a better Tester (a reproduction
+  test that checks closer to the full issue scope, not just one narrow case)." Don't
+  let a null result here get folded into "the Judge doesn't work" -- it's a
+  different subsystem's ceiling.
