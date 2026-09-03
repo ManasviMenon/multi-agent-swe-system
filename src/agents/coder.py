@@ -84,13 +84,20 @@ def execute_tool(name: str, args: dict, worktree: Path) -> dict:
             if not path.is_file():
                 return {"error": f"no such file: {args['path']}"}
 
-            # The model reliably hand-escapes quote characters as if writing a Python
-            # string literal (producing \" where the file just has "), which breaks exact
-            # matching even when it has correctly located the right text. This codebase
-            # has zero legitimate backslash-quote sequences in its source, so unescaping
-            # is safe here and works with the model's quirk instead of fighting it.
-            old_text = args["old_text"].replace('\\"', '"')
-            new_text = args["new_text"].replace('\\"', '"')
+            # The model reliably hand-escapes quote characters and newlines as if
+            # writing a Python string literal (producing \" where the file just has ",
+            # and a literal backslash-n where the file has a real newline), which breaks
+            # exact matching even when it has correctly located the right text. This
+            # codebase has zero legitimate backslash-quote or backslash-n sequences in
+            # its source (verified directly, not assumed), so unescaping both is safe
+            # here and works with the model's quirk instead of fighting it. Found via
+            # marshmallow-1506's Phase 5 run: every edit_file attempt across two rounds
+            # (including the Judge's guided retry) failed with "old_text not found"
+            # purely because of the unhandled literal \n -- substituting a real newline
+            # made the exact same text match the file once, confirming the model had
+            # correctly located the right spot all along.
+            old_text = args["old_text"].replace('\\"', '"').replace("\\n", "\n")
+            new_text = args["new_text"].replace('\\"', '"').replace("\\n", "\n")
 
             if old_text == new_text:
                 return {"error": "old_text and new_text are identical -- this edit would be a no-op, nothing to apply"}
