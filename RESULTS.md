@@ -936,3 +936,129 @@ through and test coverage do.
   test that checks closer to the full issue scope, not just one narrow case)." Don't
   let a null result here get folded into "the Judge doesn't work" -- it's a
   different subsystem's ceiling.
+
+## Phase 5 — final result: full 25-ticket run
+
+**10/25 resolved -- up from Phase 4's 8/25.** Full clean pass, all 25 tickets, one run,
+current code (including the 9th bug fix below).
+
+| Status | Count |
+|---|---|
+| Resolved | 10 |
+| `no_reproducing_test` | 5 |
+| Attempted, not resolved | 10 |
+| Escalated (of the above) | 9 |
+
+**The +2 headline improvement is not attributable to the Judge.** Comparing directly
+against Phase 4 ticket-by-ticket: `1404` and `2149` went from `no_reproducing_test` to
+resolved, and `2900` went from attempted to resolved -- all three reached
+`internal_verdict="passed_clean"` inside the *normal* 3-attempt Coder loop, before the
+Judge was ever invoked. `1404`/`2149`'s change is Tester-stage reproduction variance
+(the Tester simply got a valid reproducing test this run when it hadn't before -- the
+Judge has no bearing on the Tester at all); `2900`'s is ordinary Coder-level success on
+a ticket already shown capable of clean internal convergence in Phase 4. Working the
+other direction, `1506` (resolved in Phase 4) flipped to `no_reproducing_test` here --
+also pure Tester-stage variance, unrelated to the Judge or the 9th bug fix below (which
+only touches `edit_file`, a Coder-only tool). **Zero tickets moved from
+unresolved-in-Phase-4 to resolved via the Judge's guided-retry mechanism.**
+
+### An 8th bug found during Phase 5 validation, fixed before this run: edit_file never unescaped `\n`
+
+`edit_file` already unescaped `\"` -> `"` (a fix from earlier in the project) but never
+did the same for a literal two-character backslash-n where the model means a real
+newline. Found when `marshmallow-1506` (resolved in Phase 4) regressed during Phase 5
+validation: every `edit_file` attempt across two rounds -- including the Judge's guided
+retry, which gave a specific and correct instruction -- failed with "old_text not
+found," even though the Coder's own final message falsely claimed success both times.
+Verified directly (not assumed): substituting a real newline for the literal sequence
+in that exact failed `old_text` made it match the real file exactly once. Checked all
+13 files under `src/marshmallow/` recursively for legitimate literal backslash-n
+sequences (the same safety check the original quote fix used) -- zero found, so
+unescaping is exactly as safe as the existing fix. This predates Phase 5 entirely --
+`edit_file` has been silently failing this way since Phase 2 -- so some fraction of
+"the Coder never edited" or "old_text not found" failures already reported in Phase 3/4
+plausibly share this root cause. Not retroactively re-running those phases (their
+resolved counts are still real, per the frozen grader's independent verification);
+flagged honestly here rather than silently reinterpreted.
+
+### The real finding: the Judge's decisions were mostly never actually made
+
+Of the 9 escalated tickets, **5 never involved the Judge agent at all**
+(`no_reproducing_test` auto-escalates per the contract -- there's no code to review).
+Of the remaining 5 where the Judge genuinely ran, its output was read directly, not
+just its parsed action:
+
+| Ticket | Judge's raw output (first ~60 chars) | Format-compliant? | Parsed action |
+|---|---|---|---|
+| `946` | Root-cause analysis prose, no RETRY/ESCALATE line at all | **No** | escalate (default) |
+| `1384` | Root-cause analysis prose, no RETRY/ESCALATE line at all | **No** | escalate (default) |
+| `2227` | `"ESCATE: The issue requires..."` (missing the L) | **No** (typo) | escalate (default, coincidentally aligned) |
+| `2821` | Analysis prose, no RETRY/ESCALATE line at all | **No** | escalate (default) |
+| `1721` | `"RETRY\nThe Coder introduced a circular import..."` | **Yes** | retry (genuine) |
+
+**4 of 5 real Judge invocations did not follow the required output format at all** --
+instead of a decision, the model wrote Planner-style root-cause analysis (in `946`'s
+and `1384`'s case, the content is substantively correct and reads like a usable
+instruction, just never wrapped in the required RETRY/ESCALATE framing). The parser's
+safe default (escalate on anything that doesn't clearly start with RETRY or ESCALATE --
+the same "no silent infinite loops" principle SCOPE.md already commits to) caught all
+four and prevented a crash, but it means **the "confident recovery" prediction for
+`946` and `1384` was never actually tested** -- the guided retry those predictions were
+about was never attempted, because the Judge never got far enough to request it. This
+is not a considered judgment that these tickets are unrecoverable; it's a format-
+compliance gap. Per the explicit instruction going into this run (watch for the model
+ignoring the guided-retry format, note it, don't force it): noted here, not patched --
+the parser's fallback already does its job safely, and papering over the model's actual
+behavior with fuzzier matching (e.g. accepting "ESCATE") would hide the finding rather
+than report it.
+
+The one ticket that *did* get a genuine, format-compliant retry (`1721`) was in the
+predicted-not-recovered tester-ceiling group -- the Judge correctly diagnosed a real
+new problem (a circular import the Coder's own edit introduced) and gave a specific
+instruction, but the retry did not resolve the ticket. Consistent with the prediction
+for that group, for an unrelated reason (a genuine second bug rather than "nothing was
+wrong to begin with").
+
+### Named predictions, checked honestly
+
+| Prediction | Ticket | Outcome | Read |
+|---|---|---|---|
+| Confident recovery | `946` | Not resolved, Judge output malformed | **Untested**, not falsified |
+| Confident recovery | `1384` | Not resolved, Judge output malformed | **Untested**, not falsified |
+| Plausible | `2821` | Not resolved, Judge output malformed | Untested |
+| Plausible | `2227` | Not resolved, Judge output malformed (one-letter typo) | Untested |
+| Plausible | `1768` | Not resolved, but reached `passed_clean` in the normal loop this run (a different failure shape than Phase 4's suite-collapse) -- Judge never invoked | Untested (failure shape didn't recur) |
+| Predicted not recovered | `2900` | **Resolved** -- but via ordinary Coder success in the normal loop, Judge never invoked | Prediction moot, didn't reach the state it was about |
+| Predicted not recovered | `1721` | Not resolved, genuine Judge retry attempted and failed | Consistent (for a different reason) |
+| Predicted not recovered | `1357` | Not resolved, `passed_clean` internally (tester_fooled), Judge never invoked | Consistent, untested by Judge |
+| Predicted not recovered | `1312` | Not resolved, `passed_clean` internally (tester_fooled), Judge never invoked | Consistent, untested by Judge |
+
+**Escalation precision: 8/9 = 88.9%**, clearing SCOPE.md's >=70% bar. Read this
+number honestly, not as validation of the Judge's triage quality: of the 9 escalations,
+5 were fully automatic (no Judge involvement) and 4 were parser defaults triggered by
+format non-compliance, not reasoned decisions. The metric measures "how good are the
+*safe defaults*," not "how good is the Judge at telling recoverable from unrecoverable"
+-- because on this run, the Judge essentially never got to make that call. The one
+exception worth naming: `2821` escalated despite Phase 2's single-shot baseline having
+resolved it -- the more elaborate pipeline gave up on a ticket a much simpler one
+solved, which is exactly the kind of case escalation-precision alone won't surface
+(it only checks "did Phase 2 also fail," not "did a simpler approach succeed").
+
+**Cost:** Judge added ~198K tokens across its 5 genuine invocations (auto-escalated
+tickets cost nothing extra), a small fraction of the pipeline's 9.62M total tokens this
+run -- cheap relative to Planner/Coder, since it mostly reasoned from the given context
+rather than exploring.
+
+**Honest conclusion:** Phase 5's headline number improved, but for reasons unrelated to
+what was built -- the actual mechanism (one guided retry with a pointed instruction)
+almost never fired as designed, not because the underlying theory is wrong, but because
+the Judge's output didn't reliably follow the decision format its role depends on. The
+substance of what it produced, when readable, was accurate and specific (matching real
+root causes, not generic filler) -- the gap is entirely at the "commit to a structured
+decision" layer, the same fragility already seen elsewhere in this project (the Coder
+occasionally hand-escaping characters, models generally being more reliable at open-
+ended reasoning than at terse structured output under a smaller model). The named
+predictions are honestly reported as untested rather than stretched into a false
+confirmation or a false disconfirmation -- the escalation-precision metric technically
+passes, but the reasoning above it shows why that number alone would be a misleading
+headline without the detail behind it.
