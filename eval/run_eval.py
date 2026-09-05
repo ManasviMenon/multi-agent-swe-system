@@ -120,6 +120,32 @@ def resolve_target_nodeids(pass_map: dict[str, str], target_names: set[str]) -> 
     }
 
 
+def score(fail_to_pass_ids: set[str], baseline_pass_set: set[str], after_pass_set: set[str]) -> dict:
+    """Pure set-arithmetic: given the FAIL_TO_PASS targets, what passed at baseline, and
+    what passes after the candidate patch, decides resolved/regressions. This is the
+    actual SWE-bench-style scoring rule, factored out of evaluate() so it's unit-testable
+    with fake nodeid sets -- no real repo, subprocess, or worktree needed."""
+    targets_passing = fail_to_pass_ids & after_pass_set
+
+    # A handful of marshmallow tests parametrize on the current timestamp, so their
+    # exact nodeid can differ between the baseline and after runs (seconds apart) even
+    # though it's the same logical test. Only count a vanished nodeid as a real
+    # regression if no test sharing its base name (pre-"[") still passes afterward.
+    after_base_names_passing = {n.split("[")[0] for n in after_pass_set}
+    regressions = {
+        n
+        for n in (baseline_pass_set - after_pass_set) - fail_to_pass_ids
+        if n.split("[")[0] not in after_base_names_passing
+    }
+    resolved = targets_passing == fail_to_pass_ids and not regressions
+
+    return {
+        "resolved": resolved,
+        "targets_passing": sorted(targets_passing),
+        "regressions": sorted(regressions),
+    }
+
+
 def evaluate(ticket_dir: Path, candidate_patch_path: Path | None, use_gold: bool) -> dict:
     ticket_dir = Path(ticket_dir)
     base_commit = (ticket_dir / "base_commit.txt").read_text().strip()
@@ -161,26 +187,14 @@ def evaluate(ticket_dir: Path, candidate_patch_path: Path | None, use_gold: bool
         after = run_full_suite(worktree)
         after_pass_set = {n for n, outcome in after.items() if outcome == "passed"}
 
-        targets_passing = fail_to_pass_ids & after_pass_set
-
-        # A handful of marshmallow tests parametrize on the current timestamp, so their
-        # exact nodeid can differ between the baseline and after runs (seconds apart)
-        # even though it's the same logical test. Only count a vanished nodeid as a real
-        # regression if no test sharing its base name (pre-"[") still passes afterward.
-        after_base_names_passing = {n.split("[")[0] for n in after_pass_set}
-        regressions = {
-            n
-            for n in (baseline_pass_set - after_pass_set) - fail_to_pass_ids
-            if n.split("[")[0] not in after_base_names_passing
-        }
-        resolved = targets_passing == fail_to_pass_ids and not regressions
+        score_result = score(fail_to_pass_ids, baseline_pass_set, after_pass_set)
 
         return {
             "ticket": ticket_dir.name,
-            "resolved": resolved,
+            "resolved": score_result["resolved"],
             "fail_to_pass": sorted(fail_to_pass_ids),
-            "targets_passing": sorted(targets_passing),
-            "regressions": sorted(regressions),
+            "targets_passing": score_result["targets_passing"],
+            "regressions": score_result["regressions"],
         }
     finally:
         remove_worktree(worktree)
