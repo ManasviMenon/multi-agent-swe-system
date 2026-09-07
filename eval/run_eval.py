@@ -13,6 +13,7 @@ Usage:
 
 import argparse
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -23,8 +24,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 REPO_CLONE = ROOT / ".cache" / "marshmallow-repo"
 WORKTREE_ROOT = ROOT / ".cache" / "worktrees"
-VENV_PYTHON = ROOT / ".venv" / "Scripts" / "python.exe"
 TICKETS_DIR = ROOT / "data" / "tickets"
+
+# The harness shells out to a Python interpreter to pip-install each worktree and run its
+# test suite. Defaults to this project's local venv (whose layout differs by OS), but
+# EVAL_PYTHON overrides it -- needed in Docker, where the container is already the
+# isolation boundary so there's no venv at all. On Windows with no override this resolves
+# to exactly the path it always did, so no previously-reported result is affected.
+_DEFAULT_VENV_PYTHON = ROOT / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+VENV_PYTHON = Path(os.environ.get("EVAL_PYTHON") or _DEFAULT_VENV_PYTHON)
 
 ADDED_TEST_DEF_RE = re.compile(r"^\+[ \t]*def (test_\w+)[ \t]*\(", re.MULTILINE)
 REMOVED_TEST_DEF_RE = re.compile(r"^-[ \t]*def (test_\w+)[ \t]*\(", re.MULTILINE)
