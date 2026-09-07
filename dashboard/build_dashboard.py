@@ -19,18 +19,18 @@ PHASES = [
     ("Phase 2", "baseline_run.jsonl", "Single Coder agent, one blind attempt. The control."),
     ("Phase 3", "phase3_run.jsonl", "Tester writes a failing test first, Coder retries up to 3x with regression feedback."),
     ("Phase 4", "phase4_run.jsonl", "Planner investigates and hands the Coder a plan before it starts."),
-    ("Phase 5", "phase5_run.jsonl", "Judge reviews exhausted retries: one guided retry, else escalate."),
+    ("Phase 5", "phase5_run.jsonl", "Judge reviews exhausted retries and either gives one guided retry or escalates."),
 ]
 
-# Editorial notes -- the honest reading of each number, not derivable from the logs alone.
+# The honest reading of each number, which you can't get from the logs alone.
 NOTES = {
-    "Phase 3": "Originally reported 6/25. A stale editable-install bug was corrupting the "
-               "Coder's retry feedback on 19 of 25 tickets; after fixing it, the clean rerun gave 9/25.",
-    "Phase 4": "Scored <em>lower</em> than Phase 3. Zero net-new recoveries, and the named "
-               "pre-registered prediction (946, 1384, 2227 would resolve) failed outright.",
-    "Phase 5": "The +2 is <em>not</em> attributable to the Judge. All three newly-resolved "
-               "tickets passed inside the normal retry loop before the Judge was ever invoked. "
-               "4 of its 5 real invocations failed to emit a parseable decision at all.",
+    "Phase 3": "First reported as 6/25. A stale editable-install bug was corrupting the "
+               "Coder's retry feedback on 19 of 25 tickets. The clean rerun after fixing it gave 9/25.",
+    "Phase 4": "Scored <em>lower</em> than Phase 3. No net-new recoveries, and the named "
+               "pre-registered prediction (that 946, 1384 and 2227 would resolve) failed outright.",
+    "Phase 5": "The +2 did <em>not</em> come from the Judge. All three newly-resolved tickets "
+               "passed inside the normal retry loop before the Judge was ever invoked, and 4 of "
+               "its 5 real invocations failed to emit a parseable decision at all.",
 }
 
 STATUS_CLASS = {
@@ -105,7 +105,7 @@ def build():
         for name, _, _ in PHASES:
             row = next((r for r in data[name] if r["ticket_id"] == tid), None)
             if row is None:
-                cells.append('<td class="missing">–</td>')
+                cells.append('<td class="missing">n/a</td>')
                 continue
             st = status_of(row)
             label = {"resolved": "resolved", "no_reproducing_test": "no repro",
@@ -127,7 +127,7 @@ def build():
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Multi-Agent SWE System — Results</title>
+<title>Multi-Agent SWE System Results</title>
 <style>
   :root {{
     --bg: #fbfbfa; --fg: #1a1a19; --muted: #6b6b68; --line: #e2e2df;
@@ -174,17 +174,17 @@ def build():
 <main>
   <h1>Multi-Agent SWE System</h1>
   <p class="sub">SWE-bench-style evaluation of an agent pipeline on 25 real
-  <a href="https://github.com/marshmallow-code/marshmallow">marshmallow</a> bugs —
-  each a real closed issue with its real merged fix and hidden verifying test.</p>
+  <a href="https://github.com/marshmallow-code/marshmallow">marshmallow</a> bugs.
+  Every one is a real closed issue with its real merged fix and a hidden verifying test.</p>
 
   <h2>Resolution rate by phase</h2>
-  <p class="lede">A ticket counts as resolved only if the hidden test passes <em>and</em>
-  nothing previously passing broke.</p>
+  <p class="lede">A ticket only counts as resolved if the hidden test passes <em>and</em>
+  nothing that was already passing broke.</p>
   <div class="cards">{''.join(summary_cards)}</div>
 
   <h2>Per-ticket outcomes</h2>
-  <p class="lede">The same 25 tickets across every phase. Adding agents moved which
-  tickets resolved more than it moved how many.</p>
+  <p class="lede">The same 25 tickets across every phase. Adding agents shifted which
+  tickets resolved a lot more than it shifted how many.</p>
   <div class="wrap">
   <table>
     <thead><tr><th>Ticket</th>{phase_headers}</tr></thead>
@@ -192,23 +192,24 @@ def build():
   </table>
   </div>
 
-  <h2>Phase 5 — escalation</h2>
-  <p class="lede">SCOPE.md defines the Judge as an escalation gate, not a resolution
-  booster: ≥70% of escalations should be tickets the Phase 2 baseline also failed.</p>
+  <h2>Phase 5 escalation</h2>
+  <p class="lede">SCOPE.md defines the Judge as an escalation gate rather than a
+  resolution booster, with the bar set at 70% of escalations being tickets the Phase 2
+  baseline also failed.</p>
   <div class="cards">
     <div class="card"><div class="phase">Escalated</div><div class="score">{len(escalated)}</div>
-      <p class="blurb">{auto} automatic (no reproducing test — never reached the Coder),
-      {len(judge_ran)} after the Judge actually ran.</p></div>
+      <p class="blurb">{auto} were automatic (no reproducing test, so they never reached
+      the Coder). {len(judge_ran)} came after the Judge actually ran.</p></div>
     <div class="card"><div class="phase">Escalation precision</div><div class="score">89<span class="denom">%</span></div>
-      <p class="blurb">Clears the ≥70% bar — but 5 were automatic and 4 were parser
-      defaults from malformed Judge output, so it measures the safe defaults more than
+      <p class="blurb">Clears the 70% bar, but 5 were automatic and 4 were parser defaults
+      from malformed Judge output. It measures the safe defaults more than it measures
       the Judge's triage.</p></div>
   </div>
 
   <footer>
     Generated from <code>results/*.jsonl</code> by <code>dashboard/build_dashboard.py</code>
     on {date.today().isoformat()}. Model: gemini-3.5-flash-lite, free tier, across all phases.
-    Full methodology, pre-registered predictions and failure analysis in
+    Full methodology, pre-registered predictions and failure analysis live in
     <code>RESULTS.md</code>.
   </footer>
 </main>
