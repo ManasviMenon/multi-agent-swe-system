@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multi-Agent SWE System — Results</title>
+<style>
+  :root {
+    --bg: #fbfbfa; --fg: #1a1a19; --muted: #6b6b68; --line: #e2e2df;
+    --ok: #1a7f4b; --ok-bg: #e6f4ec;
+    --attempted: #8a6d1f; --attempted-bg: #fbf3e0;
+    --norepro: #8a5a5a; --norepro-bg: #f8ecec;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 3rem 1.5rem 5rem; background: var(--bg); color: var(--fg);
+    font: 15px/1.6 ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  main { max-width: 1000px; margin: 0 auto; }
+  h1 { font-size: 1.9rem; margin: 0 0 .3rem; letter-spacing: -.02em; }
+  .sub { color: var(--muted); margin: 0 0 2.5rem; }
+  h2 { font-size: 1.15rem; margin: 3rem 0 .4rem; letter-spacing: -.01em; }
+  h2 + .lede { color: var(--muted); margin: 0 0 1.2rem; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 1rem; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 1.1rem 1.2rem; }
+  .phase { font-weight: 600; font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .score { font-size: 2.6rem; font-weight: 650; letter-spacing: -.03em; line-height: 1.1; margin-top: .2rem; }
+  .denom { font-size: 1.1rem; color: var(--muted); font-weight: 400; }
+  .rate { color: var(--muted); font-size: .88rem; }
+  .blurb { font-size: .88rem; margin: .8rem 0 0; }
+  dl { margin: .9rem 0 0; padding-top: .7rem; border-top: 1px solid var(--line); font-size: .84rem; }
+  dl > div { display: flex; justify-content: space-between; gap: 1rem; }
+  dt { color: var(--muted); }
+  dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .note { font-size: .82rem; color: var(--muted); margin: .85rem 0 0; padding-top: .7rem; border-top: 1px solid var(--line); }
+  table { border-collapse: collapse; width: 100%; font-size: .87rem; }
+  th, td { text-align: left; padding: .45rem .7rem; border-bottom: 1px solid var(--line); }
+  thead th { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  tbody th { font-weight: 500; font-variant-numeric: tabular-nums; }
+  td.ok { color: var(--ok); background: var(--ok-bg); font-weight: 550; }
+  td.attempted { color: #8a6d1f; background: var(--attempted-bg); }
+  td.norepro { color: var(--norepro); background: var(--norepro-bg); }
+  td.error, td.missing { color: var(--muted); }
+  .wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+  footer { margin-top: 3.5rem; padding-top: 1.2rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .84rem; }
+  a { color: inherit; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Multi-Agent SWE System</h1>
+  <p class="sub">SWE-bench-style evaluation of an agent pipeline on 25 real
+  <a href="https://github.com/marshmallow-code/marshmallow">marshmallow</a> bugs —
+  each a real closed issue with its real merged fix and hidden verifying test.</p>
+
+  <h2>Resolution rate by phase</h2>
+  <p class="lede">A ticket counts as resolved only if the hidden test passes <em>and</em>
+  nothing previously passing broke.</p>
+  <div class="cards">
+        <div class="card">
+          <div class="phase">Phase 2</div>
+          <div class="score">6<span class="denom">/25</span></div>
+          <div class="rate">24% resolution rate</div>
+          <p class="blurb">Single Coder agent, one blind attempt. The control.</p>
+          <dl>
+            <div><dt>Total tokens</dt><dd>13,760,833</dd></div>
+            <div><dt>Tokens / resolved</dt><dd>2,293,472</dd></div>
+          </dl>
+          
+        </div>
+        <div class="card">
+          <div class="phase">Phase 3</div>
+          <div class="score">9<span class="denom">/25</span></div>
+          <div class="rate">36% resolution rate</div>
+          <p class="blurb">Tester writes a failing test first, Coder retries up to 3x with regression feedback.</p>
+          <dl>
+            <div><dt>Total tokens</dt><dd>9,087,209</dd></div>
+            <div><dt>Tokens / resolved</dt><dd>1,009,689</dd></div>
+          </dl>
+          <p class="note">Originally reported 6/25. A stale editable-install bug was corrupting the Coder's retry feedback on 19 of 25 tickets; after fixing it, the clean rerun gave 9/25.</p>
+        </div>
+        <div class="card">
+          <div class="phase">Phase 4</div>
+          <div class="score">8<span class="denom">/25</span></div>
+          <div class="rate">32% resolution rate</div>
+          <p class="blurb">Planner investigates and hands the Coder a plan before it starts.</p>
+          <dl>
+            <div><dt>Total tokens</dt><dd>8,366,008</dd></div>
+            <div><dt>Tokens / resolved</dt><dd>1,045,751</dd></div>
+          </dl>
+          <p class="note">Scored <em>lower</em> than Phase 3. Zero net-new recoveries, and the named pre-registered prediction (946, 1384, 2227 would resolve) failed outright.</p>
+        </div>
+        <div class="card">
+          <div class="phase">Phase 5</div>
+          <div class="score">10<span class="denom">/25</span></div>
+          <div class="rate">40% resolution rate</div>
+          <p class="blurb">Judge reviews exhausted retries: one guided retry, else escalate.</p>
+          <dl>
+            <div><dt>Total tokens</dt><dd>9,617,519</dd></div>
+            <div><dt>Tokens / resolved</dt><dd>961,751</dd></div>
+          </dl>
+          <p class="note">The +2 is <em>not</em> attributable to the Judge. All three newly-resolved tickets passed inside the normal retry loop before the Judge was ever invoked. 4 of its 5 real invocations failed to emit a parseable decision at all.</p>
+        </div></div>
+
+  <h2>Per-ticket outcomes</h2>
+  <p class="lede">The same 25 tickets across every phase. Adding agents moved which
+  tickets resolved more than it moved how many.</p>
+  <div class="wrap">
+  <table>
+    <thead><tr><th>Ticket</th><th>Phase 2</th><th>Phase 3</th><th>Phase 4</th><th>Phase 5</th></tr></thead>
+    <tbody><tr><th>#1312</th><td class="error">error</td><td class="attempted">attempted</td><td class="attempted">attempted</td><td class="attempted">attempted</td></tr><tr><th>#1350</th><td class="error">error</td><td class="norepro">no repro</td><td class="norepro">no repro</td><td class="attempted">attempted</td></tr><tr><th>#1357</th><td class="attempted">attempted</td><td class="attempted">attempted</td><td class="attempted">attempted</td><td class="attempted">attempted</td></tr><tr><th>#1369</th><td class="error">error</td><td class="ok">resolved</td><td class="ok">resolved</td><td class="ok">resolved</td></tr><tr><th>#1378</th><td class="error">error</td><td class="ok">resolved</td><td class="ok">resolved</td><td class="ok">resolved</td></tr><tr><th>#1384</th><td class="error">error</td><td class="attempted">attempted</td><td class="attempted">attempted</td><td class="attempted">attempted</td></tr><tr><th>#1404</th><td class="error">error</td><td class="attempted">attempted</td><td class="norepro">no repro</td><td class="ok">resolved</td></tr><tr><th>#1424</th><td class="attempted">attempted</td><td class="attempted">attempted</td><td class="norepro">no repro</td><td class="norepro">no repro</td></tr><tr><th>#1506</th><td class="error">error</td><td class="ok">resolved</td><td class="ok">resolved</td><td class="norepro">no repro</td></tr><tr><th>#1721</th><td class="error">error</td><td class="attempted">attempted</td><td class="attempted">attempted</td><td class="attempted">attempted</td></tr><tr><th>#1768</th><td class="error">error</td><td class="attempted">attempted</td><td class="attempted">attempted</td><td class="attempted">attempted</td></tr><tr><th>#1808</th><td class="ok">resolved</td><td class="ok">resolved</td><td class="ok">resolved</td><td class="ok">resolved</td></tr><tr><th>#2118</th><td class="error">error</td><td class="norepro">no repro</td><td class="norepro">no repro</td><td class="norepro">no repro</td></tr><tr><th>#2149</th><td class="error">error</td><td class="attempted">attempted</td><td class="norepro">no repro</td><td class="ok">resolved</td></tr><tr><th>#2227</th><td class="error">error</td><td class="attempted">attempted</td><td class="attempted">attempted</td><td class="attempted">attempted</td></tr><tr><th>#2249</th><td class="ok">resolved</td><td class="ok">resolved</td><td class="ok">resolved</td><td class="ok">resolved</td></tr><tr><th>#2270</th><td class="ok">resolved</td><td class="ok">resolved</td><td class="ok">resolved</td><td class="ok">resolved</td></tr><tr><th>#2821</th><td class="ok">resolved</td><td class="ok">resolved</td><td class="attempted">attempted</td><td class="attempted">attempted</td></tr><tr><th>#2868</th><td class="ok">resolved</td><td class="ok">resolved</td><td class="ok">resolved</td><td class="ok">resolved</td></tr><tr><th>#2870</th><td class="ok">resolved</td><td class="ok">resolved</td><td class="ok">resolved</td><td class="ok">resolved</td></tr><tr><th>#2900</th><td class="attempted">attempted</td><td class="attempted">attempted</td><td class="attempted">attempted</td><td class="ok">resolved</td></tr><tr><th>#2924</th><td class="error">error</td><td class="attempted">attempted</td><td class="norepro">no repro</td><td class="attempted">attempted</td></tr><tr><th>#2936</th><td class="attempted">attempted</td><td class="norepro">no repro</td><td class="norepro">no repro</td><td class="norepro">no repro</td></tr><tr><th>#2985</th><td class="error">error</td><td class="norepro">no repro</td><td class="norepro">no repro</td><td class="norepro">no repro</td></tr><tr><th>#946</th><td class="error">error</td><td class="attempted">attempted</td><td class="attempted">attempted</td><td class="attempted">attempted</td></tr></tbody>
+  </table>
+  </div>
+
+  <h2>Phase 5 — escalation</h2>
+  <p class="lede">SCOPE.md defines the Judge as an escalation gate, not a resolution
+  booster: ≥70% of escalations should be tickets the Phase 2 baseline also failed.</p>
+  <div class="cards">
+    <div class="card"><div class="phase">Escalated</div><div class="score">9</div>
+      <p class="blurb">4 automatic (no reproducing test — never reached the Coder),
+      5 after the Judge actually ran.</p></div>
+    <div class="card"><div class="phase">Escalation precision</div><div class="score">89<span class="denom">%</span></div>
+      <p class="blurb">Clears the ≥70% bar — but 5 were automatic and 4 were parser
+      defaults from malformed Judge output, so it measures the safe defaults more than
+      the Judge's triage.</p></div>
+  </div>
+
+  <footer>
+    Generated from <code>results/*.jsonl</code> by <code>dashboard/build_dashboard.py</code>
+    on 2026-09-07. Model: gemini-3.5-flash-lite, free tier, across all phases.
+    Full methodology, pre-registered predictions and failure analysis in
+    <code>RESULTS.md</code>.
+  </footer>
+</main>
+</body>
+</html>
